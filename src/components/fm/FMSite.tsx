@@ -19,6 +19,7 @@ const NAV = [
   { id: "tecnologias", label: "Tecnologias" },
   { id: "portfolio", label: "Portfólio" },
   { id: "calculadora", label: "Economia" },
+  { id: "blog", label: "Blog" },
   { id: "contato", label: "Contato" },
 ];
 
@@ -32,6 +33,7 @@ export function FMSite() {
         <Technologies />
         <Portfolio />
         <SavingsCalculator />
+        <BlogSection />
         <LeadForm />
       </main>
       <Footer />
