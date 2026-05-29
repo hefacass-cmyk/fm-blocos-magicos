@@ -3,7 +3,7 @@ import {
   Menu, X, AlertTriangle, ShieldCheck, Clock, Wallet, Recycle,
   Layers, Snowflake, PanelsTopLeft, MapPin, Phone, Mail,
   Instagram, Facebook, Linkedin, ArrowRight, CheckCircle2, Calculator,
-  BookOpen,
+  BookOpen, Image,
 } from "lucide-react";
 import heroImg from "@/assets/hero-construction.jpg";
 import p1 from "@/assets/portfolio-1.jpg";
