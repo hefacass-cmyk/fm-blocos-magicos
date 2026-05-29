@@ -33,6 +33,7 @@ export function FMSite() {
         <Technologies />
         <Portfolio />
         <SavingsCalculator />
+        <ICFCalculator />
         <BlogSection />
         <LeadForm />
       </main>
