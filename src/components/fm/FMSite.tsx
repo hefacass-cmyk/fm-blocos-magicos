@@ -3,6 +3,7 @@ import {
   Menu, X, AlertTriangle, ShieldCheck, Clock, Wallet, Recycle,
   Layers, Snowflake, PanelsTopLeft, MapPin, Phone, Mail,
   Instagram, Facebook, Linkedin, ArrowRight, CheckCircle2, Calculator,
+  BookOpen,
 } from "lucide-react";
 import heroImg from "@/assets/hero-construction.jpg";
 import p1 from "@/assets/portfolio-1.jpg";
@@ -18,6 +19,7 @@ const NAV = [
   { id: "tecnologias", label: "Tecnologias" },
   { id: "portfolio", label: "Portfólio" },
   { id: "calculadora", label: "Economia" },
+  { id: "blog", label: "Blog" },
   { id: "contato", label: "Contato" },
 ];
 
@@ -31,6 +33,7 @@ export function FMSite() {
         <Technologies />
         <Portfolio />
         <SavingsCalculator />
+        <BlogSection />
         <LeadForm />
       </main>
       <Footer />
@@ -387,6 +390,57 @@ function Stat({ label, value, highlight, subtle }: { label: string; value: strin
       <div className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">{label}</div>
       <div className={`mt-1 text-2xl font-bold ${highlight ? "text-success" : subtle ? "text-muted-foreground line-through decoration-destructive/60" : "text-primary"}`}>{value}</div>
     </div>
+  );
+}
+
+const ARTICLES = [
+  {
+    title: "Como economizar na construção da sua casa",
+    summary: "Descubra estratégias práticas para reduzir custos sem abrir mão da qualidade, desde o planejamento até a escolha de materiais e tecnologias construtivas.",
+    icon: Wallet,
+  },
+  {
+    title: "O que é tecnologia IBPP e por que ela é mais rápida",
+    summary: "Conheça o sistema Inova Blocos Paredes Prontas: paredes pré-moldadas em concreto que reduzem em 46% o prazo de execução da obra.",
+    icon: Layers,
+  },
+  {
+    title: "Como escolher o terreno certo",
+    summary: "Aprenda a avaliar topografia, solo, acessos e documentação para evitar surpresas e garantir um projeto seguro e viável desde o início.",
+    icon: MapPin,
+  },
+];
+
+function BlogSection() {
+  return (
+    <section id="blog" className="py-20 lg:py-28 bg-secondary">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="max-w-2xl">
+          <span className="text-sm font-bold uppercase tracking-wider text-primary">Blog e Conteúdo Educativo</span>
+          <h2 className="mt-3 text-3xl sm:text-4xl lg:text-5xl font-bold text-primary">Conhecimento que transforma sua obra</h2>
+          <p className="mt-4 text-muted-foreground text-lg">Dicas, tendências e orientações técnicas para quem quer construir com inteligência.</p>
+        </div>
+        <div className="mt-12 grid md:grid-cols-3 gap-6">
+          {ARTICLES.map((a) => {
+            const Icon = a.icon;
+            return (
+              <div key={a.title} className="rounded-2xl bg-card border border-border p-7 flex flex-col transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-card)]">
+                <div className="h-12 w-12 rounded-lg bg-primary/10 grid place-items-center text-primary">
+                  <Icon className="h-6 w-6" />
+                </div>
+                <h3 className="mt-5 text-xl font-bold text-primary leading-snug">{a.title}</h3>
+                <p className="mt-3 text-sm text-muted-foreground leading-relaxed line-clamp-3">{a.summary}</p>
+                <div className="mt-auto pt-6">
+                  <button className="inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-accent transition">
+                    Ler mais <ArrowRight className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
   );
 }
 
