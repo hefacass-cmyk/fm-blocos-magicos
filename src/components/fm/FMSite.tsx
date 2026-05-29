@@ -3,8 +3,9 @@ import {
   Menu, X, AlertTriangle, ShieldCheck, Clock, Wallet, Recycle,
   Layers, Snowflake, PanelsTopLeft, MapPin, Phone, Mail,
   Instagram, Facebook, Linkedin, ArrowRight, CheckCircle2, Calculator,
-  BookOpen, Image,
+  BookOpen,
 } from "lucide-react";
+import fmLogo from "@/assets/fm-logo.png";
 import heroImg from "@/assets/hero-construction.jpg";
 import p1 from "@/assets/portfolio-1.jpg";
 import p2 from "@/assets/portfolio-2.jpg";
