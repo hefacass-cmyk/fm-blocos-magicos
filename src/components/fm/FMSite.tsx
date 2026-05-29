@@ -34,6 +34,7 @@ export function FMSite() {
         <Portfolio />
         <SavingsCalculator />
         <ICFCalculator />
+        <SteelFrameCalculator />
         <BlogSection />
         <LeadForm />
       </main>
