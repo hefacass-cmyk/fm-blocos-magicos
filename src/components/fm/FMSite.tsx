@@ -50,7 +50,7 @@ function Header() {
     <header className="fixed top-0 inset-x-0 z-50 bg-background/90 backdrop-blur border-b border-border">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <a href="#home" className="flex items-center gap-2">
-          <div className="h-9 w-9 rounded-md bg-primary text-primary-foreground grid place-items-center font-bold">F&M</div>
+          <img src={fmLogo} alt="F&M Construções Inteligentes" className="h-10 w-auto object-contain" />
           <div className="hidden sm:block leading-tight">
             <div className="text-sm font-bold text-primary">F&M Construções</div>
             <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Inteligentes</div>
