@@ -425,7 +425,7 @@ function LeadForm() {
                 <input required maxLength={100} value={form.nome} onChange={(e) => update("nome", e.target.value)} className="input" />
               </Field>
               <Field label="WhatsApp" required>
-                <input required maxLength={20} value={form.whatsapp} onChange={(e) => update("whatsapp", e.target.value)} placeholder="(71) 9 9999-9999" className="input" />
+                <input required maxLength={20} value={form.whatsapp} onChange={(e) => update("whatsapp", e.target.value)} placeholder="(71) 99945-4343" className="input" />
               </Field>
               <Field label="Cidade">
                 <input maxLength={80} value={form.cidade} onChange={(e) => update("cidade", e.target.value)} className="input" />
@@ -493,7 +493,7 @@ function Footer() {
           <div className="text-sm font-bold text-accent uppercase tracking-wider">Contato</div>
           <ul className="mt-4 space-y-3 text-sm text-white/85">
             <li className="flex items-start gap-2"><MapPin className="h-4 w-4 mt-0.5 text-accent" /> Camaçari · Bahia</li>
-            <li className="flex items-start gap-2"><Phone className="h-4 w-4 mt-0.5 text-accent" /> (71) 9 9999-9999</li>
+            <li className="flex items-start gap-2"><Phone className="h-4 w-4 mt-0.5 text-accent" /> (71) 99945-4343</li>
             <li className="flex items-start gap-2"><Mail className="h-4 w-4 mt-0.5 text-accent" /> orcamentos@fmconstrucoes.com.br</li>
           </ul>
         </div>
