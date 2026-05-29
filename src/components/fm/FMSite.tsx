@@ -408,7 +408,7 @@ function LeadForm() {
           <p className="mt-4 text-muted-foreground text-lg">Preencha os dados e nossa equipe técnica entrará em contato em até 1 dia útil com um diagnóstico inicial gratuito.</p>
           <ul className="mt-8 space-y-3 text-foreground/80">
             <li className="flex items-center gap-3"><MapPin className="h-5 w-5 text-primary" /> Camaçari · Bahia</li>
-            <li className="flex items-center gap-3"><Phone className="h-5 w-5 text-primary" /> WhatsApp (71) 9 9999-9999</li>
+            <li className="flex items-center gap-3"><Phone className="h-5 w-5 text-primary" /> WhatsApp (71) 99945-4343</li>
             <li className="flex items-center gap-3"><Mail className="h-5 w-5 text-primary" /> orcamentos@fmconstrucoes.com.br</li>
           </ul>
         </div>
