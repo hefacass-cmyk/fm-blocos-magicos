@@ -33,6 +33,7 @@ export function FMSite() {
         <Technologies />
         <Portfolio />
         <SavingsCalculator />
+        <ICFCalculator />
         <BlogSection />
         <LeadForm />
       </main>
@@ -374,6 +375,75 @@ function SavingsCalculator() {
                 </div>
               </div>
               <a href="#contato" className="mt-6 inline-flex items-center justify-center w-full gap-2 rounded-md bg-primary px-5 py-3 text-sm font-bold text-primary-foreground hover:brightness-110 transition">
+                Quero um orçamento detalhado <ArrowRight className="h-4 w-4" />
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ICFCalculator() {
+  const [m2, setM2] = useState<number>(150);
+  const COST_CONV = 2500;
+  const COST_ICF = 2000;
+  const totalConv = m2 * COST_CONV;
+  const totalIcf = m2 * COST_ICF;
+  const economy = totalConv - totalIcf;
+  const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
+  return (
+    <section className="py-20 lg:py-28 bg-secondary">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="rounded-3xl overflow-hidden border border-border bg-card" style={{ boxShadow: "var(--shadow-elegant)" }}>
+          <div className="grid lg:grid-cols-2 gap-0">
+            <div className="p-8 lg:p-12">
+              <div className="inline-flex items-center gap-2 text-xs uppercase tracking-wider bg-primary/10 border border-primary/20 rounded-full px-3 py-1 font-bold text-primary">
+                <Calculator className="h-4 w-4" /> Calculadora ICF
+              </div>
+              <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-bold text-primary">Quanto você economiza com ICF?</h2>
+              <p className="mt-3 text-muted-foreground">Informe a metragem desejada e descubra a economia em relação à alvenaria convencional.</p>
+              <label className="block mt-8">
+                <span className="text-sm font-semibold text-foreground">Metragem (m²)</span>
+                <input
+                  type="number"
+                  min={20}
+                  max={1000}
+                  value={m2}
+                  onChange={(e) => setM2(Math.max(0, Number(e.target.value) || 0))}
+                  className="mt-2 w-full rounded-lg bg-background border border-input text-foreground px-4 py-3 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </label>
+              <input
+                type="range" min={20} max={1000} step={10} value={m2}
+                onChange={(e) => setM2(Number(e.target.value))}
+                className="mt-4 w-full accent-[color:var(--primary)]"
+              />
+              <div className="mt-2 flex justify-between text-xs text-muted-foreground"><span>20 m²</span><span>1000 m²</span></div>
+            </div>
+            <div className="p-8 lg:p-12 bg-background border-l border-border">
+              <div className="text-sm text-muted-foreground">Estimativa para <strong className="text-primary">{m2} m²</strong></div>
+              <div className="mt-2 text-xs text-muted-foreground">Base: alvenaria convencional R$ 2.500/m² · ICF R$ 2.000/m² · 20% de economia</div>
+              <div className="mt-6 grid gap-4">
+                <div className="rounded-xl p-5 border" style={{ background: "#f5f5f5", borderColor: "#e5e5e5" }}>
+                  <div className="text-xs uppercase tracking-wider font-bold" style={{ color: "#666" }}>Custo Convencional</div>
+                  <div className="mt-1 text-2xl font-bold line-through" style={{ color: "#999" }}>{fmt(totalConv)}</div>
+                </div>
+                <div className="rounded-xl p-5 border" style={{ background: "#e8f5f0", borderColor: "#06A77D" }}>
+                  <div className="text-xs uppercase tracking-wider font-bold" style={{ color: "#06A77D" }}>Custo com ICF</div>
+                  <div className="mt-1 text-2xl font-bold" style={{ color: "#06A77D" }}>{fmt(totalIcf)}</div>
+                </div>
+                <div className="rounded-xl p-5 border-2" style={{ background: "#fef6e3", borderColor: "#F4B941" }}>
+                  <div className="text-xs uppercase tracking-wider font-bold" style={{ color: "#b37d1a" }}>Sua economia estimada</div>
+                  <div className="mt-1 text-3xl lg:text-4xl font-extrabold" style={{ color: "#1A4D7A" }}>{fmt(economy)}</div>
+                  <div className="mt-3 flex flex-wrap gap-4 text-sm" style={{ color: "#4a4a4a" }}>
+                    <span className="inline-flex items-center gap-1.5">⏱ 30% menos prazo (100 → 65 dias)</span>
+                    <span className="inline-flex items-center gap-1.5">📏 40% menos peso na fundação</span>
+                  </div>
+                </div>
+              </div>
+              <a href="#contato" className="mt-6 inline-flex items-center justify-center w-full gap-2 rounded-md px-5 py-3 text-sm font-bold text-white hover:brightness-110 transition" style={{ background: "#1A4D7A" }}>
                 Quero um orçamento detalhado <ArrowRight className="h-4 w-4" />
               </a>
             </div>
