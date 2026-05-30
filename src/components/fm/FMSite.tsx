@@ -3,9 +3,10 @@ import {
   Menu, X, AlertTriangle, ShieldCheck, Clock, Wallet, Recycle,
   Layers, Snowflake, PanelsTopLeft, MapPin, Phone, Mail,
   Instagram, Facebook, Linkedin, ArrowRight, CheckCircle2, Calculator,
-  BookOpen, User,
+  BookOpen, User, Users,
 } from "lucide-react";
 import { ClientLoginModal } from "./ClientLoginModal";
+import { Link } from "@tanstack/react-router";
 import fmLogo from "@/assets/fm-logo.png";
 import heroImg from "@/assets/hero-construction.jpg";
 import p1 from "@/assets/portfolio-1.jpg";
@@ -134,6 +135,9 @@ function Hero() {
           <a href="#tecnologias" className="inline-flex items-center gap-2 rounded-md border border-white/30 bg-white/5 px-6 py-4 text-base font-semibold text-white hover:bg-white/10 transition">
             Conhecer Tecnologias
           </a>
+          <Link to="/parceiros" className="inline-flex items-center gap-2 rounded-md border border-white/30 bg-white/5 px-6 py-4 text-base font-semibold text-white hover:bg-white/10 transition">
+            <Users className="h-5 w-5" /> Ver todos os parceiros
+          </Link>
         </div>
         <div className="mt-12 grid grid-cols-3 gap-4 max-w-xl">
           {[
