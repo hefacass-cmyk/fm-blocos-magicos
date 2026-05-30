@@ -77,9 +77,18 @@ function Header({ onLogin }: { onLogin: () => void }) {
             Diagnóstico Gratuito <ArrowRight className="h-4 w-4" />
           </a>
         </div>
-        <button className="lg:hidden p-2 -mr-2 text-foreground" onClick={() => setOpen((v) => !v)} aria-label="Menu">
-          {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </button>
+        <div className="lg:hidden flex items-center gap-2">
+          <button
+            onClick={onLogin}
+            className="p-2 text-foreground hover:text-primary transition"
+            aria-label="Área do Cliente"
+          >
+            <User className="h-6 w-6" />
+          </button>
+          <button className="p-2 -mr-2 text-foreground" onClick={() => setOpen((v) => !v)} aria-label="Menu">
+            {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+        </div>
       </div>
       {open && (
         <div className="lg:hidden border-t border-border bg-background">
