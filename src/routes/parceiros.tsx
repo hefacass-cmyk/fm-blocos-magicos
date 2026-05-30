@@ -1,6 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Star, Phone, Mail, MapPin, ArrowLeft, Search } from "lucide-react";
+import {
+  Star, Phone, Mail, MapPin, ArrowLeft, Search, X, CheckCircle2,
+  MessageCircle,
+} from "lucide-react";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { fmSupabase } from "@/lib/fm-supabase";
 import { ESPECIALIDADES, parseEspecialidades } from "@/lib/fm-parceiro";
 
