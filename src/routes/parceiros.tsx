@@ -10,6 +10,9 @@ const BRAND_GREEN = "#06A77D";
 const BRAND_DARK = "#2C3E50";
 
 export const Route = createFileRoute("/parceiros")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    especialidade: typeof search.especialidade === "string" ? search.especialidade : "",
+  }),
   head: () => ({
     meta: [
       { title: "Nossos Parceiros | F&M Construções Inteligentes" },
@@ -51,11 +54,16 @@ function initials(nome: string) {
 }
 
 function ParceirosPublicPage() {
+  const { especialidade } = Route.useSearch();
   const [parceiros, setParceiros] = useState<Row[]>([]);
   const [avaliacoes, setAvaliacoes] = useState<Row[]>([]);
-  const [filtro, setFiltro] = useState("");
+  const [filtro, setFiltro] = useState(especialidade || "");
   const [busca, setBusca] = useState("");
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setFiltro(especialidade || "");
+  }, [especialidade]);
 
   useEffect(() => {
     let active = true;
@@ -136,21 +144,27 @@ function ParceirosPublicPage() {
           <button
             onClick={() => setFiltro("")}
             className="rounded-full border px-3 py-1.5 text-xs font-semibold transition"
-            style={filtro === "" ? { backgroundColor: BRAND_BLUE, borderColor: BRAND_BLUE, color: "#fff" } : { backgroundColor: "#fff" }}
+            style={filtro === "" ? { backgroundColor: BRAND_YELLOW, borderColor: BRAND_YELLOW, color: "#1a1a1a" } : { backgroundColor: "#fff" }}
           >
-            Todas
+            Todos
           </button>
           {ESPECIALIDADES.map((e) => (
             <button
               key={e}
               onClick={() => setFiltro(e)}
               className="rounded-full border px-3 py-1.5 text-xs font-semibold transition"
-              style={filtro === e ? { backgroundColor: BRAND_BLUE, borderColor: BRAND_BLUE, color: "#fff" } : { backgroundColor: "#fff" }}
+              style={filtro === e ? { backgroundColor: BRAND_YELLOW, borderColor: BRAND_YELLOW, color: "#1a1a1a" } : { backgroundColor: "#fff" }}
             >
               {e}
             </button>
           ))}
         </div>
+
+        {!loading && (
+          <p className="mt-4 text-center text-sm font-semibold" style={{ color: BRAND_DARK }}>
+            {parceirosFiltrados.length} {parceirosFiltrados.length === 1 ? "profissional encontrado" : "profissionais encontrados"}
+          </p>
+        )}
 
         {loading ? (
           <p className="mt-10 text-center text-sm text-muted-foreground">Carregando...</p>
