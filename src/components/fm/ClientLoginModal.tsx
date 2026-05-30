@@ -87,20 +87,7 @@ export function ClientLoginModal({ open, onClose }: ClientLoginModalProps) {
     }
   };
 
-  const formatCpfCnpj = (value: string) => {
-    const digits = value.replace(/\D/g, "").slice(0, 14);
-    if (digits.length <= 11) {
-      return digits
-        .replace(/(\d{3})(\d)/, "$1.$2")
-        .replace(/(\d{3})(\d)/, "$1.$2")
-        .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-    }
-    return digits
-      .replace(/(\d{2})(\d)/, "$1.$2")
-      .replace(/(\d{3})(\d)/, "$1.$2")
-      .replace(/(\d{3})(\d)/, "$1/$2")
-      .replace(/(\d{4})(\d{1,2})$/, "$1-$2");
-  };
+  const onlyDigits = (value: string) => value.replace(/\D/g, "").slice(0, 14);
 
   return (
     <div
@@ -167,10 +154,11 @@ export function ClientLoginModal({ open, onClose }: ClientLoginModalProps) {
             </label>
             <input
               type="text"
+              inputMode="numeric"
               value={cpfCnpj}
-              onChange={(e) => setCpfCnpj(formatCpfCnpj(e.target.value))}
-              placeholder="12345678900"
-              maxLength={18}
+              onChange={(e) => setCpfCnpj(onlyDigits(e.target.value))}
+              placeholder="Somente números: 12345678900"
+              maxLength={14}
               className="mt-1.5 w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
             />
             {erros.cpfCnpj && (
