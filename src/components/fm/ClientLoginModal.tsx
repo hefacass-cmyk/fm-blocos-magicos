@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
+import { fmSupabase, saveCliente, onlyDigits } from "@/lib/fm-supabase";
 
 interface ClientLoginModalProps {
   open: boolean;
@@ -13,6 +14,7 @@ export function ClientLoginModal({ open, onClose }: ClientLoginModalProps) {
   const [cpfCnpj, setCpfCnpj] = useState("");
   const [erros, setErros] = useState<{ codigo?: string; cpfCnpj?: string }>({});
   const [loading, setLoading] = useState(false);
+  const [erroGeral, setErroGeral] = useState<string | null>(null);
 
   if (!open) return null;
 
@@ -27,15 +29,44 @@ export function ClientLoginModal({ open, onClose }: ClientLoginModalProps) {
     return Object.keys(nextErros).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErroGeral(null);
     if (!validate()) return;
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      const codigoInput = codigo.trim();
+      const cpfDigits = onlyDigits(cpfCnpj);
+
+      // Busca por código + cpf_cnpj (tenta com apenas dígitos e com valor formatado)
+      const { data, error } = await fmSupabase
+        .from("Clientes")
+        .select("*")
+        .eq("codigo_cliente", codigoInput)
+        .in("cpf_cnpj", [cpfDigits, cpfCnpj.trim()])
+        .limit(1)
+        .maybeSingle();
+
+      if (error) {
+        console.error("[login] erro supabase:", error);
+        setErroGeral("Não foi possível validar agora. Tente novamente.");
+        return;
+      }
+
+      if (!data) {
+        setErroGeral("Código ou CPF incorreto");
+        return;
+      }
+
+      saveCliente(data as never);
       onClose();
       navigate({ to: "/dashboard" });
-    }, 1200);
+    } catch (err) {
+      console.error("[login] exceção:", err);
+      setErroGeral("Erro inesperado. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const formatCpfCnpj = (value: string) => {
@@ -91,6 +122,11 @@ export function ClientLoginModal({ open, onClose }: ClientLoginModalProps) {
         </div>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
+          {erroGeral && (
+            <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm font-medium text-destructive">
+              {erroGeral}
+            </div>
+          )}
           <div>
             <label className="block text-sm font-semibold text-foreground">
               Código Cliente
