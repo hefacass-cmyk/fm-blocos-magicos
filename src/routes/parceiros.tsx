@@ -57,6 +57,186 @@ function initials(nome: string) {
   return nome.split(" ").filter(Boolean).slice(0, 2).map((p) => p[0]?.toUpperCase()).join("");
 }
 
+function formatLocation(cidade: string, estado: string) {
+  const parts = [cidade, estado].filter(Boolean);
+  return parts.join(", ") || "";
+}
+
+function ParceiroModal({
+  parceiro,
+  avaliacoes,
+  onClose,
+}: {
+  parceiro: Row;
+  avaliacoes: Row[];
+  onClose: () => void;
+}) {
+  const id = parceiro.id ?? parceiro.Id;
+  const tipo = (parceiro.Tipo as string) ?? (parceiro.CNPJ ? "PJ" : "PF");
+  const isPJ = tipo === "PJ";
+
+  const nome = pick<string>(
+    parceiro,
+    isPJ ? ["Razao_social", "Nome_fantasia", "Nome", "nome"] : ["Nome", "nome", "Razao_social", "Nome_fantasia"],
+    "Parceiro"
+  );
+  const nomeFantasia = isPJ ? pick<string>(parceiro, ["Nome_fantasia", "nome_fantasia"], "") : "";
+  const cidade = pick<string>(parceiro, ["Cidade", "cidade"], "");
+  const estado = pick<string>(parceiro, ["Estado", "UF", "estado"], "");
+  const foto = pick<string>(parceiro, ["Foto_url", "foto_url", "Foto"], "");
+  const whatsapp = pick<string>(parceiro, ["Whatsapp", "whatsapp", "WhatsApp", "Telefone", "telefone"], "");
+  const telefone = pick<string>(parceiro, ["Telefone", "telefone", "Whatsapp", "whatsapp"], "");
+  const esps = isPJ
+    ? [pick<string>(parceiro, ["Segmento", "segmento", "Categoria", "categoria", "Especialidade", "especialidade"], "")].filter(Boolean)
+    : parseEspecialidades(parceiro.Especialidade ?? (parceiro as Row).Especialidades);
+
+  const avs = avaliacoes.filter(
+    (a) => String(pick<string | number>(a, ["Parceiro_id", "parceiro_id"], "")) === String(id),
+  );
+  const ratings = avs
+    .map((a) => Number(pick<number | string>(a, ["Rating", "rating"], 0)))
+    .filter((n) => n > 0);
+  const media = ratings.length ? ratings.reduce((s, v) => s + v, 0) / ratings.length : 0;
+  const ultima = avs[0];
+
+  const waLink = (num: string) => {
+    const clean = num.replace(/\D/g, "");
+    const msg = encodeURIComponent("Olá! Vi seu perfil no portal F&M e gostaria de um orçamento.");
+    return `https://wa.me/55${clean}?text=${msg}`;
+  };
+
+  return (
+    <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent
+        className="sm:max-w-lg w-[92vw] p-0 gap-0 overflow-hidden border-0 rounded-2xl"
+        onInteractOutside={onClose}
+        onEscapeKeyDown={onClose}
+      >
+        <DialogTitle className="sr-only">Perfil do parceiro</DialogTitle>
+
+        {/* Header */}
+        <div className="relative bg-[#1A4D7A] px-6 pt-8 pb-6 text-center">
+          <button
+            onClick={onClose}
+            className="absolute top-3 right-3 rounded-full bg-white/20 p-1.5 text-white hover:bg-white/30 transition"
+            aria-label="Fechar"
+          >
+            <X className="h-4 w-4" />
+          </button>
+
+          {foto ? (
+            <img
+              src={foto}
+              alt={nome}
+              className="mx-auto h-20 w-20 rounded-full object-cover border-4 border-white/30 shadow-lg"
+            />
+          ) : (
+            <div className="mx-auto h-20 w-20 rounded-full border-4 border-white/30 shadow-lg grid place-items-center text-white text-2xl font-bold bg-[#1A4D7A]">
+              {initials(nome)}
+            </div>
+          )}
+
+          <h2 className="mt-3 text-lg font-bold text-white leading-tight">{nome}</h2>
+          {nomeFantasia && <p className="text-sm text-white/80">{nomeFantasia}</p>}
+
+          <span
+            className="mt-2 inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-white text-[#1A4D7A]"
+          >
+            {isPJ ? "Empresa" : "Pessoa Física"}
+          </span>
+        </div>
+
+        {/* Body */}
+        <div className="px-6 py-5 space-y-5">
+          {/* Localização */}
+          {(cidade || estado) && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <MapPin className="h-4 w-4 shrink-0" style={{ color: BRAND_BLUE }} />
+              <span>{formatLocation(cidade, estado)}</span>
+            </div>
+          )}
+
+          {/* Atuação */}
+          {esps.length > 0 && (
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+                {isPJ ? "Segmento" : "Especialidades"}
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {esps.map((e) => (
+                  <span
+                    key={e}
+                    className="inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold text-white"
+                    style={{ backgroundColor: BRAND_BLUE }}
+                  >
+                    {e}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Avaliação */}
+          <div>
+            <div className="flex items-center gap-2">
+              <Stars rating={media} size={18} />
+              <span className="text-sm font-bold" style={{ color: BRAND_DARK }}>
+                {ratings.length > 0 ? `${media.toFixed(1)}` : "—"}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {ratings.length > 0 ? `(${ratings.length} ${ratings.length === 1 ? "avaliação" : "avaliações"})` : "Sem avaliações"}
+              </span>
+            </div>
+
+            {ultima && (() => {
+              const comentario = pick<string>(ultima, ["Comentario", "comentario"], "");
+              const nomeAv = pick<string>(ultima, ["Nome_avaliador", "Nome", "nome"], "Cliente");
+              return comentario ? (
+                <div className="mt-3 rounded-xl bg-[#F7FAFC] p-4 border-l-4" style={{ borderLeftColor: BRAND_YELLOW }}>
+                  <p className="text-sm italic text-foreground/80 leading-relaxed">"{comentario}"</p>
+                  <p className="mt-2 text-xs font-bold" style={{ color: BRAND_BLUE }}>— {nomeAv}</p>
+                </div>
+              ) : null;
+            })()}
+          </div>
+
+          {/* Contato */}
+          <div className="space-y-2">
+            {whatsapp && (
+              <a
+                href={waLink(whatsapp)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 w-full rounded-xl py-3 text-sm font-bold text-white transition hover:brightness-110"
+                style={{ backgroundColor: BRAND_GREEN }}
+              >
+                <MessageCircle className="h-4 w-4" />
+                Chamar no WhatsApp
+              </a>
+            )}
+            {telefone && (
+              <a
+                href={`tel:${telefone.replace(/\D/g, "")}`}
+                className="flex items-center justify-center gap-2 w-full rounded-xl border py-2.5 text-sm font-semibold transition hover:bg-muted/40"
+                style={{ color: BRAND_BLUE, borderColor: "#e2e8f0" }}
+              >
+                <Phone className="h-4 w-4" />
+                {telefone}
+              </a>
+            )}
+          </div>
+        </div>
+
+        {/* Rodapé */}
+        <div className="px-6 py-4 bg-[#F7FAFC] border-t flex items-center justify-center gap-2 text-xs text-muted-foreground">
+          <CheckCircle2 className="h-4 w-4" style={{ color: BRAND_GREEN }} />
+          Profissional cadastrado na rede F&M
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function ParceirosPublicPage() {
   const { especialidade } = Route.useSearch();
   const [parceiros, setParceiros] = useState<Row[]>([]);
