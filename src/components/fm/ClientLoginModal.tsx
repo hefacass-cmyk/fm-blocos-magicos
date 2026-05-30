@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { X } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
 
 interface ClientLoginModalProps {
   open: boolean;
@@ -7,6 +8,7 @@ interface ClientLoginModalProps {
 }
 
 export function ClientLoginModal({ open, onClose }: ClientLoginModalProps) {
+  const navigate = useNavigate();
   const [codigo, setCodigo] = useState("");
   const [cpfCnpj, setCpfCnpj] = useState("");
   const [erros, setErros] = useState<{ codigo?: string; cpfCnpj?: string }>({});
@@ -31,7 +33,8 @@ export function ClientLoginModal({ open, onClose }: ClientLoginModalProps) {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      alert("Login simulado com sucesso!");
+      onClose();
+      navigate({ to: "/dashboard" });
     }, 1200);
   };
 
