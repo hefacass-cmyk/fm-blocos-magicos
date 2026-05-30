@@ -8,6 +8,7 @@ import {
 import { ClientLoginModal } from "./ClientLoginModal";
 import { Link } from "@tanstack/react-router";
 import fmLogo from "@/assets/fm-logo.png";
+import { ESPECIALIDADES } from "@/lib/fm-parceiro";
 import heroImg from "@/assets/hero-construction.jpg";
 import p1 from "@/assets/portfolio-1.jpg";
 import p2 from "@/assets/portfolio-2.jpg";
@@ -35,6 +36,7 @@ export function FMSite() {
         <Hero />
         <ProblemSolution />
         <Technologies />
+        <FindSpecialist />
         <Portfolio />
         <SavingsCalculator />
         <ICFCalculator />
@@ -45,6 +47,45 @@ export function FMSite() {
       <Footer />
       <ClientLoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
     </div>
+  );
+}
+
+function FindSpecialist() {
+  return (
+    <section className="py-16 sm:py-20" style={{ backgroundColor: "#F7FAFC" }}>
+      <div className="container mx-auto px-4 max-w-6xl">
+        <div className="text-center">
+          <h2 className="text-3xl sm:text-4xl font-extrabold" style={{ color: "#1A4D7A" }}>
+            Encontre um Especialista
+          </h2>
+          <p className="mt-2 text-sm sm:text-base text-muted-foreground">
+            Profissionais parceiros da F&M prontos para sua obra.
+          </p>
+        </div>
+        <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-3">
+          {ESPECIALIDADES.map((esp) => (
+            <Link
+              key={esp}
+              to="/parceiros"
+              search={{ especialidade: esp }}
+              className="group rounded-xl border bg-white p-4 text-center font-semibold text-sm transition hover:shadow-md hover:-translate-y-0.5"
+              style={{ color: "#2C3E50", borderColor: "#E2E8F0" }}
+            >
+              <span className="block group-hover:text-[#1A4D7A]">{esp}</span>
+            </Link>
+          ))}
+        </div>
+        <div className="mt-8 text-center">
+          <Link
+            to="/parceiros"
+            className="inline-flex items-center gap-2 rounded-md px-6 py-3 text-sm font-bold text-white transition"
+            style={{ backgroundColor: "#1A4D7A" }}
+          >
+            <Users className="h-4 w-4" /> Ver todos os parceiros
+          </Link>
+        </div>
+      </div>
+    </section>
   );
 }
 
