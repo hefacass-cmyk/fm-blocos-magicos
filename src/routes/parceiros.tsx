@@ -194,7 +194,11 @@ function ParceirosPublicPage() {
               const media = ratings.length ? ratings.reduce((s, v) => s + v, 0) / ratings.length : 0;
               const ultima = avs[0];
               return (
-                <article key={String(id)} className="rounded-2xl bg-white border shadow-sm p-5 flex flex-col">
+                <article
+                  key={String(id)}
+                  className="rounded-2xl bg-white border shadow-sm p-5 flex flex-col cursor-pointer transition hover:shadow-md hover:-translate-y-0.5"
+                  onClick={() => setSelectedParceiro(p)}
+                >
                   <div className="flex items-center gap-3">
                     {foto ? (
                       <img src={foto} alt={nome} className="h-14 w-14 rounded-full object-cover" />
