@@ -154,10 +154,11 @@ export function ClientLoginModal({ open, onClose }: ClientLoginModalProps) {
             </label>
             <input
               type="text"
+              inputMode="numeric"
               value={cpfCnpj}
-              onChange={(e) => setCpfCnpj(formatCpfCnpj(e.target.value))}
-              placeholder="12345678900"
-              maxLength={18}
+              onChange={(e) => setCpfCnpj(onlyDigits(e.target.value))}
+              placeholder="Somente números: 12345678900"
+              maxLength={14}
               className="mt-1.5 w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
             />
             {erros.cpfCnpj && (
