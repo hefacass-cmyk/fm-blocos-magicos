@@ -40,6 +40,21 @@ export function ClientLoginModal({ open, onClose }: ClientLoginModalProps) {
       const codigoLimpo = cleanInput(codigo);
       const cpfLimpo = cleanInput(cpfCnpj);
 
+      console.log("[login] enviando para Supabase:", {
+        tabela: "Clientes",
+        Cos_cliente: codigoLimpo,
+        Cpf_cnpj: cpfLimpo,
+        tipos: { Cos_cliente: typeof codigoLimpo, Cpf_cnpj: typeof cpfLimpo },
+      });
+
+      // Diagnóstico: busca 1 linha qualquer pra inspecionar nomes/tipos das colunas
+      const amostra = await fmSupabase.from("Clientes").select("*").limit(1);
+      console.log("[login] amostra da tabela Clientes:", {
+        error: amostra.error,
+        primeiraLinha: amostra.data?.[0],
+        colunas: amostra.data?.[0] ? Object.keys(amostra.data[0]) : null,
+      });
+
       const { data, error } = await fmSupabase
         .from("Clientes")
         .select("*")
@@ -47,6 +62,8 @@ export function ClientLoginModal({ open, onClose }: ClientLoginModalProps) {
         .eq("Cpf_cnpj", cpfLimpo)
         .limit(1)
         .maybeSingle();
+
+      console.log("[login] resposta Supabase:", { data, error });
 
       if (error) {
         console.error("[login] erro supabase:", error);
