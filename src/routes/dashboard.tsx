@@ -47,7 +47,7 @@ function DashboardPage() {
       }
       try {
         // Tenta filtrar por cliente_id e, se falhar/vazio, por codigo_cliente.
-        let query = fmSupabase.from("progresso_obras").select("*").limit(1);
+        let query = fmSupabase.from("Progresso_obra").select("*").limit(1);
         if (cliente.id != null) {
           query = query.eq("cliente_id", cliente.id);
         } else {
@@ -57,7 +57,7 @@ function DashboardPage() {
 
         if ((!data || error) && cliente.id != null) {
           const fb = await fmSupabase
-            .from("progresso_obras")
+            .from("Progresso_obra")
             .select("*")
             .eq("codigo_cliente", cliente.codigo_cliente)
             .limit(1)

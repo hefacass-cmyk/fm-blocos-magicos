@@ -40,7 +40,7 @@ export function ClientLoginModal({ open, onClose }: ClientLoginModalProps) {
 
       // Busca por código + cpf_cnpj (tenta com apenas dígitos e com valor formatado)
       const { data, error } = await fmSupabase
-        .from("clientes")
+        .from("Clientes")
         .select("*")
         .eq("codigo_cliente", codigoInput)
         .in("cpf_cnpj", [cpfDigits, cpfCnpj.trim()])
