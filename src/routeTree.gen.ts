@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ParceirosRouteImport } from './routes/parceiros'
+import { Route as FornecedoresRouteImport } from './routes/fornecedores'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ParceiroLoginRouteImport } from './routes/parceiro.login'
@@ -18,6 +19,11 @@ import { Route as ParceiroDashboardRouteImport } from './routes/parceiro.dashboa
 const ParceirosRoute = ParceirosRouteImport.update({
   id: '/parceiros',
   path: '/parceiros',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FornecedoresRoute = FornecedoresRouteImport.update({
+  id: '/fornecedores',
+  path: '/fornecedores',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -44,6 +50,7 @@ const ParceiroDashboardRoute = ParceiroDashboardRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/fornecedores': typeof FornecedoresRoute
   '/parceiros': typeof ParceirosRoute
   '/parceiro/dashboard': typeof ParceiroDashboardRoute
   '/parceiro/login': typeof ParceiroLoginRoute
@@ -51,6 +58,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/fornecedores': typeof FornecedoresRoute
   '/parceiros': typeof ParceirosRoute
   '/parceiro/dashboard': typeof ParceiroDashboardRoute
   '/parceiro/login': typeof ParceiroLoginRoute
@@ -59,6 +67,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/fornecedores': typeof FornecedoresRoute
   '/parceiros': typeof ParceirosRoute
   '/parceiro/dashboard': typeof ParceiroDashboardRoute
   '/parceiro/login': typeof ParceiroLoginRoute
@@ -68,6 +77,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dashboard'
+    | '/fornecedores'
     | '/parceiros'
     | '/parceiro/dashboard'
     | '/parceiro/login'
@@ -75,6 +85,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/dashboard'
+    | '/fornecedores'
     | '/parceiros'
     | '/parceiro/dashboard'
     | '/parceiro/login'
@@ -82,6 +93,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/dashboard'
+    | '/fornecedores'
     | '/parceiros'
     | '/parceiro/dashboard'
     | '/parceiro/login'
@@ -90,6 +102,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
+  FornecedoresRoute: typeof FornecedoresRoute
   ParceirosRoute: typeof ParceirosRoute
   ParceiroDashboardRoute: typeof ParceiroDashboardRoute
   ParceiroLoginRoute: typeof ParceiroLoginRoute
@@ -102,6 +115,13 @@ declare module '@tanstack/react-router' {
       path: '/parceiros'
       fullPath: '/parceiros'
       preLoaderRoute: typeof ParceirosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fornecedores': {
+      id: '/fornecedores'
+      path: '/fornecedores'
+      fullPath: '/fornecedores'
+      preLoaderRoute: typeof FornecedoresRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -138,6 +158,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
+  FornecedoresRoute: FornecedoresRoute,
   ParceirosRoute: ParceirosRoute,
   ParceiroDashboardRoute: ParceiroDashboardRoute,
   ParceiroLoginRoute: ParceiroLoginRoute,
@@ -145,3 +166,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
