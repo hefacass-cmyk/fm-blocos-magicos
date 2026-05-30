@@ -66,6 +66,15 @@ function Header({ onLogin }: { onLogin: () => void }) {
               {n.label}
             </a>
           ))}
+          <Link to="/parceiros" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
+            Parceiros
+          </Link>
+          <Link to="/fornecedores" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
+            Fornecedores
+          </Link>
+          <Link to="/parceiro/login" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
+            Área do Parceiro
+          </Link>
         </nav>
         <div className="hidden lg:flex items-center gap-3">
           <button
@@ -99,6 +108,15 @@ function Header({ onLogin }: { onLogin: () => void }) {
                 {n.label}
               </a>
             ))}
+            <Link to="/parceiros" onClick={() => setOpen(false)} className="py-2 text-sm font-medium text-foreground/80">
+              Parceiros
+            </Link>
+            <Link to="/fornecedores" onClick={() => setOpen(false)} className="py-2 text-sm font-medium text-foreground/80">
+              Fornecedores
+            </Link>
+            <Link to="/parceiro/login" onClick={() => setOpen(false)} className="py-2 text-sm font-medium text-foreground/80">
+              Área do Parceiro
+            </Link>
             <button onClick={() => { setOpen(false); onLogin(); }} className="mt-2 inline-flex items-center justify-center gap-2 rounded-md border border-primary/30 px-4 py-3 text-sm font-semibold text-primary">
               <User className="h-4 w-4" /> Área do Cliente
             </button>
