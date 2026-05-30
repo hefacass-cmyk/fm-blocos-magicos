@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   LogOut,
   Menu,
@@ -14,6 +14,7 @@ import {
   FileText,
   Phone,
 } from "lucide-react";
+import { fmSupabase, getCliente, clearCliente } from "@/lib/fm-supabase";
 
 const BRAND_BLUE = "#1A4D7A";
 const BRAND_GREEN = "#06A77D";
@@ -31,13 +32,118 @@ export const Route = createFileRoute("/dashboard")({
 
 function DashboardPage() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const progresso = 72;
-  const orcado = 250_000;
-  const pago = 180_000;
-  const saldo = orcado - pago;
+  const [loading, setLoading] = useState(true);
+  const [erro, setErro] = useState<string | null>(null);
+  const [obra, setObra] = useState<Record<string, unknown> | null>(null);
+  const cliente = typeof window !== "undefined" ? getCliente() : null;
+
+  useEffect(() => {
+    let active = true;
+    async function load() {
+      if (!cliente) {
+        setLoading(false);
+        setErro("Faça login para visualizar sua obra.");
+        return;
+      }
+      try {
+        // Tenta filtrar por cliente_id e, se falhar/vazio, por codigo_cliente.
+        let query = fmSupabase.from("progresso_obras").select("*").limit(1);
+        if (cliente.id != null) {
+          query = query.eq("cliente_id", cliente.id);
+        } else {
+          query = query.eq("codigo_cliente", cliente.codigo_cliente);
+        }
+        let { data, error } = await query.maybeSingle();
+
+        if ((!data || error) && cliente.id != null) {
+          const fb = await fmSupabase
+            .from("progresso_obras")
+            .select("*")
+            .eq("codigo_cliente", cliente.codigo_cliente)
+            .limit(1)
+            .maybeSingle();
+          data = fb.data;
+          error = fb.error;
+        }
+
+        if (!active) return;
+        if (error) {
+          console.error("[dashboard] erro:", error);
+          setErro("Erro ao carregar dados da obra.");
+        } else if (!data) {
+          setErro("Nenhum registro de obra encontrado para este cliente.");
+        } else {
+          setObra(data as Record<string, unknown>);
+        }
+      } catch (e) {
+        console.error(e);
+        if (active) setErro("Erro inesperado ao carregar a obra.");
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+    load();
+    return () => {
+      active = false;
+    };
+  }, [cliente?.id, cliente?.codigo_cliente]);
+
+  const pick = <T,>(keys: string[], fallback: T): T => {
+    if (!obra) return fallback;
+    for (const k of keys) {
+      const v = obra[k];
+      if (v !== undefined && v !== null && v !== "") return v as T;
+    }
+    return fallback;
+  };
+
+  const progresso = Number(pick<number | string>(["percentual", "progresso", "percent"], 0)) || 0;
+  const orcado = Number(pick<number | string>(["orcado", "orcamento", "valor_orcado"], 0)) || 0;
+  const pago = Number(pick<number | string>(["pago", "valor_pago"], 0)) || 0;
+  const saldo = Math.max(orcado - pago, 0);
+  const dataInicio = pick<string>(["data_inicio", "inicio"], "—");
+  const prazoEsperado = pick<string>(["prazo_esperado", "prazo", "previsao_termino"], "—");
+  const hojeDescricao = pick<string>(["hoje_descricao", "atividade_hoje", "etapa_atual"], "Sem atividade registrada para hoje");
+  const hojeHorario = pick<string>(["hoje_horario", "horario"], "");
+  const equipe = Number(pick<number | string>(["equipe", "profissionais", "equipe_hoje"], 0)) || 0;
+  const gerente = pick<string>(["gerente", "responsavel"], "Equipe F&M");
+  const cargo = pick<string>(["gerente_cargo", "responsavel_cargo"], "Engenheiro responsável");
+  const tituloObra = pick<string>(["titulo", "nome_obra", "endereco"], "Sua Obra em Camaçari");
 
   const fmt = (n: number) =>
     n.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
+
+  const fmtDate = (v: string) => {
+    if (!v || v === "—") return "—";
+    const d = new Date(v);
+    if (Number.isNaN(d.getTime())) return v;
+    return d.toLocaleDateString("pt-BR");
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen grid place-items-center bg-muted/30 text-muted-foreground">
+        Carregando sua obra...
+      </div>
+    );
+  }
+
+  if (erro && !obra) {
+    return (
+      <div className="min-h-screen grid place-items-center bg-muted/30 p-6">
+        <div className="max-w-md w-full rounded-2xl bg-white border p-6 text-center shadow-sm">
+          <p className="text-sm text-destructive font-semibold">{erro}</p>
+          <Link
+            to="/"
+            onClick={() => clearCliente()}
+            className="mt-4 inline-flex items-center gap-2 rounded-md border px-4 py-2 text-sm font-medium hover:bg-muted"
+          >
+            <LogOut className="h-4 w-4" /> Voltar para o site
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -54,13 +160,14 @@ function DashboardPage() {
               className="text-sm sm:text-lg font-bold leading-tight"
               style={{ color: BRAND_BLUE }}
             >
-              Sua Obra em Camaçari
+              {tituloObra}
             </h1>
           </div>
 
           <div className="flex items-center gap-2">
             <Link
               to="/"
+              onClick={() => clearCliente()}
               className="hidden sm:inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition"
             >
               <LogOut className="h-4 w-4" /> Sair
@@ -76,7 +183,7 @@ function DashboardPage() {
         </div>
         {menuOpen && (
           <div className="sm:hidden border-t bg-white px-4 py-3 space-y-2">
-            <Link to="/" className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-foreground hover:bg-muted">
+            <Link to="/" onClick={() => clearCliente()} className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-foreground hover:bg-muted">
               <LogOut className="h-4 w-4" /> Sair
             </Link>
           </div>
@@ -109,11 +216,11 @@ function DashboardPage() {
           <div className="mt-5 grid grid-cols-2 gap-3 text-sm">
             <div className="rounded-lg bg-white/10 p-3">
               <p className="text-xs uppercase tracking-wider text-white/60">Início</p>
-              <p className="mt-1 font-semibold">12/03/2026</p>
+              <p className="mt-1 font-semibold">{fmtDate(dataInicio)}</p>
             </div>
             <div className="rounded-lg bg-white/10 p-3">
               <p className="text-xs uppercase tracking-wider text-white/60">Prazo esperado</p>
-              <p className="mt-1 font-semibold">30/07/2026</p>
+              <p className="mt-1 font-semibold">{fmtDate(prazoEsperado)}</p>
             </div>
           </div>
         </section>
@@ -129,11 +236,13 @@ function DashboardPage() {
               <Calendar className="h-6 w-6" />
             </div>
             <div className="flex-1">
-              <p className="text-xl font-bold text-foreground">Concretagem da laje 02</p>
-              <p className="mt-1 text-sm text-muted-foreground">Sábado, 30 de maio · 07h às 17h</p>
+              <p className="text-xl font-bold text-foreground">{hojeDescricao}</p>
+              {hojeHorario && (
+                <p className="mt-1 text-sm text-muted-foreground">{hojeHorario}</p>
+              )}
               <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-muted px-3 py-1.5 text-sm font-medium text-foreground">
                 <Users className="h-4 w-4" style={{ color: BRAND_GREEN }} />
-                8 profissionais no canteiro
+                {equipe} profissionais no canteiro
               </div>
             </div>
           </div>
@@ -222,7 +331,7 @@ function DashboardPage() {
         <section className="rounded-2xl bg-white p-6 shadow-sm border">
           <h2 className="text-lg font-bold text-foreground">Fale com o seu gerente de obra</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Carlos Mendes · Engenheiro responsável
+            {gerente} · {cargo}
           </p>
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
             <ContactButton icon={<MessageCircle className="h-5 w-5" />} label="WhatsApp" color={BRAND_GREEN} />
