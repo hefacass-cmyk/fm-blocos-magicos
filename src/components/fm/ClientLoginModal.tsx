@@ -42,7 +42,7 @@ export function ClientLoginModal({ open, onClose }: ClientLoginModalProps) {
       const { data, error } = await fmSupabase
         .from("Clientes")
         .select("*")
-        .eq("codigo_cliente", codigoInput)
+        .eq("Cos_cliente", codigoInput)
         .in("cpf_cnpj", [cpfDigits, cpfCnpj.trim()])
         .limit(1)
         .maybeSingle();
