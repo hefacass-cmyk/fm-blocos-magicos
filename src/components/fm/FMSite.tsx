@@ -26,9 +26,10 @@ const NAV = [
 ];
 
 export function FMSite() {
+  const [loginOpen, setLoginOpen] = useState(true);
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Header />
+      <Header onLogin={() => setLoginOpen(true)} />
       <main>
         <Hero />
         <ProblemSolution />
@@ -41,6 +42,7 @@ export function FMSite() {
         <LeadForm />
       </main>
       <Footer />
+      <ClientLoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
     </div>
   );
 }
