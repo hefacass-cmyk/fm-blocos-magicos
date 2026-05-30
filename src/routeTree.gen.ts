@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ParceiroLoginRouteImport } from './routes/parceiro.login'
+import { Route as ParceiroDashboardRouteImport } from './routes/parceiro.dashboard'
 
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
@@ -28,34 +29,48 @@ const ParceiroLoginRoute = ParceiroLoginRouteImport.update({
   path: '/parceiro/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ParceiroDashboardRoute = ParceiroDashboardRouteImport.update({
+  id: '/parceiro/dashboard',
+  path: '/parceiro/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/parceiro/dashboard': typeof ParceiroDashboardRoute
   '/parceiro/login': typeof ParceiroLoginRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/parceiro/dashboard': typeof ParceiroDashboardRoute
   '/parceiro/login': typeof ParceiroLoginRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/parceiro/dashboard': typeof ParceiroDashboardRoute
   '/parceiro/login': typeof ParceiroLoginRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/parceiro/login'
+  fullPaths: '/' | '/dashboard' | '/parceiro/dashboard' | '/parceiro/login'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/parceiro/login'
-  id: '__root__' | '/' | '/dashboard' | '/parceiro/login'
+  to: '/' | '/dashboard' | '/parceiro/dashboard' | '/parceiro/login'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/parceiro/dashboard'
+    | '/parceiro/login'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
+  ParceiroDashboardRoute: typeof ParceiroDashboardRoute
   ParceiroLoginRoute: typeof ParceiroLoginRoute
 }
 
@@ -82,12 +97,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ParceiroLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/parceiro/dashboard': {
+      id: '/parceiro/dashboard'
+      path: '/parceiro/dashboard'
+      fullPath: '/parceiro/dashboard'
+      preLoaderRoute: typeof ParceiroDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
+  ParceiroDashboardRoute: ParceiroDashboardRoute,
   ParceiroLoginRoute: ParceiroLoginRoute,
 }
 export const routeTree = rootRouteImport
