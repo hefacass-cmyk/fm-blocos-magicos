@@ -63,7 +63,7 @@ export function ClientLoginModal({ open, onClose }: ClientLoginModalProps) {
       }}
     >
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-      <div className="relative w-full max-w-[400px] rounded-2xl bg-white p-8 shadow-2xl">
+      <div className="relative w-full max-w-[420px] rounded-2xl bg-white p-8 shadow-2xl">
         <button
           onClick={onClose}
           className="absolute right-4 top-4 rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition"
