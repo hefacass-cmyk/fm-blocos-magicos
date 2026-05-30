@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
-import { fmSupabase, saveCliente, onlyDigits } from "@/lib/fm-supabase";
+import { fmSupabase, saveCliente } from "@/lib/fm-supabase";
 
 interface ClientLoginModalProps {
   open: boolean;
