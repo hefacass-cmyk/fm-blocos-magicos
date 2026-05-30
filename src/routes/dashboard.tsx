@@ -91,10 +91,15 @@ function DashboardPage() {
   const pago = Number(pick<number | string>(["pago", "valor_pago"], 0)) || 0;
   const saldo = Math.max(orcado - pago, 0);
   const dataInicio = pick<string>(["Data", "data_inicio", "inicio"], "—");
-  const prazoEsperado = pick<string>(["prazo_esperado", "prazo", "previsao_termino"], "—");
+  const prazoEsperado = pick<string>(
+    ["Prazo_esperado", "Prazo", "Previsao_termino", "prazo_esperado", "prazo", "previsao_termino"],
+    "",
+  );
   const hojeDescricao = pick<string>(["Descricao", "descricao", "hoje_descricao"], "Sem atividade registrada para hoje");
   const hojeHorario = pick<string>(["hoje_horario", "horario"], "");
-  const equipe = Number(pick<number | string>(["equipe", "profissionais", "equipe_hoje"], 0)) || 0;
+  const equipe = Number(
+    pick<number | string>(["Equipe", "Profissionais", "Equipe_hoje", "equipe", "profissionais", "equipe_hoje"], 0),
+  ) || 0;
   const gerente = pick<string>(["gerente", "responsavel"], cliente?.Nome as string ?? "Equipe F&M");
   const cargo = pick<string>(["gerente_cargo", "responsavel_cargo"], "Engenheiro responsável");
   const tituloObra = (cliente?.Obra_nome as string) || pick<string>(["titulo", "nome_obra", "endereco"], "Sua Obra em Camaçari");
@@ -207,9 +212,18 @@ function DashboardPage() {
               <p className="text-xs uppercase tracking-wider text-white/60">Início</p>
               <p className="mt-1 font-semibold">{fmtDate(dataInicio)}</p>
             </div>
+            {prazoEsperado && (
+              <div className="rounded-lg bg-white/10 p-3">
+                <p className="text-xs uppercase tracking-wider text-white/60">Prazo esperado</p>
+                <p className="mt-1 font-semibold">{fmtDate(prazoEsperado)}</p>
+              </div>
+            )}
             <div className="rounded-lg bg-white/10 p-3">
-              <p className="text-xs uppercase tracking-wider text-white/60">Prazo esperado</p>
-              <p className="mt-1 font-semibold">{fmtDate(prazoEsperado)}</p>
+              <p className="text-xs uppercase tracking-wider text-white/60">Equipe</p>
+              <p className="mt-1 font-semibold flex items-center gap-1.5">
+                <Users className="h-4 w-4" style={{ color: BRAND_GREEN }} />
+                {equipe} {equipe === 1 ? "profissional" : "profissionais"}
+              </p>
             </div>
           </div>
         </section>
