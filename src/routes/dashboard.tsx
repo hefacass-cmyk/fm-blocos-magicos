@@ -46,25 +46,14 @@ function DashboardPage() {
         return;
       }
       try {
-        // Tenta filtrar por cliente_id e, se falhar/vazio, por codigo_cliente.
-        let query = fmSupabase.from("Progresso_obra").select("*").limit(1);
-        if (cliente.id != null) {
-          query = query.eq("cliente_id", cliente.id);
-        } else {
-          query = query.eq("codigo_cliente", cliente.codigo_cliente);
-        }
-        let { data, error } = await query.maybeSingle();
-
-        if ((!data || error) && cliente.id != null) {
-          const fb = await fmSupabase
-            .from("Progresso_obra")
-            .select("*")
-            .eq("codigo_cliente", cliente.codigo_cliente)
-            .limit(1)
-            .maybeSingle();
-          data = fb.data;
-          error = fb.error;
-        }
+        const { data, error } = await fmSupabase
+          .from("Progresso_obra")
+          .select("*")
+          .eq("Cliente_id", cliente.id as string | number)
+          .order("Data", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        console.log("[dashboard] Progresso_obra:", { cliente_id: cliente.id, data, error });
 
         if (!active) return;
         if (error) {
@@ -86,7 +75,7 @@ function DashboardPage() {
     return () => {
       active = false;
     };
-  }, [cliente?.id, cliente?.codigo_cliente]);
+  }, [cliente?.id]);
 
   const pick = <T,>(keys: string[], fallback: T): T => {
     if (!obra) return fallback;
@@ -97,18 +86,18 @@ function DashboardPage() {
     return fallback;
   };
 
-  const progresso = Number(pick<number | string>(["percentual", "progresso", "percent"], 0)) || 0;
+  const progresso = Number(pick<number | string>(["Percentual", "percentual"], 0)) || 0;
   const orcado = Number(pick<number | string>(["orcado", "orcamento", "valor_orcado"], 0)) || 0;
   const pago = Number(pick<number | string>(["pago", "valor_pago"], 0)) || 0;
   const saldo = Math.max(orcado - pago, 0);
-  const dataInicio = pick<string>(["data_inicio", "inicio"], "—");
+  const dataInicio = pick<string>(["Data", "data_inicio", "inicio"], "—");
   const prazoEsperado = pick<string>(["prazo_esperado", "prazo", "previsao_termino"], "—");
-  const hojeDescricao = pick<string>(["hoje_descricao", "atividade_hoje", "etapa_atual"], "Sem atividade registrada para hoje");
+  const hojeDescricao = pick<string>(["Descricao", "descricao", "hoje_descricao"], "Sem atividade registrada para hoje");
   const hojeHorario = pick<string>(["hoje_horario", "horario"], "");
   const equipe = Number(pick<number | string>(["equipe", "profissionais", "equipe_hoje"], 0)) || 0;
-  const gerente = pick<string>(["gerente", "responsavel"], "Equipe F&M");
+  const gerente = pick<string>(["gerente", "responsavel"], cliente?.Nome as string ?? "Equipe F&M");
   const cargo = pick<string>(["gerente_cargo", "responsavel_cargo"], "Engenheiro responsável");
-  const tituloObra = pick<string>(["titulo", "nome_obra", "endereco"], "Sua Obra em Camaçari");
+  const tituloObra = (cliente?.Obra_nome as string) || pick<string>(["titulo", "nome_obra", "endereco"], "Sua Obra em Camaçari");
 
   const fmt = (n: number) =>
     n.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
