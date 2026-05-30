@@ -18,6 +18,8 @@ export function ClientLoginModal({ open, onClose }: ClientLoginModalProps) {
 
   if (!open) return null;
 
+  const cleanInput = (v: string) => v.replace(/[.\-\s/]/g, "");
+
   const validate = () => {
     const nextErros: { codigo?: string; cpfCnpj?: string } = {};
     if (!codigo.trim()) nextErros.codigo = "Informe o código do cliente";
