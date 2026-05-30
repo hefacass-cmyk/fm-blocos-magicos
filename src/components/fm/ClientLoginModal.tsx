@@ -37,8 +37,10 @@ export function ClientLoginModal({ open, onClose }: ClientLoginModalProps) {
     if (!validate()) return;
     setLoading(true);
     try {
-      const codigoLimpo = cleanInput(codigo);
-      const cpfLimpo = cleanInput(cpfCnpj);
+      const codigoLimpo = codigo.trim().toUpperCase();
+      const cpfLimpo = cpfCnpj.replace(/\D/g, "");
+
+      console.log("[login] valores do estado:", { codigo, cpfCnpj });
 
       console.log("[login] enviando para Supabase:", {
         tabela: "Clientes",
