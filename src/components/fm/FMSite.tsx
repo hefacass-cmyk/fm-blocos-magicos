@@ -28,7 +28,7 @@ const NAV = [
 ];
 
 export function FMSite() {
-  const [loginOpen, setLoginOpen] = useState(true);
+  const [loginOpen, setLoginOpen] = useState(false);
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Header onLogin={() => setLoginOpen(true)} />
