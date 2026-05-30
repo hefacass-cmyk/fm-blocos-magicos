@@ -470,6 +470,14 @@ function ParceirosPublicPage() {
             })}
           </div>
         )}
+
+        {selectedParceiro && (
+          <ParceiroModal
+            parceiro={selectedParceiro}
+            avaliacoes={avaliacoes}
+            onClose={() => setSelectedParceiro(null)}
+          />
+        )}
       </main>
     </div>
   );
