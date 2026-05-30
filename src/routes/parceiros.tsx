@@ -64,6 +64,7 @@ function ParceirosPublicPage() {
   const [filtro, setFiltro] = useState(especialidade || "");
   const [busca, setBusca] = useState("");
   const [loading, setLoading] = useState(true);
+  const [selectedParceiro, setSelectedParceiro] = useState<Row | null>(null);
 
   useEffect(() => {
     setFiltro(especialidade || "");
