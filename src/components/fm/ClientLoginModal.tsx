@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
-import { fmSupabase, saveCliente, onlyDigits } from "@/lib/fm-supabase";
+import { fmSupabase, saveCliente } from "@/lib/fm-supabase";
 
 interface ClientLoginModalProps {
   open: boolean;
@@ -17,6 +17,8 @@ export function ClientLoginModal({ open, onClose }: ClientLoginModalProps) {
   const [erroGeral, setErroGeral] = useState<string | null>(null);
 
   if (!open) return null;
+
+  const cleanInput = (v: string) => v.replace(/[.\-\s/]/g, "");
 
   const validate = () => {
     const nextErros: { codigo?: string; cpfCnpj?: string } = {};
@@ -35,15 +37,14 @@ export function ClientLoginModal({ open, onClose }: ClientLoginModalProps) {
     if (!validate()) return;
     setLoading(true);
     try {
-      const codigoInput = codigo.trim();
-      const cpfDigits = onlyDigits(cpfCnpj);
+      const codigoLimpo = cleanInput(codigo);
+      const cpfLimpo = cleanInput(cpfCnpj);
 
-      // Busca por código + cpf_cnpj (tenta com apenas dígitos e com valor formatado)
       const { data, error } = await fmSupabase
         .from("Clientes")
         .select("*")
-        .eq("Cos_cliente", codigoInput)
-        .in("cpf_cnpj", [cpfDigits, cpfCnpj.trim()])
+        .eq("Cos_cliente", codigoLimpo)
+        .eq("Cpf_cnpj", cpfLimpo)
         .limit(1)
         .maybeSingle();
 
