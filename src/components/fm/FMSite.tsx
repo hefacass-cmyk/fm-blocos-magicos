@@ -47,7 +47,7 @@ export function FMSite() {
   );
 }
 
-function Header() {
+function Header({ onLogin }: { onLogin: () => void }) {
   const [open, setOpen] = useState(false);
   return (
     <header className="fixed top-0 inset-x-0 z-50 bg-background/90 backdrop-blur border-b border-border">
@@ -66,9 +66,17 @@ function Header() {
             </a>
           ))}
         </nav>
-        <a href="#contato" className="hidden lg:inline-flex items-center gap-2 rounded-md bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground hover:brightness-95 transition">
-          Diagnóstico Gratuito <ArrowRight className="h-4 w-4" />
-        </a>
+        <div className="hidden lg:flex items-center gap-3">
+          <button
+            onClick={onLogin}
+            className="inline-flex items-center gap-2 rounded-md border border-primary/30 px-4 py-2 text-sm font-semibold text-primary hover:bg-primary/5 transition"
+          >
+            <User className="h-4 w-4" /> Área do Cliente
+          </button>
+          <a href="#contato" className="inline-flex items-center gap-2 rounded-md bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground hover:brightness-95 transition">
+            Diagnóstico Gratuito <ArrowRight className="h-4 w-4" />
+          </a>
+        </div>
         <button className="lg:hidden p-2 -mr-2 text-foreground" onClick={() => setOpen((v) => !v)} aria-label="Menu">
           {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
@@ -81,6 +89,9 @@ function Header() {
                 {n.label}
               </a>
             ))}
+            <button onClick={() => { setOpen(false); onLogin(); }} className="mt-2 inline-flex items-center justify-center gap-2 rounded-md border border-primary/30 px-4 py-3 text-sm font-semibold text-primary">
+              <User className="h-4 w-4" /> Área do Cliente
+            </button>
             <a href="#contato" onClick={() => setOpen(false)} className="mt-2 inline-flex items-center justify-center gap-2 rounded-md bg-accent px-4 py-3 text-sm font-semibold text-accent-foreground">
               Solicitar Diagnóstico Gratuito
             </a>
