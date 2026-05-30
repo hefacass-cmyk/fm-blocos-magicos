@@ -84,9 +84,9 @@ export function ClientLoginModal({ open, onClose }: ClientLoginModalProps) {
         </div>
 
         <div className="mt-6 text-center">
-          <h2 className="text-xl font-bold text-primary">Acesso à Sua Obra</h2>
+          <h2 className="text-2xl font-bold" style={{ color: "#1A4D7A" }}>Acesso à Sua Obra</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Acompanhe o progresso em tempo real
+            Digite seu código e CPF para acompanhar o progresso
           </p>
         </div>
 
@@ -115,7 +115,7 @@ export function ClientLoginModal({ open, onClose }: ClientLoginModalProps) {
               type="text"
               value={cpfCnpj}
               onChange={(e) => setCpfCnpj(formatCpfCnpj(e.target.value))}
-              placeholder="123.456.789-00"
+              placeholder="12345678900"
               maxLength={18}
               className="mt-1.5 w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
             />
@@ -146,7 +146,7 @@ export function ClientLoginModal({ open, onClose }: ClientLoginModalProps) {
             className="text-sm font-medium hover:underline transition"
             style={{ color: "#06A77D" }}
           >
-            Precisa de ajuda?
+            Não tem código?
           </button>
         </div>
       </div>
