@@ -34,6 +34,7 @@ export function FMSite() {
       <Header onLogin={() => setLoginOpen(true)} />
       <main>
         <Hero />
+        <VideoSection />
         <ProblemSolution />
         <Technologies />
         <FindSpecialist />
