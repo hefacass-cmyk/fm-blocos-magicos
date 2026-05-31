@@ -3,7 +3,7 @@ import {
   Menu, X, AlertTriangle, ShieldCheck, Clock, Wallet, Recycle,
   Layers, Snowflake, PanelsTopLeft, MapPin, Phone, Mail,
   Instagram, Facebook, Linkedin, ArrowRight, CheckCircle2, Calculator,
-  BookOpen, User, Users,
+  BookOpen, User, Users, Building2, Zap, BadgeDollarSign,
 } from "lucide-react";
 import { ClientLoginModal } from "./ClientLoginModal";
 import { Link } from "@tanstack/react-router";
