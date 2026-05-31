@@ -216,6 +216,77 @@ function Hero() {
   );
 }
 
+function VideoSection() {
+  const cards = [
+    {
+      icon: Building2,
+      title: "Construção Industrializada",
+      desc: "Sistema IBPP certificado",
+    },
+    {
+      icon: Zap,
+      title: "46% Mais Rápido",
+      desc: "Que a alvenaria convencional",
+    },
+    {
+      icon: BadgeDollarSign,
+      title: "20% Mais Econômico",
+      desc: "No custo total da obra",
+    },
+  ];
+  return (
+    <section className="py-16 sm:py-20 bg-white">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
+        <h2 className="text-3xl sm:text-4xl font-extrabold" style={{ color: "#1A4D7A" }}>
+          Conheça a F&M Construções Inteligentes
+        </h2>
+        <p className="mt-3 text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
+          Tecnologia, precisão e entrega garantida em cada obra.
+        </p>
+
+        <div className="mt-10 mx-auto" style={{ maxWidth: 350 }}>
+          <div className="rounded-2xl overflow-hidden shadow-xl" style={{ aspectRatio: "9/16" }}>
+            <iframe
+              className="w-full h-full"
+              src="https://www.youtube.com/embed/fKMF0RARDQU?rel=0&autoplay=0&modestbranding=1"
+              title="Vídeo Institucional F&M Construções Inteligentes"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          </div>
+        </div>
+
+        <div className="mt-12 grid gap-5 sm:grid-cols-3 max-w-4xl mx-auto">
+          {cards.map((c) => {
+            const Icon = c.icon;
+            return (
+              <div
+                key={c.title}
+                className="flex items-center gap-4 rounded-xl border bg-white p-5 text-left transition hover:-translate-y-0.5 hover:shadow-md"
+                style={{ borderColor: "#1A4D7A" }}
+              >
+                <div
+                  className="h-12 w-12 shrink-0 rounded-full grid place-items-center"
+                  style={{ backgroundColor: "#F4B941" }}
+                >
+                  <Icon className="h-6 w-6" style={{ color: "#1A4D7A" }} />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold" style={{ color: "#1A4D7A" }}>
+                    {c.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">{c.desc}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function ProblemSolution() {
   const problems = ["Atrasos constantes no cronograma", "Custo final imprevisível", "Desperdício de materiais", "Mão de obra inconsistente"];
   const solutions = ["Prazo cumprido com precisão", "Custo controlado e transparente", "Tecnologia certificada (IBPP)", "Gestão técnica especializada"];
