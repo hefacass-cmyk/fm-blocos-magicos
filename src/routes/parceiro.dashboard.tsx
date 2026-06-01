@@ -1,6 +1,19 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { LogOut, Star, Phone, Mail, MapPin, Briefcase, Calendar, MessageCircle } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  LogOut,
+  Star,
+  Phone,
+  Mail,
+  MapPin,
+  Briefcase,
+  Calendar,
+  MessageCircle,
+  Share2,
+  Copy,
+  Check,
+  Instagram,
+} from "lucide-react";
 import {
   fmSupabase,
   getParceiro,
