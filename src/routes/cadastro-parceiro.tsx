@@ -350,12 +350,12 @@ function CadastroParceiroPage() {
         style={{ backgroundColor: BRAND_BLUE }}
       >
         <div className="mx-auto flex max-w-5xl items-center justify-between">
-          <Link
-            to="/"
+          <a
+            href="https://www.fmsmartbuild.com.br"
             className="inline-flex items-center gap-2 text-sm font-medium opacity-90 hover:opacity-100"
           >
             <ArrowLeft className="h-4 w-4" /> Voltar ao site
-          </Link>
+          </a>
           <div
             className="rounded-md px-3 py-1.5 text-base font-extrabold tracking-tight"
             style={{ backgroundColor: BRAND_YELLOW, color: BRAND_BLUE }}
@@ -395,13 +395,13 @@ function CadastroParceiroPage() {
                 Recebemos seus dados. Nossa equipe entrará em contato em até 48
                 horas pelo WhatsApp ou e-mail informado.
               </p>
-              <button
-                onClick={() => setSuccess(false)}
-                className="mt-2 rounded-md px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
+              <a
+                href="https://www.fmsmartbuild.com.br/cadastro-parceiro"
+                className="mt-2 inline-block rounded-md px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
                 style={{ backgroundColor: BRAND_BLUE }}
               >
                 Enviar outro cadastro
-              </button>
+              </a>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
