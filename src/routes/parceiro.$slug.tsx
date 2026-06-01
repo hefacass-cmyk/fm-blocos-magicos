@@ -558,3 +558,105 @@ function ObraCard({ obra }: { obra: Obra }) {
     </div>
   );
 }
+
+function AvaliarForm({
+  parceiroId,
+  onSent,
+}: {
+  parceiroId: string | number;
+  onSent: () => void;
+}) {
+  const storageKey = `fm_avaliou_${parceiroId}`;
+  const jaAvaliou =
+    typeof window !== "undefined" && !!localStorage.getItem(storageKey);
+  const [nota, setNota] = useState(5);
+  const [nome, setNome] = useState("");
+  const [comentario, setComentario] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [sent, setSent] = useState(jaAvaliou);
+  const [err, setErr] = useState("");
+
+  if (sent) {
+    return (
+      <div className="mt-8 rounded-xl border bg-white p-5 text-center text-sm text-slate-600">
+        ✅ Obrigado pela sua avaliação!
+      </div>
+    );
+  }
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!nome.trim()) { setErr("Informe seu nome."); return; }
+    if (nota < 1 || nota > 5) { setErr("Nota inválida."); return; }
+    setErr("");
+    setLoading(true);
+    try {
+      const { error } = await fmSupabase.from("avaliacoes").insert({
+        parceiro_id: parceiroId,
+        nota,
+        comentario: comentario.trim().slice(0, 500) || null,
+        nome_cliente: nome.trim().slice(0, 100),
+      });
+      if (error) throw error;
+      localStorage.setItem(storageKey, "1");
+      await logAdmin("avaliacao_enviada", `Avaliação ${nota}⭐ para parceiro ${parceiroId}`, "publico");
+      setSent(true);
+      onSent();
+    } catch (e) {
+      console.error(e);
+      setErr("Não foi possível enviar agora.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={submit} className="mt-8 rounded-xl border bg-white p-5 shadow-sm">
+      <h3 className="text-base font-extrabold" style={{ color: BRAND_BLUE }}>
+        Deixe sua avaliação
+      </h3>
+      <div className="mt-3 flex items-center gap-1">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <button
+            key={i}
+            type="button"
+            onClick={() => setNota(i)}
+            aria-label={`${i} estrelas`}
+            className="p-1"
+          >
+            <Star
+              className="h-7 w-7"
+              style={{
+                color: BRAND_YELLOW,
+                fill: i <= nota ? BRAND_YELLOW : "transparent",
+              }}
+            />
+          </button>
+        ))}
+      </div>
+      <input
+        value={nome}
+        onChange={(e) => setNome(e.target.value)}
+        placeholder="Seu nome"
+        maxLength={100}
+        className="mt-3 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-[#1A4D7A] focus:outline-none"
+      />
+      <textarea
+        value={comentario}
+        onChange={(e) => setComentario(e.target.value.slice(0, 500))}
+        rows={3}
+        placeholder="Comentário (opcional)"
+        className="mt-2 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-[#1A4D7A] focus:outline-none"
+      />
+      {err && <p className="mt-2 text-xs text-red-600">{err}</p>}
+      <button
+        type="submit"
+        disabled={loading}
+        className="mt-3 w-full rounded-lg py-3 text-sm font-extrabold disabled:opacity-60"
+        style={{ backgroundColor: BRAND_YELLOW, color: BRAND_BLUE }}
+      >
+        {loading ? "Enviando..." : "Enviar Avaliação"}
+      </button>
+    </form>
+  );
+}
