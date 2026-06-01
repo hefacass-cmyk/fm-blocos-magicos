@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, Search, MapPin, Star, ArrowRight } from "lucide-react";
+import { Loader2, Search, MapPin, Star, ArrowRight, ChevronLeft, ChevronRight, ArrowUpDown, X, SlidersHorizontal } from "lucide-react";
 import { fmSupabase } from "@/lib/fm-supabase";
 import { normalize, trackAcesso } from "@/lib/fm-tracking";
 import { ESPECIALIDADES } from "@/lib/fm-parceiro";
@@ -9,6 +9,8 @@ const BRAND_BLUE = "#1A4D7A";
 const BRAND_YELLOW = "#F4B941";
 const BRAND_GREEN = "#06A77D";
 const PAGE_SIZE = 12;
+
+type SortBy = "rating_desc" | "recent" | "name_asc" | "name_desc";
 
 export const Route = createFileRoute("/buscar-profissional")({
   head: () => ({
@@ -42,7 +44,9 @@ function BuscarProfissionalPage() {
   const [cidade, setCidade] = useState("");
   const [esp, setEsp] = useState("");
   const [segmento, setSegmento] = useState("");
+  const [sortBy, setSortBy] = useState<SortBy>("rating_desc");
   const [page, setPage] = useState(1);
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     trackAcesso("/buscar-profissional");
@@ -58,7 +62,6 @@ function BuscarProfissionalPage() {
         const rows = (data as Row[]) ?? [];
         setParceiros(rows);
 
-        // calcula ratings agregados
         const ids = rows.map((r) => String(r.id));
         if (ids.length) {
           const { data: avs } = await fmSupabase
@@ -110,9 +113,18 @@ function BuscarProfissionalPage() {
     return Array.from(set).sort();
   }, [parceiros]);
 
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (q.trim()) count++;
+    if (cidade) count++;
+    if (esp) count++;
+    if (segmento) count++;
+    return count;
+  }, [q, cidade, esp, segmento]);
+
   const filtered = useMemo(() => {
     const nq = normalize(q);
-    return parceiros.filter((p) => {
+    let list = parceiros.filter((p) => {
       const nome = normalize(String(pick<string>(p, ["nome", "Nome"], "")));
       const empresa = normalize(String(pick<string>(p, ["empresa", "Empresa"], "")));
       const especialidade = String(pick<string>(p, ["especialidade", "Especialidade"], ""));
@@ -125,9 +137,57 @@ function BuscarProfissionalPage() {
       if (segmento && seg !== segmento) return false;
       return true;
     });
-  }, [parceiros, q, cidade, esp, segmento]);
 
-  const visible = filtered.slice(0, page * PAGE_SIZE);
+    list = [...list].sort((a, b) => {
+      const idA = String(a.id);
+      const idB = String(b.id);
+      const nomeA = String(pick<string>(a, ["nome", "Nome"], ""));
+      const nomeB = String(pick<string>(b, ["nome", "Nome"], ""));
+      const rA = ratings[idA]?.media ?? 0;
+      const rB = ratings[idB]?.media ?? 0;
+      const tA = ratings[idA]?.total ?? 0;
+      const tB = ratings[idB]?.total ?? 0;
+      const criadoA = String(a.criado_em ?? "");
+      const criadoB = String(b.criado_em ?? "");
+
+      switch (sortBy) {
+        case "rating_desc":
+          if (rB !== rA) return rB - rA;
+          if (tB !== tA) return tB - tA;
+          return nomeA.localeCompare(nomeB);
+        case "recent":
+          return criadoB.localeCompare(criadoA);
+        case "name_asc":
+          return nomeA.localeCompare(nomeB);
+        case "name_desc":
+          return nomeB.localeCompare(nomeA);
+        default:
+          return 0;
+      }
+    });
+
+    return list;
+  }, [parceiros, q, cidade, esp, segmento, sortBy, ratings]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const startIdx = (safePage - 1) * PAGE_SIZE;
+  const visible = filtered.slice(startIdx, startIdx + PAGE_SIZE);
+
+  const sortLabel: Record<SortBy, string> = {
+    rating_desc: "Melhor avaliado",
+    recent: "Mais recente",
+    name_asc: "Nome: A → Z",
+    name_desc: "Nome: Z → A",
+  };
+
+  function clearFilters() {
+    setQ("");
+    setCidade("");
+    setEsp("");
+    setSegmento("");
+    setPage(1);
+  }
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -159,35 +219,85 @@ function BuscarProfissionalPage() {
               value={q}
               onChange={(e) => { setQ(e.target.value); setPage(1); }}
               placeholder="Procure um parceiro ou fornecedor (nome, empresa, especialidade, cidade)"
-              className="w-full rounded-md border border-slate-300 py-3 pl-10 pr-3 text-sm focus:border-[#1A4D7A] focus:outline-none"
+              className="w-full rounded-md border border-slate-300 py-3 pl-10 pr-10 text-sm focus:border-[#1A4D7A] focus:outline-none"
             />
+            {q && (
+              <button
+                onClick={() => { setQ(""); setPage(1); }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
           </div>
-          <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <select
-              value={cidade}
-              onChange={(e) => { setCidade(e.target.value); setPage(1); }}
-              className="rounded-md border border-slate-300 px-3 py-2 text-sm bg-white"
+
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => setShowFilters((s) => !s)}
+              className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
             >
-              <option value="">Todas cidades</option>
-              {cidades.map((c) => <option key={c} value={c}>{c}</option>)}
-            </select>
-            <select
-              value={esp}
-              onChange={(e) => { setEsp(e.target.value); setPage(1); }}
-              className="rounded-md border border-slate-300 px-3 py-2 text-sm bg-white"
-            >
-              <option value="">Todas especialidades</option>
-              {ESPECIALIDADES.map((e) => <option key={e} value={e}>{e}</option>)}
-            </select>
-            <select
-              value={segmento}
-              onChange={(e) => { setSegmento(e.target.value); setPage(1); }}
-              className="rounded-md border border-slate-300 px-3 py-2 text-sm bg-white"
-            >
-              <option value="">Todos segmentos</option>
-              {segmentos.map((s) => <option key={s} value={s}>{s}</option>)}
-            </select>
+              <SlidersHorizontal className="h-4 w-4" />
+              Filtros
+              {activeFilterCount > 0 && (
+                <span className="ml-1 inline-flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold text-white" style={{ backgroundColor: BRAND_BLUE }}>
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
+
+            <div className="relative">
+              <select
+                value={sortBy}
+                onChange={(e) => { setSortBy(e.target.value as SortBy); setPage(1); }}
+                className="appearance-none rounded-md border border-slate-300 bg-white py-2 pl-3 pr-8 text-sm focus:border-[#1A4D7A] focus:outline-none"
+              >
+                <option value="rating_desc">Melhor avaliado</option>
+                <option value="recent">Mais recente</option>
+                <option value="name_asc">Nome: A → Z</option>
+                <option value="name_desc">Nome: Z → A</option>
+              </select>
+              <ArrowUpDown className="pointer-events-none absolute right-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+            </div>
+
+            {activeFilterCount > 0 && (
+              <button
+                onClick={clearFilters}
+                className="inline-flex items-center gap-1 rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-500 transition hover:bg-slate-50 hover:text-slate-700"
+              >
+                <X className="h-3.5 w-3.5" />
+                Limpar filtros
+              </button>
+            )}
           </div>
+
+          {showFilters && (
+            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <select
+                value={cidade}
+                onChange={(e) => { setCidade(e.target.value); setPage(1); }}
+                className="rounded-md border border-slate-300 px-3 py-2 text-sm bg-white"
+              >
+                <option value="">Todas cidades</option>
+                {cidades.map((c) => <option key={c} value={c}>{c}</option>)}
+              </select>
+              <select
+                value={esp}
+                onChange={(e) => { setEsp(e.target.value); setPage(1); }}
+                className="rounded-md border border-slate-300 px-3 py-2 text-sm bg-white"
+              >
+                <option value="">Todas especialidades</option>
+                {ESPECIALIDADES.map((e) => <option key={e} value={e}>{e}</option>)}
+              </select>
+              <select
+                value={segmento}
+                onChange={(e) => { setSegmento(e.target.value); setPage(1); }}
+                className="rounded-md border border-slate-300 px-3 py-2 text-sm bg-white"
+              >
+                <option value="">Todos segmentos</option>
+                {segmentos.map((s) => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
+          )}
         </div>
 
         {loading ? (
@@ -197,10 +307,24 @@ function BuscarProfissionalPage() {
         ) : visible.length === 0 ? (
           <p className="mt-10 rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500">
             Nenhum profissional encontrado.
+            {activeFilterCount > 0 && (
+              <button onClick={clearFilters} className="mt-2 block w-full text-sm font-semibold hover:underline" style={{ color: BRAND_BLUE }}>
+                Limpar filtros
+              </button>
+            )}
           </p>
         ) : (
           <>
-            <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-4 flex items-center justify-between text-xs text-slate-500">
+              <span>
+                {filtered.length} resultado{filtered.length !== 1 ? "s" : ""} encontrado{filtered.length !== 1 ? "s" : ""}
+              </span>
+              <span>
+                Página {safePage} de {totalPages}
+              </span>
+            </div>
+
+            <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {visible.map((p) => {
                 const id = String(p.id);
                 const slug = String(pick<string>(p, ["slug", "Slug"], "")) || id;
@@ -259,15 +383,61 @@ function BuscarProfissionalPage() {
                 );
               })}
             </div>
-            {visible.length < filtered.length && (
-              <div className="mt-8 flex justify-center">
-                <button
-                  onClick={() => setPage((p) => p + 1)}
-                  className="rounded-lg px-6 py-3 text-sm font-bold text-white transition hover:brightness-110"
-                  style={{ backgroundColor: BRAND_BLUE }}
-                >
-                  Carregar mais
-                </button>
+
+            {totalPages > 1 && (
+              <div className="mt-8 flex flex-col items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={safePage <= 1}
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-300 text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </button>
+
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => {
+                    const isActive = p === safePage;
+                    const show =
+                      p === 1 ||
+                      p === totalPages ||
+                      (p >= safePage - 1 && p <= safePage + 1);
+                    if (!show) {
+                      if (p === safePage - 2 || p === safePage + 2) {
+                        return (
+                          <span key={p} className="inline-flex h-9 w-9 items-center justify-center text-xs text-slate-400">
+                            …
+                          </span>
+                        );
+                      }
+                      return null;
+                    }
+                    return (
+                      <button
+                        key={p}
+                        onClick={() => setPage(p)}
+                        className={`inline-flex h-9 min-w-[2.25rem] items-center justify-center rounded-md px-2.5 text-sm font-bold transition ${
+                          isActive
+                            ? "text-white"
+                            : "border border-slate-300 text-slate-700 hover:bg-slate-50"
+                        }`}
+                        style={isActive ? { backgroundColor: BRAND_BLUE } : undefined}
+                      >
+                        {p}
+                      </button>
+                    );
+                  })}
+
+                  <button
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={safePage >= totalPages}
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-300 text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+                </div>
+                <span className="text-xs text-slate-500">
+                  Mostrando {startIdx + 1}–{Math.min(startIdx + PAGE_SIZE, filtered.length)} de {filtered.length}
+                </span>
               </div>
             )}
           </>
