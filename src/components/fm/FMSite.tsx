@@ -121,12 +121,12 @@ function Header({ onLogin }: { onLogin: () => void }) {
         <div className="hidden lg:flex items-center gap-3">
           <button
             onClick={onLogin}
-            className="inline-flex items-center gap-2 rounded-md border border-primary/30 px-4 py-2 text-sm font-semibold text-primary hover:bg-primary/5 transition"
+            className="inline-flex items-center gap-2 rounded-md border border-primary/30 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/5 transition whitespace-nowrap"
           >
             <User className="h-4 w-4" /> Área do Cliente
           </button>
-          <a href="#contato" className="inline-flex items-center gap-2 rounded-md bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground hover:brightness-95 transition">
-            Diagnóstico Gratuito <ArrowRight className="h-4 w-4" />
+          <a href="#contato" className="inline-flex items-center gap-1.5 rounded-md bg-accent px-3 py-1.5 text-xs font-semibold text-accent-foreground hover:brightness-95 transition whitespace-nowrap">
+            Diagnóstico <ArrowRight className="h-4 w-4" />
           </a>
         </div>
         <div className="lg:hidden flex items-center gap-2">
