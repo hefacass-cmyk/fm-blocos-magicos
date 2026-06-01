@@ -244,15 +244,17 @@ function VideoSection() {
           Tecnologia, precisão e entrega garantida em cada obra.
         </p>
 
-        <div className="mt-10 mx-auto" style={{ maxWidth: 350 }}>
-          <div className="rounded-2xl overflow-hidden shadow-xl" style={{ aspectRatio: "9/16" }}>
-            <iframe
-              className="w-full h-full"
-              src="https://www.youtube.com/embed/fKMF0RARDQU?rel=0&autoplay=0&modestbranding=1"
+        <div className="mt-10 mx-auto w-full" style={{ maxWidth: 900 }}>
+          <div className="rounded-2xl overflow-hidden shadow-xl" style={{ aspectRatio: "16/9" }}>
+            <video
+              className="w-full h-full object-cover"
+              src="https://hdjlwidfnikbahfhrkil.supabase.co/storage/v1/object/public/videos/novo.mp4"
+              controls
+              autoPlay
+              muted
+              loop
+              playsInline
               title="Vídeo Institucional F&M Construções Inteligentes"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
             />
           </div>
         </div>
