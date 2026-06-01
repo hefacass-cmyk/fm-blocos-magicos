@@ -13,6 +13,9 @@ import {
   Copy,
   Check,
   Instagram,
+  Building2,
+  Plus,
+  AlertTriangle,
 } from "lucide-react";
 import {
   fmSupabase,
@@ -24,6 +27,8 @@ import {
   ESPECIALIDADES,
   FM_WHATSAPP,
 } from "@/lib/fm-parceiro";
+import { SolicitarAmpliacaoModal } from "@/components/fm/SolicitarAmpliacaoModal";
+import { logAdmin } from "@/lib/fm-tracking";
 
 const BRAND_BLUE = "#1A4D7A";
 const BRAND_YELLOW = "#F4B941";
@@ -68,6 +73,13 @@ function ParceiroDashboardPage() {
 
   const [avaliacoes, setAvaliacoes] = useState<Row[]>([]);
   const [oportunidades, setOportunidades] = useState<Row[]>([]);
+  const [obras, setObras] = useState<Row[]>([]);
+  const [limiteObras, setLimiteObras] = useState<number>(4);
+  const [ampliacaoStatus, setAmpliacaoStatus] = useState<string | null>(null);
+  const [showAmpliar, setShowAmpliar] = useState(false);
+  const [showNovaObra, setShowNovaObra] = useState(false);
+  const [novaDesc, setNovaDesc] = useState("");
+  const [salvandoObra, setSalvandoObra] = useState(false);
   const [filtroEsp, setFiltroEsp] = useState<string>("");
   const [loading, setLoading] = useState(true);
 
@@ -79,7 +91,7 @@ function ParceiroDashboardPage() {
     let active = true;
     async function load() {
       try {
-        const [av, op] = await Promise.all([
+        const [av, op, obrasRes, parceiroRes, solicRes] = await Promise.all([
           fmSupabase
             .from("Avaliacoes")
             .select("*")
@@ -88,12 +100,33 @@ function ParceiroDashboardPage() {
             .from("Mural_oportunidades")
             .select("*")
             .eq("status", "aberta"),
+          fmSupabase
+            .from("obras_parceiro")
+            .select("*")
+            .eq("parceiro_id", parceiro!.id as string | number)
+            .order("created_at", { ascending: false }),
+          fmSupabase
+            .from("parceiros")
+            .select("limite_obras")
+            .eq("id", parceiro!.id as string | number)
+            .maybeSingle(),
+          fmSupabase
+            .from("solicitacoes_ampliacao")
+            .select("status, criado_em")
+            .eq("parceiro_id", parceiro!.id as string | number)
+            .order("criado_em", { ascending: false })
+            .limit(1),
         ]);
         console.log("[parceiro/dashboard] avaliacoes:", av);
         console.log("[parceiro/dashboard] oportunidades:", op);
         if (!active) return;
         setAvaliacoes((av.data as Row[]) ?? []);
         setOportunidades((op.data as Row[]) ?? []);
+        setObras((obrasRes.data as Row[]) ?? []);
+        const lim = Number((parceiroRes.data as Row | null)?.limite_obras ?? 4) || 4;
+        setLimiteObras(lim);
+        const ultima = (solicRes.data as Row[] | null)?.[0];
+        setAmpliacaoStatus(ultima ? String(ultima.status ?? "") : null);
       } finally {
         if (active) setLoading(false);
       }
@@ -137,6 +170,41 @@ function ParceiroDashboardPage() {
   const shareUrl = slug
     ? `https://www.fmsmartbuild.com.br/parceiro/${slug}`
     : "";
+
+  const atingiuLimite = obras.length >= limiteObras;
+
+  const abrirNovaObra = () => {
+    if (atingiuLimite) {
+      setShowAmpliar(true);
+    } else {
+      setShowNovaObra(true);
+    }
+  };
+
+  const salvarObra = async () => {
+    if (!novaDesc.trim()) return;
+    setSalvandoObra(true);
+    try {
+      const { data, error } = await fmSupabase
+        .from("obras_parceiro")
+        .insert({
+          parceiro_id: parceiro!.id,
+          descricao: novaDesc.trim().slice(0, 500),
+        })
+        .select()
+        .single();
+      if (error) throw error;
+      setObras((arr) => [data as Row, ...arr]);
+      await logAdmin("obra_cadastrada", `Parceiro ${parceiro!.id} cadastrou obra`, "parceiro");
+      setNovaDesc("");
+      setShowNovaObra(false);
+    } catch (e) {
+      console.error(e);
+      alert("Erro ao salvar obra.");
+    } finally {
+      setSalvandoObra(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -239,6 +307,51 @@ function ParceiroDashboardPage() {
         </section>
 
         {shareUrl && <ShareCardSection shareUrl={shareUrl} nome={nomeExibido} />}
+
+        <section className="rounded-2xl bg-white p-6 shadow-sm border">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <h2 className="inline-flex items-center gap-2 text-lg font-bold" style={{ color: BRAND_DARK }}>
+              <Building2 className="h-5 w-5" /> Minhas Obras
+            </h2>
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-bold" style={{ color: atingiuLimite ? "#ef4444" : BRAND_BLUE }}>
+                {obras.length} / {limiteObras}
+              </span>
+              <button
+                onClick={abrirNovaObra}
+                className="inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-sm font-bold text-white transition hover:brightness-110"
+                style={{ backgroundColor: BRAND_BLUE }}
+              >
+                <Plus className="h-4 w-4" /> Cadastrar obra
+              </button>
+            </div>
+          </div>
+          {atingiuLimite && (
+            <div className="mt-3 flex items-start gap-2 rounded-lg border p-3 text-sm" style={{ borderColor: BRAND_YELLOW, backgroundColor: "#FFF8E7", color: BRAND_BLUE }}>
+              <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
+              <span>
+                Você atingiu o limite de {limiteObras} obras grátis.{" "}
+                {ampliacaoStatus === "pendente" ? (
+                  <strong>Solicitação de ampliação enviada — aguardando admin.</strong>
+                ) : (
+                  <button onClick={() => setShowAmpliar(true)} className="font-bold underline">
+                    Solicitar ampliação
+                  </button>
+                )}
+              </span>
+            </div>
+          )}
+          {obras.length > 0 && (
+            <ul className="mt-4 divide-y">
+              {obras.map((o, i) => (
+                <li key={i} className="py-2 text-sm">
+                  <p className="font-medium">{String(o.descricao ?? "—")}</p>
+                  <p className="text-xs text-slate-500">{String(o.created_at ?? "").slice(0,10)}</p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
 
         <section className="rounded-2xl bg-white p-6 shadow-sm border">
           <div className="flex items-center justify-between flex-wrap gap-3">
@@ -388,6 +501,43 @@ function ParceiroDashboardPage() {
           <Link to="/parceiros" className="hover:underline">Ver galeria pública de parceiros</Link>
         </p>
       </main>
+
+      {/* Modal nova obra */}
+      {showNovaObra && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+            <h3 className="text-lg font-extrabold" style={{ color: BRAND_BLUE }}>Cadastrar obra</h3>
+            <label className="mt-3 block text-xs font-bold uppercase text-slate-500">Descrição</label>
+            <textarea
+              value={novaDesc}
+              onChange={(e) => setNovaDesc(e.target.value.slice(0, 500))}
+              rows={4}
+              className="mt-1 w-full rounded-md border border-slate-300 p-3 text-sm focus:border-[#1A4D7A] focus:outline-none"
+              placeholder="Ex.: Reforma de cobertura residencial em Salvador..."
+            />
+            <div className="mt-4 flex justify-end gap-2">
+              <button onClick={() => setShowNovaObra(false)} className="rounded-md px-3 py-2 text-sm font-bold text-slate-600">
+                Cancelar
+              </button>
+              <button
+                onClick={salvarObra}
+                disabled={salvandoObra || !novaDesc.trim()}
+                className="rounded-md px-4 py-2 text-sm font-extrabold text-white disabled:opacity-60"
+                style={{ backgroundColor: BRAND_BLUE }}
+              >
+                {salvandoObra ? "Salvando..." : "Salvar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <SolicitarAmpliacaoModal
+        open={showAmpliar}
+        onClose={() => { setShowAmpliar(false); setAmpliacaoStatus("pendente"); }}
+        parceiroId={parceiro.id!}
+        parceiroNome={nomeExibido}
+      />
     </div>
   );
 }
