@@ -1,6 +1,6 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Users, Building2, MessageSquare, Star, Activity, Eye, LogOut, Check, X, Loader2 } from "lucide-react";
+import { Users, Building2, MessageSquare, Star, Activity, Eye, LogOut, Check, X, Loader2, KeyRound } from "lucide-react";
 import { fmSupabase } from "@/lib/fm-supabase";
 import { logAdmin } from "@/lib/fm-tracking";
 
@@ -168,9 +168,17 @@ function AdminDashboardPage() {
           <h1 className="text-lg font-extrabold" style={{ color: BRAND_BLUE }}>
             🔑 Chave Mestra · Painel F&M
           </h1>
-          <button onClick={sair} className="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium hover:bg-slate-50">
-            <LogOut className="h-4 w-4" /> Sair
-          </button>
+          <div className="flex items-center gap-2">
+            <Link
+              to="/admin/senhas"
+              className="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium hover:bg-slate-50"
+            >
+              <KeyRound className="h-4 w-4" /> Senhas
+            </Link>
+            <button onClick={sair} className="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium hover:bg-slate-50">
+              <LogOut className="h-4 w-4" /> Sair
+            </button>
+          </div>
         </div>
       </header>
 
