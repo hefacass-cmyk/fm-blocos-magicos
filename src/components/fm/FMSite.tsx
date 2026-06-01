@@ -93,7 +93,7 @@ function FindSpecialist() {
 function Header({ onLogin }: { onLogin: () => void }) {
   const [open, setOpen] = useState(false);
   return (
-    <header className="fixed top-0 inset-x-0 z-50 bg-background/90 backdrop-blur border-b border-border">
+    <header className="fixed top-0 inset-x-0 z-50 bg-background/90 backdrop-blur border-b border-border" style={{ minWidth: 320 }}>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <a href="#home" className="flex items-center gap-2">
           <img src={fmLogo} alt="F&M Construções Inteligentes" className="h-10 w-auto object-contain" />
@@ -102,31 +102,31 @@ function Header({ onLogin }: { onLogin: () => void }) {
             <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Inteligentes</div>
           </div>
         </a>
-        <nav className="hidden lg:flex items-center gap-7">
+        <nav className="hidden lg:flex items-center gap-4">
           {NAV.map((n) => (
-            <a key={n.id} href={`#${n.id}`} className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
+            <a key={n.id} href={`#${n.id}`} className="text-[13px] font-medium text-foreground/80 hover:text-primary transition-colors whitespace-nowrap">
               {n.label}
             </a>
           ))}
-          <Link to="/parceiros" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
+          <Link to="/parceiros" className="text-[13px] font-medium text-foreground/80 hover:text-primary transition-colors whitespace-nowrap">
             Parceiros
           </Link>
-          <Link to="/fornecedores" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
+          <Link to="/fornecedores" className="text-[13px] font-medium text-foreground/80 hover:text-primary transition-colors whitespace-nowrap">
             Fornecedores
           </Link>
-          <Link to="/parceiro/login" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
+          <Link to="/parceiro/login" className="text-xs font-medium text-foreground/80 hover:text-primary transition-colors whitespace-nowrap">
             Área do Parceiro
           </Link>
         </nav>
         <div className="hidden lg:flex items-center gap-3">
           <button
             onClick={onLogin}
-            className="inline-flex items-center gap-2 rounded-md border border-primary/30 px-4 py-2 text-sm font-semibold text-primary hover:bg-primary/5 transition"
+            className="inline-flex items-center gap-2 rounded-md border border-primary/30 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/5 transition whitespace-nowrap"
           >
             <User className="h-4 w-4" /> Área do Cliente
           </button>
-          <a href="#contato" className="inline-flex items-center gap-2 rounded-md bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground hover:brightness-95 transition">
-            Diagnóstico Gratuito <ArrowRight className="h-4 w-4" />
+          <a href="#contato" className="inline-flex items-center gap-1.5 rounded-md bg-accent px-3 py-1.5 text-xs font-semibold text-accent-foreground hover:brightness-95 transition whitespace-nowrap">
+            Diagnóstico <ArrowRight className="h-4 w-4" />
           </a>
         </div>
         <div className="lg:hidden flex items-center gap-2">
