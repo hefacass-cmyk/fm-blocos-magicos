@@ -111,9 +111,6 @@ function Header({ onLogin }: { onLogin: () => void }) {
           <Link to="/parceiros" className="text-[13px] font-medium text-foreground/80 hover:text-primary transition-colors whitespace-nowrap">
             Parceiros
           </Link>
-          <Link to="/buscar-profissional" className="text-[13px] font-medium text-foreground/80 hover:text-primary transition-colors whitespace-nowrap">
-            Buscar
-          </Link>
           <Link to="/fornecedores" className="text-[13px] font-medium text-foreground/80 hover:text-primary transition-colors whitespace-nowrap">
             Fornecedores
           </Link>
@@ -155,9 +152,6 @@ function Header({ onLogin }: { onLogin: () => void }) {
             ))}
             <Link to="/parceiros" onClick={() => setOpen(false)} className="py-2 text-sm font-medium text-foreground/80">
               Parceiros
-            </Link>
-            <Link to="/buscar-profissional" onClick={() => setOpen(false)} className="py-2 text-sm font-medium text-foreground/80">
-              Buscar Profissional
             </Link>
             <Link to="/fornecedores" onClick={() => setOpen(false)} className="py-2 text-sm font-medium text-foreground/80">
               Fornecedores
