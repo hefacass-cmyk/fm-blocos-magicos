@@ -13,6 +13,7 @@ import {
   Building2,
 } from "lucide-react";
 import { fmSupabase } from "@/lib/fm-supabase";
+import { logAdmin, trackAcesso } from "@/lib/fm-tracking";
 
 const BRAND_BLUE = "#1A4D7A";
 const BRAND_YELLOW = "#F4B941";
@@ -54,12 +55,20 @@ function onlyDigits(s: string) {
 
 type Obra = { id: string | number; descricao: string; fotos: string[] };
 type Feedback = { id: string | number; depoimento: string; nome: string };
+type Avaliacao = {
+  id: string | number;
+  nota: number;
+  comentario: string;
+  nome_cliente: string;
+  criado_em?: string;
+};
 
 function ParceiroPublicoPage() {
   const { slug } = Route.useParams();
   const [parceiro, setParceiro] = useState<Row | null>(null);
   const [obras, setObras] = useState<Obra[]>([]);
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
+  const [avaliacoes, setAvaliacoes] = useState<Avaliacao[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const perfilRef = useRef<HTMLDivElement>(null);
@@ -98,7 +107,7 @@ function ParceiroPublicoPage() {
         setParceiro(row);
         const parceiroId = row.id as string | number;
 
-        const [obrasRes, fotosRes, fbRes] = await Promise.all([
+        const [obrasRes, fotosRes, fbRes, avRes] = await Promise.all([
           fmSupabase
             .from("obras_parceiro")
             .select("*")
@@ -112,6 +121,11 @@ function ParceiroPublicoPage() {
             .from("feedbacks_parceiro")
             .select("*")
             .eq("parceiro_id", parceiroId),
+          fmSupabase
+            .from("avaliacoes")
+            .select("*")
+            .eq("parceiro_id", parceiroId)
+            .order("criado_em", { ascending: false }),
         ]);
 
         const fotosByObra = new Map<string, string[]>();
@@ -135,6 +149,16 @@ function ParceiroPublicoPage() {
         }));
         setObras(obrasArr);
         setFeedbacks(fbArr);
+        const avArr: Avaliacao[] = ((avRes.data ?? []) as Row[]).map((a) => ({
+          id: a.id as string | number,
+          nota: Number(a.nota) || 0,
+          comentario: String(pick<string>(a, ["comentario"], "")),
+          nome_cliente: String(pick<string>(a, ["nome_cliente", "nome"], "Cliente")),
+          criado_em: String(pick<string>(a, ["criado_em", "created_at"], "")),
+        }));
+        setAvaliacoes(avArr);
+        trackAcesso(`/parceiro/${slug}`);
+        logAdmin("visualizacao_perfil", `Perfil ${row.nome ?? slug} visualizado`, "publico");
       } catch (e) {
         console.error("[parceiro/$slug] erro:", e);
         setNotFound(true);
@@ -147,6 +171,26 @@ function ParceiroPublicoPage() {
       active = false;
     };
   }, [slug]);
+
+  const ratings = avaliacoes.map((a) => a.nota).filter((n) => n > 0);
+  const media = ratings.length ? ratings.reduce((s, v) => s + v, 0) / ratings.length : 0;
+
+  const refetchAvaliacoes = async () => {
+    if (!parceiro) return;
+    const { data } = await fmSupabase
+      .from("avaliacoes")
+      .select("*")
+      .eq("parceiro_id", parceiro.id as string | number)
+      .order("criado_em", { ascending: false });
+    const arr: Avaliacao[] = ((data ?? []) as Row[]).map((a) => ({
+      id: a.id as string | number,
+      nota: Number(a.nota) || 0,
+      comentario: String(pick<string>(a, ["comentario"], "")),
+      nome_cliente: String(pick<string>(a, ["nome_cliente", "nome"], "Cliente")),
+      criado_em: String(pick<string>(a, ["criado_em", "created_at"], "")),
+    }));
+    setAvaliacoes(arr);
+  };
 
   const limite = Number(
     pick<number | string>(parceiro, ["limite_obras"], DEFAULT_LIMITE_OBRAS),
@@ -271,6 +315,12 @@ function ParceiroPublicoPage() {
               {[empresa, especialidade].filter(Boolean).join(" • ")}
             </p>
           )}
+          {avaliacoes.length > 0 && (
+            <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-sm font-bold shadow-sm" style={{ color: BRAND_BLUE }}>
+              <Star className="h-4 w-4" style={{ color: BRAND_YELLOW, fill: BRAND_YELLOW }} />
+              {media.toFixed(1)} ({avaliacoes.length} {avaliacoes.length === 1 ? "avaliação" : "avaliações"})
+            </div>
+          )}
           {(cidade || estado) && (
             <p className="mt-1 inline-flex items-center gap-1 text-sm text-slate-500">
               <MapPin className="h-4 w-4" />
@@ -360,8 +410,7 @@ function ParceiroPublicoPage() {
       </section>
 
       {/* BLOCO 4 — Depoimentos */}
-      {feedbacks.length > 0 && (
-        <section className="px-4 py-10" style={{ backgroundColor: "#f8fafc" }}>
+      <section className="px-4 py-10" style={{ backgroundColor: "#f8fafc" }}>
           <div className="mx-auto max-w-3xl">
             <h2
               className="mb-5 inline-flex items-center gap-2 text-xl font-bold"
@@ -369,8 +418,10 @@ function ParceiroPublicoPage() {
             >
               <Quote className="h-5 w-5" /> Depoimentos de Clientes
             </h2>
+
+          {avaliacoes.length > 0 && (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {feedbacks.map((fb) => (
+              {avaliacoes.map((fb) => (
                 <div
                   key={String(fb.id)}
                   className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
@@ -380,25 +431,42 @@ function ParceiroPublicoPage() {
                       <Star
                         key={i}
                         className="h-4 w-4"
-                        style={{ color: BRAND_YELLOW, fill: BRAND_YELLOW }}
+                        style={{
+                          color: BRAND_YELLOW,
+                          fill: i <= fb.nota ? BRAND_YELLOW : "transparent",
+                        }}
                       />
                     ))}
                   </div>
-                  <p className="mt-3 text-sm italic text-slate-700">
-                    "{fb.depoimento}"
-                  </p>
+                  {fb.comentario && (
+                    <p className="mt-3 text-sm italic text-slate-700">
+                      "{fb.comentario}"
+                    </p>
+                  )}
                   <p
                     className="mt-3 text-sm font-bold"
                     style={{ color: BRAND_BLUE }}
                   >
-                    — {fb.nome}
+                    — {fb.nome_cliente}
                   </p>
                 </div>
               ))}
             </div>
+          )}
+          {feedbacks.length > 0 && (
+            <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {feedbacks.map((fb) => (
+                <div key={String(fb.id)} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                  <p className="text-sm italic text-slate-700">"{fb.depoimento}"</p>
+                  <p className="mt-3 text-sm font-bold" style={{ color: BRAND_BLUE }}>— {fb.nome}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <AvaliarForm parceiroId={parceiro.id as string | number} onSent={refetchAvaliacoes} />
           </div>
-        </section>
-      )}
+      </section>
 
       {/* BLOCO 5 — Rodapé F&M */}
       <footer
