@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ParceirosRouteImport } from './routes/parceiros'
 import { Route as ParceiroInviteRouteImport } from './routes/parceiro-invite'
 import { Route as FornecedoresRouteImport } from './routes/fornecedores'
+import { Route as EsqueciSenhaRouteImport } from './routes/esqueci-senha'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CadastroParceiroRouteImport } from './routes/cadastro-parceiro'
 import { Route as BuscarProfissionalRouteImport } from './routes/buscar-profissional'
@@ -35,6 +36,11 @@ const ParceiroInviteRoute = ParceiroInviteRouteImport.update({
 const FornecedoresRoute = FornecedoresRouteImport.update({
   id: '/fornecedores',
   path: '/fornecedores',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EsqueciSenhaRoute = EsqueciSenhaRouteImport.update({
+  id: '/esqueci-senha',
+  path: '/esqueci-senha',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -88,6 +94,7 @@ export interface FileRoutesByFullPath {
   '/buscar-profissional': typeof BuscarProfissionalRoute
   '/cadastro-parceiro': typeof CadastroParceiroRoute
   '/dashboard': typeof DashboardRoute
+  '/esqueci-senha': typeof EsqueciSenhaRoute
   '/fornecedores': typeof FornecedoresRoute
   '/parceiro-invite': typeof ParceiroInviteRoute
   '/parceiros': typeof ParceirosRoute
@@ -102,6 +109,7 @@ export interface FileRoutesByTo {
   '/buscar-profissional': typeof BuscarProfissionalRoute
   '/cadastro-parceiro': typeof CadastroParceiroRoute
   '/dashboard': typeof DashboardRoute
+  '/esqueci-senha': typeof EsqueciSenhaRoute
   '/fornecedores': typeof FornecedoresRoute
   '/parceiro-invite': typeof ParceiroInviteRoute
   '/parceiros': typeof ParceirosRoute
@@ -117,6 +125,7 @@ export interface FileRoutesById {
   '/buscar-profissional': typeof BuscarProfissionalRoute
   '/cadastro-parceiro': typeof CadastroParceiroRoute
   '/dashboard': typeof DashboardRoute
+  '/esqueci-senha': typeof EsqueciSenhaRoute
   '/fornecedores': typeof FornecedoresRoute
   '/parceiro-invite': typeof ParceiroInviteRoute
   '/parceiros': typeof ParceirosRoute
@@ -133,6 +142,7 @@ export interface FileRouteTypes {
     | '/buscar-profissional'
     | '/cadastro-parceiro'
     | '/dashboard'
+    | '/esqueci-senha'
     | '/fornecedores'
     | '/parceiro-invite'
     | '/parceiros'
@@ -147,6 +157,7 @@ export interface FileRouteTypes {
     | '/buscar-profissional'
     | '/cadastro-parceiro'
     | '/dashboard'
+    | '/esqueci-senha'
     | '/fornecedores'
     | '/parceiro-invite'
     | '/parceiros'
@@ -161,6 +172,7 @@ export interface FileRouteTypes {
     | '/buscar-profissional'
     | '/cadastro-parceiro'
     | '/dashboard'
+    | '/esqueci-senha'
     | '/fornecedores'
     | '/parceiro-invite'
     | '/parceiros'
@@ -176,6 +188,7 @@ export interface RootRouteChildren {
   BuscarProfissionalRoute: typeof BuscarProfissionalRoute
   CadastroParceiroRoute: typeof CadastroParceiroRoute
   DashboardRoute: typeof DashboardRoute
+  EsqueciSenhaRoute: typeof EsqueciSenhaRoute
   FornecedoresRoute: typeof FornecedoresRoute
   ParceiroInviteRoute: typeof ParceiroInviteRoute
   ParceirosRoute: typeof ParceirosRoute
@@ -207,6 +220,13 @@ declare module '@tanstack/react-router' {
       path: '/fornecedores'
       fullPath: '/fornecedores'
       preLoaderRoute: typeof FornecedoresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/esqueci-senha': {
+      id: '/esqueci-senha'
+      path: '/esqueci-senha'
+      fullPath: '/esqueci-senha'
+      preLoaderRoute: typeof EsqueciSenhaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -280,6 +300,7 @@ const rootRouteChildren: RootRouteChildren = {
   BuscarProfissionalRoute: BuscarProfissionalRoute,
   CadastroParceiroRoute: CadastroParceiroRoute,
   DashboardRoute: DashboardRoute,
+  EsqueciSenhaRoute: EsqueciSenhaRoute,
   FornecedoresRoute: FornecedoresRoute,
   ParceiroInviteRoute: ParceiroInviteRoute,
   ParceirosRoute: ParceirosRoute,
@@ -292,3 +313,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
