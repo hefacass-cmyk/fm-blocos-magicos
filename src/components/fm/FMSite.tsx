@@ -244,10 +244,10 @@ function VideoSection() {
           Tecnologia, precisão e entrega garantida em cada obra.
         </p>
 
-        <div className="mt-10 mx-4 sm:mx-10 lg:mx-auto w-full" style={{ maxWidth: 720 }}>
+        <div className="mt-10 mx-4 sm:mx-[60px] lg:mx-auto w-full" style={{ maxWidth: 480 }}>
           <div className="rounded-2xl overflow-hidden shadow-xl" style={{ aspectRatio: "16/9" }}>
             <video
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
               src="https://hdjlwidfnikbahfhrkil.supabase.co/storage/v1/object/public/videos/novo.mp4"
               controls
               autoPlay
