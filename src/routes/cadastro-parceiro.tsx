@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -637,12 +637,12 @@ function ObraBlock({
 }
 
 function FotoPreview({ file, onRemove }: { file: File; onRemove: () => void }) {
-  const [url, setUrl] = useState<string>("");
-  // Cria/limpa object URL
-  if (!url) {
+  const [url, setUrl] = useState<string>(() => URL.createObjectURL(file));
+  useEffect(() => {
     const u = URL.createObjectURL(file);
     setUrl(u);
-  }
+    return () => URL.revokeObjectURL(u);
+  }, [file]);
   return (
     <div className="group relative aspect-square overflow-hidden rounded-md border border-slate-200 bg-white">
       {url && (
