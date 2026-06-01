@@ -143,6 +143,15 @@ function ParceiroLoginPage() {
             Voltar para o site
           </Link>
         </div>
+
+        <div className="mt-2 text-center">
+          <Link
+            to="/esqueci-senha"
+            className="text-xs font-medium text-muted-foreground hover:underline"
+          >
+            Esqueci a senha?
+          </Link>
+        </div>
       </div>
     </div>
   );
