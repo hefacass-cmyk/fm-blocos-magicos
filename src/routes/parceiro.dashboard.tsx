@@ -130,6 +130,14 @@ function ParceiroDashboardPage() {
   const email = pick<string>(parceiro as Row, ["Email", "email"], "");
   const whats = pick<string>(parceiro as Row, ["Whatsapp", "WhatsApp", "whatsapp"], "");
 
+  const slug = String(
+    pick<string>(parceiro as Row, ["slug", "Slug"], "") ||
+      (parceiro.id !== undefined ? String(parceiro.id) : ""),
+  );
+  const shareUrl = slug
+    ? `https://www.fmsmartbuild.com.br/parceiro/${slug}`
+    : "";
+
   return (
     <div className="min-h-screen bg-muted/30">
       <header className="sticky top-0 z-30 border-b bg-white">
