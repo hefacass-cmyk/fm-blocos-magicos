@@ -1,11 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { QRCodeSVG } from "qrcode.react";
 import fmLogo from "@/assets/fm-logo.png";
 import { Mail, Phone, ArrowRight } from "lucide-react";
 
 const BRAND_BLUE = "#1A4D7A";
 const BRAND_YELLOW = "#F4B941";
 const CADASTRO_URL = "https://www.fmsmartbuild.com.br/cadastro-parceiro";
+const QR_CODE_URL = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(CADASTRO_URL)}`;
 
 export const Route = createFileRoute("/parceiro-invite")({
   head: () => ({
@@ -57,11 +57,12 @@ function ParceiroInvitePage() {
             className="rounded-2xl bg-white p-4 shadow-lg"
             style={{ maxWidth: 220, width: "100%" }}
           >
-            <QRCodeSVG
-              value={CADASTRO_URL}
-              size={180}
-              level="M"
-              includeMargin={false}
+            <img
+              src={QR_CODE_URL}
+              alt="QR Code para cadastro de parceiro F&M"
+              width={200}
+              height={200}
+              loading="lazy"
               style={{ width: "100%", height: "auto", display: "block" }}
             />
           </div>
