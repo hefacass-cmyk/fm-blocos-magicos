@@ -241,6 +241,12 @@ function ParceiroDashboardPage() {
         <section className="rounded-2xl bg-white p-6 shadow-sm border">
           <div className="flex items-center justify-between flex-wrap gap-3">
             <h2 className="text-lg font-bold" style={{ color: BRAND_DARK }}>Minhas Avaliações</h2>
+          </div>
+        </section>
+        {shareUrl && <ShareCardSection shareUrl={shareUrl} nome={nomeExibido} />}
+        <section className="rounded-2xl bg-white p-6 shadow-sm border hidden">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <h2 className="text-lg font-bold" style={{ color: BRAND_DARK }}>Minhas Avaliações (legacy)</h2>
             {ratings.length > 0 && (
               <div className="flex items-center gap-2">
                 <Stars rating={media} size={26} />
