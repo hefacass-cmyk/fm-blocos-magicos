@@ -19,6 +19,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ParceiroLoginRouteImport } from './routes/parceiro.login'
 import { Route as ParceiroDashboardRouteImport } from './routes/parceiro.dashboard'
 import { Route as ParceiroSlugRouteImport } from './routes/parceiro.$slug'
+import { Route as AdminLoginRouteImport } from './routes/admin.login'
 
 const ParceirosRoute = ParceirosRouteImport.update({
   id: '/parceiros',
@@ -70,6 +71,11 @@ const ParceiroSlugRoute = ParceiroSlugRouteImport.update({
   path: '/parceiro/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin/login',
+  path: '/admin/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -79,6 +85,7 @@ export interface FileRoutesByFullPath {
   '/fornecedores': typeof FornecedoresRoute
   '/parceiro-invite': typeof ParceiroInviteRoute
   '/parceiros': typeof ParceirosRoute
+  '/admin/login': typeof AdminLoginRoute
   '/parceiro/$slug': typeof ParceiroSlugRoute
   '/parceiro/dashboard': typeof ParceiroDashboardRoute
   '/parceiro/login': typeof ParceiroLoginRoute
@@ -91,6 +98,7 @@ export interface FileRoutesByTo {
   '/fornecedores': typeof FornecedoresRoute
   '/parceiro-invite': typeof ParceiroInviteRoute
   '/parceiros': typeof ParceirosRoute
+  '/admin/login': typeof AdminLoginRoute
   '/parceiro/$slug': typeof ParceiroSlugRoute
   '/parceiro/dashboard': typeof ParceiroDashboardRoute
   '/parceiro/login': typeof ParceiroLoginRoute
@@ -104,6 +112,7 @@ export interface FileRoutesById {
   '/fornecedores': typeof FornecedoresRoute
   '/parceiro-invite': typeof ParceiroInviteRoute
   '/parceiros': typeof ParceirosRoute
+  '/admin/login': typeof AdminLoginRoute
   '/parceiro/$slug': typeof ParceiroSlugRoute
   '/parceiro/dashboard': typeof ParceiroDashboardRoute
   '/parceiro/login': typeof ParceiroLoginRoute
@@ -118,6 +127,7 @@ export interface FileRouteTypes {
     | '/fornecedores'
     | '/parceiro-invite'
     | '/parceiros'
+    | '/admin/login'
     | '/parceiro/$slug'
     | '/parceiro/dashboard'
     | '/parceiro/login'
@@ -130,6 +140,7 @@ export interface FileRouteTypes {
     | '/fornecedores'
     | '/parceiro-invite'
     | '/parceiros'
+    | '/admin/login'
     | '/parceiro/$slug'
     | '/parceiro/dashboard'
     | '/parceiro/login'
@@ -142,6 +153,7 @@ export interface FileRouteTypes {
     | '/fornecedores'
     | '/parceiro-invite'
     | '/parceiros'
+    | '/admin/login'
     | '/parceiro/$slug'
     | '/parceiro/dashboard'
     | '/parceiro/login'
@@ -155,6 +167,7 @@ export interface RootRouteChildren {
   FornecedoresRoute: typeof FornecedoresRoute
   ParceiroInviteRoute: typeof ParceiroInviteRoute
   ParceirosRoute: typeof ParceirosRoute
+  AdminLoginRoute: typeof AdminLoginRoute
   ParceiroSlugRoute: typeof ParceiroSlugRoute
   ParceiroDashboardRoute: typeof ParceiroDashboardRoute
   ParceiroLoginRoute: typeof ParceiroLoginRoute
@@ -232,6 +245,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ParceiroSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/admin/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -243,6 +263,7 @@ const rootRouteChildren: RootRouteChildren = {
   FornecedoresRoute: FornecedoresRoute,
   ParceiroInviteRoute: ParceiroInviteRoute,
   ParceirosRoute: ParceirosRoute,
+  AdminLoginRoute: AdminLoginRoute,
   ParceiroSlugRoute: ParceiroSlugRoute,
   ParceiroDashboardRoute: ParceiroDashboardRoute,
   ParceiroLoginRoute: ParceiroLoginRoute,
