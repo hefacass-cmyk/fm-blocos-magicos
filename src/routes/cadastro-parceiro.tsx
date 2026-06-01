@@ -60,6 +60,69 @@ const ESTADOS = [
 const MAX_FOTOS_POR_OBRA = 4;
 const FOTOS_ACCEPT = "image/jpeg,image/jpg,image/png,image/webp";
 const FOTOS_BUCKET = "fotos-obras";
+const MAX_WIDTH = 1280;
+const TARGET_BYTES = 300 * 1024; // 300KB
+const QUALITY_PRIMARY = 0.75;
+const QUALITY_FALLBACK = 0.6;
+
+function loadImage(file: File): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      resolve(img);
+    };
+    img.onerror = (e) => {
+      URL.revokeObjectURL(url);
+      reject(e);
+    };
+    img.src = url;
+  });
+}
+
+function canvasToBlob(canvas: HTMLCanvasElement, quality: number): Promise<Blob | null> {
+  return new Promise((resolve) => {
+    canvas.toBlob((b) => resolve(b), "image/webp", quality);
+  });
+}
+
+async function compressImage(file: File): Promise<File> {
+  try {
+    const img = await loadImage(file);
+    const scale = img.width > MAX_WIDTH ? MAX_WIDTH / img.width : 1;
+    const w = Math.round(img.width * scale);
+    const h = Math.round(img.height * scale);
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return file;
+    ctx.drawImage(img, 0, 0, w, h);
+
+    let blob = await canvasToBlob(canvas, QUALITY_PRIMARY);
+    if (blob && blob.size > TARGET_BYTES) {
+      const fallback = await canvasToBlob(canvas, QUALITY_FALLBACK);
+      if (fallback) blob = fallback;
+    }
+    if (!blob) return file;
+
+    const baseName = file.name.replace(/\.[^.]+$/, "") || "foto";
+    return new File([blob], `${baseName}.webp`, {
+      type: "image/webp",
+      lastModified: Date.now(),
+    });
+  } catch (e) {
+    console.error("[cadastro-parceiro] falha ao comprimir imagem:", e);
+    return file;
+  }
+}
+
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+}
 
 type ObraDraft = {
   key: string;
@@ -116,18 +179,27 @@ function CadastroParceiroPage() {
     setObras((arr) => arr.filter((o) => o.key !== key));
   const updateObra = (key: string, patch: Partial<ObraDraft>) =>
     setObras((arr) => arr.map((o) => (o.key === key ? { ...o, ...patch } : o)));
-  const addFotos = (key: string, files: FileList | null) => {
+  const addFotos = async (key: string, files: FileList | null) => {
     if (!files || files.length === 0) return;
+    const current = obras.find((o) => o.key === key);
+    if (!current) return;
+    const remaining = MAX_FOTOS_POR_OBRA - current.fotos.length;
+    if (remaining <= 0) return;
+    const accepted = Array.from(files)
+      .filter((f) => /image\/(jpe?g|png|webp)/i.test(f.type))
+      .slice(0, remaining);
+    if (accepted.length === 0) return;
+
+    const compressed = await Promise.all(accepted.map((f) => compressImage(f)));
     setObras((arr) =>
-      arr.map((o) => {
-        if (o.key !== key) return o;
-        const remaining = MAX_FOTOS_POR_OBRA - o.fotos.length;
-        if (remaining <= 0) return o;
-        const next = Array.from(files)
-          .filter((f) => /image\/(jpe?g|png|webp)/i.test(f.type))
-          .slice(0, remaining);
-        return { ...o, fotos: [...o.fotos, ...next] };
-      }),
+      arr.map((o) =>
+        o.key === key
+          ? {
+              ...o,
+              fotos: [...o.fotos, ...compressed].slice(0, MAX_FOTOS_POR_OBRA),
+            }
+          : o,
+      ),
     );
   };
   const removeFoto = (key: string, idx: number) =>
@@ -210,7 +282,7 @@ function CadastroParceiroPage() {
         const obraId = (obraRow as { id: string | number }).id;
 
         for (const file of obra.fotos) {
-          const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+          const ext = file.name.split(".").pop()?.toLowerCase() || "webp";
           const path = `${parceiroId}/${obraId}/${Date.now()}-${slugify(
             file.name.replace(/\.[^.]+$/, ""),
           )}.${ext}`;
@@ -219,7 +291,7 @@ function CadastroParceiroPage() {
             .upload(path, file, {
               cacheControl: "3600",
               upsert: false,
-              contentType: file.type,
+              contentType: file.type || "image/webp",
             });
           if (errUp) throw errUp;
           const { data: pub } = fmSupabase.storage
@@ -644,18 +716,23 @@ function FotoPreview({ file, onRemove }: { file: File; onRemove: () => void }) {
     return () => URL.revokeObjectURL(u);
   }, [file]);
   return (
-    <div className="group relative aspect-square overflow-hidden rounded-md border border-slate-200 bg-white">
-      {url && (
-        <img src={url} alt={file.name} className="h-full w-full object-cover" />
-      )}
-      <button
-        type="button"
-        onClick={onRemove}
-        className="absolute right-1 top-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-white opacity-90 transition hover:bg-black"
-        aria-label="Remover foto"
-      >
-        <X className="h-3.5 w-3.5" />
-      </button>
+    <div className="flex flex-col gap-1">
+      <div className="group relative aspect-square overflow-hidden rounded-md border border-slate-200 bg-white">
+        {url && (
+          <img src={url} alt={file.name} className="h-full w-full object-cover" />
+        )}
+        <button
+          type="button"
+          onClick={onRemove}
+          className="absolute right-1 top-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-white opacity-90 transition hover:bg-black"
+          aria-label="Remover foto"
+        >
+          <X className="h-3.5 w-3.5" />
+        </button>
+      </div>
+      <span className="text-center text-[11px] font-medium text-slate-500">
+        {formatBytes(file.size)}
+      </span>
     </div>
   );
 }
