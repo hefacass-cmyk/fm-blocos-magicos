@@ -102,19 +102,19 @@ function Header({ onLogin }: { onLogin: () => void }) {
             <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Inteligentes</div>
           </div>
         </a>
-        <nav className="hidden lg:flex items-center gap-7">
+        <nav className="hidden lg:flex items-center gap-4">
           {NAV.map((n) => (
-            <a key={n.id} href={`#${n.id}`} className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
+            <a key={n.id} href={`#${n.id}`} className="text-[13px] font-medium text-foreground/80 hover:text-primary transition-colors whitespace-nowrap">
               {n.label}
             </a>
           ))}
-          <Link to="/parceiros" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
+          <Link to="/parceiros" className="text-[13px] font-medium text-foreground/80 hover:text-primary transition-colors whitespace-nowrap">
             Parceiros
           </Link>
-          <Link to="/fornecedores" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
+          <Link to="/fornecedores" className="text-[13px] font-medium text-foreground/80 hover:text-primary transition-colors whitespace-nowrap">
             Fornecedores
           </Link>
-          <Link to="/parceiro/login" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
+          <Link to="/parceiro/login" className="text-xs font-medium text-foreground/80 hover:text-primary transition-colors whitespace-nowrap">
             Área do Parceiro
           </Link>
         </nav>
