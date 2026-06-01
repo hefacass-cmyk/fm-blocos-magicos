@@ -26,7 +26,7 @@ async function derive(password: string, salt: Uint8Array): Promise<string> {
     ["deriveBits"],
   );
   const bits = await crypto.subtle.deriveBits(
-    { name: "PBKDF2", hash: "SHA-256", salt, iterations: ITER },
+    { name: "PBKDF2", hash: "SHA-256", salt: salt as BufferSource, iterations: ITER },
     key,
     256,
   );
@@ -36,7 +36,7 @@ async function derive(password: string, salt: Uint8Array): Promise<string> {
 export async function hashPassword(password: string): Promise<string> {
   const salt = crypto.getRandomValues(new Uint8Array(16));
   const hash = await derive(password, salt);
-  return `pbkdf2$${ITER}$${b64(salt.buffer)}$${hash}`;
+  return `pbkdf2$${ITER}$${b64(salt.buffer as ArrayBuffer)}$${hash}`;
 }
 
 export async function verifyPassword(password: string, stored: string): Promise<boolean> {
@@ -53,7 +53,7 @@ export async function verifyPassword(password: string, stored: string): Promise<
       ["deriveBits"],
     );
     const bits = await crypto.subtle.deriveBits(
-      { name: "PBKDF2", hash: "SHA-256", salt, iterations: Number(iterStr) },
+      { name: "PBKDF2", hash: "SHA-256", salt: salt as BufferSource, iterations: Number(iterStr) },
       key,
       256,
     );
@@ -66,7 +66,7 @@ export async function verifyPassword(password: string, stored: string): Promise<
 /** Gera token URL-safe de 32 bytes. */
 export function generateToken(): string {
   const buf = crypto.getRandomValues(new Uint8Array(32));
-  return b64(buf.buffer).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  return b64(buf.buffer as ArrayBuffer).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
 export const TOKEN_TTL_HOURS = 2;
