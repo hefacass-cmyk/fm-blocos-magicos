@@ -1,6 +1,19 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { LogOut, Star, Phone, Mail, MapPin, Briefcase, Calendar, MessageCircle } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  LogOut,
+  Star,
+  Phone,
+  Mail,
+  MapPin,
+  Briefcase,
+  Calendar,
+  MessageCircle,
+  Share2,
+  Copy,
+  Check,
+  Instagram,
+} from "lucide-react";
 import {
   fmSupabase,
   getParceiro,
@@ -117,6 +130,14 @@ function ParceiroDashboardPage() {
   const email = pick<string>(parceiro as Row, ["Email", "email"], "");
   const whats = pick<string>(parceiro as Row, ["Whatsapp", "WhatsApp", "whatsapp"], "");
 
+  const slug = String(
+    pick<string>(parceiro as Row, ["slug", "Slug"], "") ||
+      (parceiro.id !== undefined ? String(parceiro.id) : ""),
+  );
+  const shareUrl = slug
+    ? `https://www.fmsmartbuild.com.br/parceiro/${slug}`
+    : "";
+
   return (
     <div className="min-h-screen bg-muted/30">
       <header className="sticky top-0 z-30 border-b bg-white">
@@ -216,6 +237,8 @@ function ParceiroDashboardPage() {
             )}
           </div>
         </section>
+
+        {shareUrl && <ShareCardSection shareUrl={shareUrl} nome={nomeExibido} />}
 
         <section className="rounded-2xl bg-white p-6 shadow-sm border">
           <div className="flex items-center justify-between flex-wrap gap-3">
@@ -375,5 +398,123 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
       <p className="text-[10px] font-bold uppercase tracking-wider text-white/70">{label}</p>
       <p className="mt-0.5 font-semibold">{value}</p>
     </div>
+  );
+}
+
+function ShareCardSection({ shareUrl, nome }: { shareUrl: string; nome: string }) {
+  const [copied, setCopied] = useState(false);
+  const qrUrl = useMemo(
+    () =>
+      `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shareUrl)}`,
+    [shareUrl],
+  );
+  const msg = encodeURIComponent(
+    `Conheça meu cartão de visita digital F&M: ${shareUrl}`,
+  );
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch {
+      /* ignore */
+    }
+  };
+
+  return (
+    <section className="rounded-2xl bg-white p-6 shadow-sm border">
+      <div className="flex items-center gap-2">
+        <Share2 className="h-5 w-5" style={{ color: BRAND_BLUE }} />
+        <h2 className="text-lg font-bold" style={{ color: BRAND_DARK }}>
+          Compartilhar meu cartão
+        </h2>
+      </div>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Divulgue seu perfil público {nome ? `de ${nome}` : ""} nas redes sociais.
+      </p>
+
+      <div className="mt-4 grid grid-cols-1 gap-5 md:grid-cols-[auto_1fr]">
+        <div
+          className="flex items-center justify-center rounded-xl border bg-white p-3"
+          style={{ borderColor: BRAND_YELLOW }}
+        >
+          <img
+            src={qrUrl}
+            alt="QR Code do cartão"
+            width={180}
+            height={180}
+            className="h-44 w-44"
+          />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center gap-2 rounded-md border bg-muted/40 px-3 py-2">
+            <input
+              readOnly
+              value={shareUrl}
+              className="flex-1 truncate bg-transparent text-sm outline-none"
+              onFocus={(e) => e.currentTarget.select()}
+            />
+            <button
+              type="button"
+              onClick={copy}
+              className="inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-bold text-white transition hover:brightness-110"
+              style={{ backgroundColor: BRAND_BLUE }}
+            >
+              {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+              {copied ? "Copiado" : "Copiar"}
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+            <a
+              href={`https://wa.me/?text=${msg}`}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-bold text-white transition hover:brightness-110"
+              style={{ backgroundColor: "#25D366" }}
+            >
+              <MessageCircle className="h-4 w-4" /> WhatsApp
+            </a>
+            <a
+              href={`https://www.instagram.com/`}
+              target="_blank"
+              rel="noreferrer"
+              onClick={(e) => {
+                e.preventDefault();
+                copy();
+                window.open("https://www.instagram.com/", "_blank");
+              }}
+              className="inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-bold text-white transition hover:brightness-110"
+              style={{
+                background:
+                  "linear-gradient(135deg, #f58529, #dd2a7b, #8134af, #515bd4)",
+              }}
+            >
+              <Instagram className="h-4 w-4" /> Instagram
+            </a>
+            <a
+              href="https://www.tiktok.com/"
+              target="_blank"
+              rel="noreferrer"
+              onClick={(e) => {
+                e.preventDefault();
+                copy();
+                window.open("https://www.tiktok.com/", "_blank");
+              }}
+              className="inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-bold text-white transition hover:brightness-110"
+              style={{ backgroundColor: "#111" }}
+            >
+              <Share2 className="h-4 w-4" /> TikTok
+            </a>
+          </div>
+
+          <p className="text-xs text-muted-foreground">
+            Dica: o link foi copiado automaticamente ao abrir Instagram/TikTok — basta colar no app.
+          </p>
+        </div>
+      </div>
+    </section>
   );
 }
