@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ParceirosRouteImport } from './routes/parceiros'
 import { Route as FornecedoresRouteImport } from './routes/fornecedores'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as CadastroParceiroRouteImport } from './routes/cadastro-parceiro'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ParceiroLoginRouteImport } from './routes/parceiro.login'
 import { Route as ParceiroDashboardRouteImport } from './routes/parceiro.dashboard'
@@ -29,6 +30,11 @@ const FornecedoresRoute = FornecedoresRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CadastroParceiroRoute = CadastroParceiroRouteImport.update({
+  id: '/cadastro-parceiro',
+  path: '/cadastro-parceiro',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -49,6 +55,7 @@ const ParceiroDashboardRoute = ParceiroDashboardRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/cadastro-parceiro': typeof CadastroParceiroRoute
   '/dashboard': typeof DashboardRoute
   '/fornecedores': typeof FornecedoresRoute
   '/parceiros': typeof ParceirosRoute
@@ -57,6 +64,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/cadastro-parceiro': typeof CadastroParceiroRoute
   '/dashboard': typeof DashboardRoute
   '/fornecedores': typeof FornecedoresRoute
   '/parceiros': typeof ParceirosRoute
@@ -66,6 +74,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/cadastro-parceiro': typeof CadastroParceiroRoute
   '/dashboard': typeof DashboardRoute
   '/fornecedores': typeof FornecedoresRoute
   '/parceiros': typeof ParceirosRoute
@@ -76,6 +85,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/cadastro-parceiro'
     | '/dashboard'
     | '/fornecedores'
     | '/parceiros'
@@ -84,6 +94,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/cadastro-parceiro'
     | '/dashboard'
     | '/fornecedores'
     | '/parceiros'
@@ -92,6 +103,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/cadastro-parceiro'
     | '/dashboard'
     | '/fornecedores'
     | '/parceiros'
@@ -101,6 +113,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CadastroParceiroRoute: typeof CadastroParceiroRoute
   DashboardRoute: typeof DashboardRoute
   FornecedoresRoute: typeof FornecedoresRoute
   ParceirosRoute: typeof ParceirosRoute
@@ -131,6 +144,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cadastro-parceiro': {
+      id: '/cadastro-parceiro'
+      path: '/cadastro-parceiro'
+      fullPath: '/cadastro-parceiro'
+      preLoaderRoute: typeof CadastroParceiroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -157,6 +177,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CadastroParceiroRoute: CadastroParceiroRoute,
   DashboardRoute: DashboardRoute,
   FornecedoresRoute: FornecedoresRoute,
   ParceirosRoute: ParceirosRoute,
@@ -166,3 +187,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
