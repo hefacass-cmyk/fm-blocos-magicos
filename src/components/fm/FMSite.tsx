@@ -244,7 +244,7 @@ function VideoSection() {
           Tecnologia, precisão e entrega garantida em cada obra.
         </p>
 
-        <div className="mt-10 mx-auto w-full" style={{ maxWidth: 900 }}>
+        <div className="mt-10 mx-4 sm:mx-10 lg:mx-auto w-full" style={{ maxWidth: 720 }}>
           <div className="rounded-2xl overflow-hidden shadow-xl" style={{ aspectRatio: "16/9" }}>
             <video
               className="w-full h-full object-cover"
