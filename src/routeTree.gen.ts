@@ -17,6 +17,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CadastroParceiroRouteImport } from './routes/cadastro-parceiro'
 import { Route as BuscarProfissionalRouteImport } from './routes/buscar-profissional'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ResetSenhaTokenRouteImport } from './routes/reset-senha.$token'
 import { Route as ParceiroLoginRouteImport } from './routes/parceiro.login'
 import { Route as ParceiroDashboardRouteImport } from './routes/parceiro.dashboard'
 import { Route as ParceiroSlugRouteImport } from './routes/parceiro.$slug'
@@ -63,6 +64,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResetSenhaTokenRoute = ResetSenhaTokenRouteImport.update({
+  id: '/reset-senha/$token',
+  path: '/reset-senha/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ParceiroLoginRoute = ParceiroLoginRouteImport.update({
   id: '/parceiro/login',
   path: '/parceiro/login',
@@ -103,6 +109,7 @@ export interface FileRoutesByFullPath {
   '/parceiro/$slug': typeof ParceiroSlugRoute
   '/parceiro/dashboard': typeof ParceiroDashboardRoute
   '/parceiro/login': typeof ParceiroLoginRoute
+  '/reset-senha/$token': typeof ResetSenhaTokenRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -118,6 +125,7 @@ export interface FileRoutesByTo {
   '/parceiro/$slug': typeof ParceiroSlugRoute
   '/parceiro/dashboard': typeof ParceiroDashboardRoute
   '/parceiro/login': typeof ParceiroLoginRoute
+  '/reset-senha/$token': typeof ResetSenhaTokenRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -134,6 +142,7 @@ export interface FileRoutesById {
   '/parceiro/$slug': typeof ParceiroSlugRoute
   '/parceiro/dashboard': typeof ParceiroDashboardRoute
   '/parceiro/login': typeof ParceiroLoginRoute
+  '/reset-senha/$token': typeof ResetSenhaTokenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -151,6 +160,7 @@ export interface FileRouteTypes {
     | '/parceiro/$slug'
     | '/parceiro/dashboard'
     | '/parceiro/login'
+    | '/reset-senha/$token'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -166,6 +176,7 @@ export interface FileRouteTypes {
     | '/parceiro/$slug'
     | '/parceiro/dashboard'
     | '/parceiro/login'
+    | '/reset-senha/$token'
   id:
     | '__root__'
     | '/'
@@ -181,6 +192,7 @@ export interface FileRouteTypes {
     | '/parceiro/$slug'
     | '/parceiro/dashboard'
     | '/parceiro/login'
+    | '/reset-senha/$token'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -197,6 +209,7 @@ export interface RootRouteChildren {
   ParceiroSlugRoute: typeof ParceiroSlugRoute
   ParceiroDashboardRoute: typeof ParceiroDashboardRoute
   ParceiroLoginRoute: typeof ParceiroLoginRoute
+  ResetSenhaTokenRoute: typeof ResetSenhaTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -257,6 +270,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reset-senha/$token': {
+      id: '/reset-senha/$token'
+      path: '/reset-senha/$token'
+      fullPath: '/reset-senha/$token'
+      preLoaderRoute: typeof ResetSenhaTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/parceiro/login': {
       id: '/parceiro/login'
       path: '/parceiro/login'
@@ -309,6 +329,7 @@ const rootRouteChildren: RootRouteChildren = {
   ParceiroSlugRoute: ParceiroSlugRoute,
   ParceiroDashboardRoute: ParceiroDashboardRoute,
   ParceiroLoginRoute: ParceiroLoginRoute,
+  ResetSenhaTokenRoute: ResetSenhaTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
