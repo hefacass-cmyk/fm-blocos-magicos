@@ -12,13 +12,16 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ParceirosRouteImport } from './routes/parceiros'
 import { Route as ParceiroInviteRouteImport } from './routes/parceiro-invite'
 import { Route as FornecedoresRouteImport } from './routes/fornecedores'
+import { Route as EsqueciSenhaRouteImport } from './routes/esqueci-senha'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CadastroParceiroRouteImport } from './routes/cadastro-parceiro'
 import { Route as BuscarProfissionalRouteImport } from './routes/buscar-profissional'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ResetSenhaTokenRouteImport } from './routes/reset-senha.$token'
 import { Route as ParceiroLoginRouteImport } from './routes/parceiro.login'
 import { Route as ParceiroDashboardRouteImport } from './routes/parceiro.dashboard'
 import { Route as ParceiroSlugRouteImport } from './routes/parceiro.$slug'
+import { Route as AdminSenhasRouteImport } from './routes/admin.senhas'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 
@@ -35,6 +38,11 @@ const ParceiroInviteRoute = ParceiroInviteRouteImport.update({
 const FornecedoresRoute = FornecedoresRouteImport.update({
   id: '/fornecedores',
   path: '/fornecedores',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EsqueciSenhaRoute = EsqueciSenhaRouteImport.update({
+  id: '/esqueci-senha',
+  path: '/esqueci-senha',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -57,6 +65,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResetSenhaTokenRoute = ResetSenhaTokenRouteImport.update({
+  id: '/reset-senha/$token',
+  path: '/reset-senha/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ParceiroLoginRoute = ParceiroLoginRouteImport.update({
   id: '/parceiro/login',
   path: '/parceiro/login',
@@ -70,6 +83,11 @@ const ParceiroDashboardRoute = ParceiroDashboardRouteImport.update({
 const ParceiroSlugRoute = ParceiroSlugRouteImport.update({
   id: '/parceiro/$slug',
   path: '/parceiro/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminSenhasRoute = AdminSenhasRouteImport.update({
+  id: '/admin/senhas',
+  path: '/admin/senhas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminLoginRoute = AdminLoginRouteImport.update({
@@ -88,28 +106,34 @@ export interface FileRoutesByFullPath {
   '/buscar-profissional': typeof BuscarProfissionalRoute
   '/cadastro-parceiro': typeof CadastroParceiroRoute
   '/dashboard': typeof DashboardRoute
+  '/esqueci-senha': typeof EsqueciSenhaRoute
   '/fornecedores': typeof FornecedoresRoute
   '/parceiro-invite': typeof ParceiroInviteRoute
   '/parceiros': typeof ParceirosRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/senhas': typeof AdminSenhasRoute
   '/parceiro/$slug': typeof ParceiroSlugRoute
   '/parceiro/dashboard': typeof ParceiroDashboardRoute
   '/parceiro/login': typeof ParceiroLoginRoute
+  '/reset-senha/$token': typeof ResetSenhaTokenRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/buscar-profissional': typeof BuscarProfissionalRoute
   '/cadastro-parceiro': typeof CadastroParceiroRoute
   '/dashboard': typeof DashboardRoute
+  '/esqueci-senha': typeof EsqueciSenhaRoute
   '/fornecedores': typeof FornecedoresRoute
   '/parceiro-invite': typeof ParceiroInviteRoute
   '/parceiros': typeof ParceirosRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/senhas': typeof AdminSenhasRoute
   '/parceiro/$slug': typeof ParceiroSlugRoute
   '/parceiro/dashboard': typeof ParceiroDashboardRoute
   '/parceiro/login': typeof ParceiroLoginRoute
+  '/reset-senha/$token': typeof ResetSenhaTokenRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -117,14 +141,17 @@ export interface FileRoutesById {
   '/buscar-profissional': typeof BuscarProfissionalRoute
   '/cadastro-parceiro': typeof CadastroParceiroRoute
   '/dashboard': typeof DashboardRoute
+  '/esqueci-senha': typeof EsqueciSenhaRoute
   '/fornecedores': typeof FornecedoresRoute
   '/parceiro-invite': typeof ParceiroInviteRoute
   '/parceiros': typeof ParceirosRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/senhas': typeof AdminSenhasRoute
   '/parceiro/$slug': typeof ParceiroSlugRoute
   '/parceiro/dashboard': typeof ParceiroDashboardRoute
   '/parceiro/login': typeof ParceiroLoginRoute
+  '/reset-senha/$token': typeof ResetSenhaTokenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -133,42 +160,51 @@ export interface FileRouteTypes {
     | '/buscar-profissional'
     | '/cadastro-parceiro'
     | '/dashboard'
+    | '/esqueci-senha'
     | '/fornecedores'
     | '/parceiro-invite'
     | '/parceiros'
     | '/admin/dashboard'
     | '/admin/login'
+    | '/admin/senhas'
     | '/parceiro/$slug'
     | '/parceiro/dashboard'
     | '/parceiro/login'
+    | '/reset-senha/$token'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/buscar-profissional'
     | '/cadastro-parceiro'
     | '/dashboard'
+    | '/esqueci-senha'
     | '/fornecedores'
     | '/parceiro-invite'
     | '/parceiros'
     | '/admin/dashboard'
     | '/admin/login'
+    | '/admin/senhas'
     | '/parceiro/$slug'
     | '/parceiro/dashboard'
     | '/parceiro/login'
+    | '/reset-senha/$token'
   id:
     | '__root__'
     | '/'
     | '/buscar-profissional'
     | '/cadastro-parceiro'
     | '/dashboard'
+    | '/esqueci-senha'
     | '/fornecedores'
     | '/parceiro-invite'
     | '/parceiros'
     | '/admin/dashboard'
     | '/admin/login'
+    | '/admin/senhas'
     | '/parceiro/$slug'
     | '/parceiro/dashboard'
     | '/parceiro/login'
+    | '/reset-senha/$token'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -176,14 +212,17 @@ export interface RootRouteChildren {
   BuscarProfissionalRoute: typeof BuscarProfissionalRoute
   CadastroParceiroRoute: typeof CadastroParceiroRoute
   DashboardRoute: typeof DashboardRoute
+  EsqueciSenhaRoute: typeof EsqueciSenhaRoute
   FornecedoresRoute: typeof FornecedoresRoute
   ParceiroInviteRoute: typeof ParceiroInviteRoute
   ParceirosRoute: typeof ParceirosRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminLoginRoute: typeof AdminLoginRoute
+  AdminSenhasRoute: typeof AdminSenhasRoute
   ParceiroSlugRoute: typeof ParceiroSlugRoute
   ParceiroDashboardRoute: typeof ParceiroDashboardRoute
   ParceiroLoginRoute: typeof ParceiroLoginRoute
+  ResetSenhaTokenRoute: typeof ResetSenhaTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -207,6 +246,13 @@ declare module '@tanstack/react-router' {
       path: '/fornecedores'
       fullPath: '/fornecedores'
       preLoaderRoute: typeof FornecedoresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/esqueci-senha': {
+      id: '/esqueci-senha'
+      path: '/esqueci-senha'
+      fullPath: '/esqueci-senha'
+      preLoaderRoute: typeof EsqueciSenhaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -237,6 +283,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reset-senha/$token': {
+      id: '/reset-senha/$token'
+      path: '/reset-senha/$token'
+      fullPath: '/reset-senha/$token'
+      preLoaderRoute: typeof ResetSenhaTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/parceiro/login': {
       id: '/parceiro/login'
       path: '/parceiro/login'
@@ -256,6 +309,13 @@ declare module '@tanstack/react-router' {
       path: '/parceiro/$slug'
       fullPath: '/parceiro/$slug'
       preLoaderRoute: typeof ParceiroSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/senhas': {
+      id: '/admin/senhas'
+      path: '/admin/senhas'
+      fullPath: '/admin/senhas'
+      preLoaderRoute: typeof AdminSenhasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/login': {
@@ -280,14 +340,17 @@ const rootRouteChildren: RootRouteChildren = {
   BuscarProfissionalRoute: BuscarProfissionalRoute,
   CadastroParceiroRoute: CadastroParceiroRoute,
   DashboardRoute: DashboardRoute,
+  EsqueciSenhaRoute: EsqueciSenhaRoute,
   FornecedoresRoute: FornecedoresRoute,
   ParceiroInviteRoute: ParceiroInviteRoute,
   ParceirosRoute: ParceirosRoute,
   AdminDashboardRoute: AdminDashboardRoute,
   AdminLoginRoute: AdminLoginRoute,
+  AdminSenhasRoute: AdminSenhasRoute,
   ParceiroSlugRoute: ParceiroSlugRoute,
   ParceiroDashboardRoute: ParceiroDashboardRoute,
   ParceiroLoginRoute: ParceiroLoginRoute,
+  ResetSenhaTokenRoute: ResetSenhaTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
