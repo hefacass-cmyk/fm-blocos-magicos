@@ -14,6 +14,7 @@ import { Route as ParceiroInviteRouteImport } from './routes/parceiro-invite'
 import { Route as FornecedoresRouteImport } from './routes/fornecedores'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CadastroParceiroRouteImport } from './routes/cadastro-parceiro'
+import { Route as BuscarProfissionalRouteImport } from './routes/buscar-profissional'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ParceiroLoginRouteImport } from './routes/parceiro.login'
 import { Route as ParceiroDashboardRouteImport } from './routes/parceiro.dashboard'
@@ -44,6 +45,11 @@ const CadastroParceiroRoute = CadastroParceiroRouteImport.update({
   path: '/cadastro-parceiro',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BuscarProfissionalRoute = BuscarProfissionalRouteImport.update({
+  id: '/buscar-profissional',
+  path: '/buscar-profissional',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -67,6 +73,7 @@ const ParceiroSlugRoute = ParceiroSlugRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/buscar-profissional': typeof BuscarProfissionalRoute
   '/cadastro-parceiro': typeof CadastroParceiroRoute
   '/dashboard': typeof DashboardRoute
   '/fornecedores': typeof FornecedoresRoute
@@ -78,6 +85,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/buscar-profissional': typeof BuscarProfissionalRoute
   '/cadastro-parceiro': typeof CadastroParceiroRoute
   '/dashboard': typeof DashboardRoute
   '/fornecedores': typeof FornecedoresRoute
@@ -90,6 +98,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/buscar-profissional': typeof BuscarProfissionalRoute
   '/cadastro-parceiro': typeof CadastroParceiroRoute
   '/dashboard': typeof DashboardRoute
   '/fornecedores': typeof FornecedoresRoute
@@ -103,6 +112,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/buscar-profissional'
     | '/cadastro-parceiro'
     | '/dashboard'
     | '/fornecedores'
@@ -114,6 +124,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/buscar-profissional'
     | '/cadastro-parceiro'
     | '/dashboard'
     | '/fornecedores'
@@ -125,6 +136,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/buscar-profissional'
     | '/cadastro-parceiro'
     | '/dashboard'
     | '/fornecedores'
@@ -137,6 +149,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BuscarProfissionalRoute: typeof BuscarProfissionalRoute
   CadastroParceiroRoute: typeof CadastroParceiroRoute
   DashboardRoute: typeof DashboardRoute
   FornecedoresRoute: typeof FornecedoresRoute
@@ -184,6 +197,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CadastroParceiroRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/buscar-profissional': {
+      id: '/buscar-profissional'
+      path: '/buscar-profissional'
+      fullPath: '/buscar-profissional'
+      preLoaderRoute: typeof BuscarProfissionalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -217,6 +237,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BuscarProfissionalRoute: BuscarProfissionalRoute,
   CadastroParceiroRoute: CadastroParceiroRoute,
   DashboardRoute: DashboardRoute,
   FornecedoresRoute: FornecedoresRoute,
@@ -229,3 +250,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
