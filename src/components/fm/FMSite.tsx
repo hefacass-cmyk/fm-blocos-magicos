@@ -93,7 +93,7 @@ function FindSpecialist() {
 function Header({ onLogin }: { onLogin: () => void }) {
   const [open, setOpen] = useState(false);
   return (
-    <header className="fixed top-0 inset-x-0 z-50 bg-background/90 backdrop-blur border-b border-border">
+    <header className="fixed top-0 inset-x-0 z-50 bg-background/90 backdrop-blur border-b border-border" style={{ minWidth: 320 }}>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <a href="#home" className="flex items-center gap-2">
           <img src={fmLogo} alt="F&M Construções Inteligentes" className="h-10 w-auto object-contain" />
