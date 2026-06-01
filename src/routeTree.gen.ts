@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ParceirosRouteImport } from './routes/parceiros'
+import { Route as ParceiroInviteRouteImport } from './routes/parceiro-invite'
 import { Route as FornecedoresRouteImport } from './routes/fornecedores'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CadastroParceiroRouteImport } from './routes/cadastro-parceiro'
@@ -20,6 +21,11 @@ import { Route as ParceiroDashboardRouteImport } from './routes/parceiro.dashboa
 const ParceirosRoute = ParceirosRouteImport.update({
   id: '/parceiros',
   path: '/parceiros',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ParceiroInviteRoute = ParceiroInviteRouteImport.update({
+  id: '/parceiro-invite',
+  path: '/parceiro-invite',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FornecedoresRoute = FornecedoresRouteImport.update({
@@ -58,6 +64,7 @@ export interface FileRoutesByFullPath {
   '/cadastro-parceiro': typeof CadastroParceiroRoute
   '/dashboard': typeof DashboardRoute
   '/fornecedores': typeof FornecedoresRoute
+  '/parceiro-invite': typeof ParceiroInviteRoute
   '/parceiros': typeof ParceirosRoute
   '/parceiro/dashboard': typeof ParceiroDashboardRoute
   '/parceiro/login': typeof ParceiroLoginRoute
@@ -67,6 +74,7 @@ export interface FileRoutesByTo {
   '/cadastro-parceiro': typeof CadastroParceiroRoute
   '/dashboard': typeof DashboardRoute
   '/fornecedores': typeof FornecedoresRoute
+  '/parceiro-invite': typeof ParceiroInviteRoute
   '/parceiros': typeof ParceirosRoute
   '/parceiro/dashboard': typeof ParceiroDashboardRoute
   '/parceiro/login': typeof ParceiroLoginRoute
@@ -77,6 +85,7 @@ export interface FileRoutesById {
   '/cadastro-parceiro': typeof CadastroParceiroRoute
   '/dashboard': typeof DashboardRoute
   '/fornecedores': typeof FornecedoresRoute
+  '/parceiro-invite': typeof ParceiroInviteRoute
   '/parceiros': typeof ParceirosRoute
   '/parceiro/dashboard': typeof ParceiroDashboardRoute
   '/parceiro/login': typeof ParceiroLoginRoute
@@ -88,6 +97,7 @@ export interface FileRouteTypes {
     | '/cadastro-parceiro'
     | '/dashboard'
     | '/fornecedores'
+    | '/parceiro-invite'
     | '/parceiros'
     | '/parceiro/dashboard'
     | '/parceiro/login'
@@ -97,6 +107,7 @@ export interface FileRouteTypes {
     | '/cadastro-parceiro'
     | '/dashboard'
     | '/fornecedores'
+    | '/parceiro-invite'
     | '/parceiros'
     | '/parceiro/dashboard'
     | '/parceiro/login'
@@ -106,6 +117,7 @@ export interface FileRouteTypes {
     | '/cadastro-parceiro'
     | '/dashboard'
     | '/fornecedores'
+    | '/parceiro-invite'
     | '/parceiros'
     | '/parceiro/dashboard'
     | '/parceiro/login'
@@ -116,6 +128,7 @@ export interface RootRouteChildren {
   CadastroParceiroRoute: typeof CadastroParceiroRoute
   DashboardRoute: typeof DashboardRoute
   FornecedoresRoute: typeof FornecedoresRoute
+  ParceiroInviteRoute: typeof ParceiroInviteRoute
   ParceirosRoute: typeof ParceirosRoute
   ParceiroDashboardRoute: typeof ParceiroDashboardRoute
   ParceiroLoginRoute: typeof ParceiroLoginRoute
@@ -128,6 +141,13 @@ declare module '@tanstack/react-router' {
       path: '/parceiros'
       fullPath: '/parceiros'
       preLoaderRoute: typeof ParceirosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/parceiro-invite': {
+      id: '/parceiro-invite'
+      path: '/parceiro-invite'
+      fullPath: '/parceiro-invite'
+      preLoaderRoute: typeof ParceiroInviteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/fornecedores': {
@@ -180,6 +200,7 @@ const rootRouteChildren: RootRouteChildren = {
   CadastroParceiroRoute: CadastroParceiroRoute,
   DashboardRoute: DashboardRoute,
   FornecedoresRoute: FornecedoresRoute,
+  ParceiroInviteRoute: ParceiroInviteRoute,
   ParceirosRoute: ParceirosRoute,
   ParceiroDashboardRoute: ParceiroDashboardRoute,
   ParceiroLoginRoute: ParceiroLoginRoute,
@@ -187,3 +208,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
