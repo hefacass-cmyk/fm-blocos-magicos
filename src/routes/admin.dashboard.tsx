@@ -33,6 +33,7 @@ function AdminDashboardPage() {
   const [solicitacoes, setSolicitacoes] = useState<Row[]>([]);
   const [feedbacks, setFeedbacks] = useState<Row[]>([]);
   const [logs, setLogs] = useState<Row[]>([]);
+  const [parceiros, setParceiros] = useState<Row[]>([]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -120,6 +121,7 @@ function AdminDashboardPage() {
         setSolicitacoes((solics.data as Row[]) ?? []);
         setFeedbacks((fbs.data as Row[]) ?? []);
         setLogs((logsRes.data as Row[]) ?? []);
+        setParceiros(parceirosRows);
       } catch (e) {
         console.error("[admin] load", e);
       } finally {
