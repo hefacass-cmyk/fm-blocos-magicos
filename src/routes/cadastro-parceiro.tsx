@@ -254,6 +254,8 @@ function CadastroParceiroPage() {
       telefone: form.telefone.trim(),
       whatsapp: form.telefone.trim(),
       email: form.email.trim().toLowerCase(),
+      instagram: form.instagram.trim().replace(/^@/, "") || null,
+      especialidade: form.especialidade.trim() || null,
       cidade: form.cidade.trim(),
       estado: form.estado.trim().toUpperCase(),
       mensagem: form.mensagem.trim() || null,
