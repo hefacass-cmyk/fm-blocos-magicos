@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Users, Building2, MessageSquare, Star, Activity, Eye, LogOut, Check, X, Loader2, KeyRound } from "lucide-react";
+import { Users, Building2, MessageSquare, Star, Activity, Eye, LogOut, Check, X, Loader2, KeyRound, Mail } from "lucide-react";
 import { fmSupabase } from "@/lib/fm-supabase";
 import { logAdmin } from "@/lib/fm-tracking";
 
@@ -174,6 +174,12 @@ function AdminDashboardPage() {
               className="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium hover:bg-slate-50"
             >
               <KeyRound className="h-4 w-4" /> Senhas
+            </Link>
+            <Link
+              to="/admin/auditoria-emails"
+              className="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium hover:bg-slate-50"
+            >
+              <Mail className="h-4 w-4" /> Auditoria de emails
             </Link>
             <button onClick={sair} className="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium hover:bg-slate-50">
               <LogOut className="h-4 w-4" /> Sair
