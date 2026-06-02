@@ -263,10 +263,54 @@ function AdminDashboardPage() {
           )}
         </section>
 
+        {/* Parceiros — verificação */}
+        <section className="rounded-2xl border bg-white p-5 shadow-sm">
+          <h2 className="mb-3 inline-flex items-center gap-2 text-base font-bold" style={{ color: BRAND_BLUE }}>
+            <Users className="h-4 w-4" /> Parceiros — verificação
+          </h2>
+          {parceiros.length === 0 ? (
+            <p className="text-sm text-slate-500">Nenhum parceiro cadastrado.</p>
+          ) : (
+            <div className="max-h-96 overflow-y-auto">
+              <table className="w-full text-sm">
+                <thead className="sticky top-0 bg-slate-50 text-left text-xs">
+                  <tr>
+                    <th className="p-2">Parceiro</th>
+                    <th className="p-2">Empresa</th>
+                    <th className="p-2 text-center">Verificado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {parceiros.map((p) => (
+                    <tr key={String(p.id)} className="border-t">
+                      <td className="p-2">{String(p.nome ?? "—")}</td>
+                      <td className="p-2 text-slate-600">{String(p.empresa ?? "—")}</td>
+                      <td className="p-2 text-center">
+                        <label className="inline-flex cursor-pointer items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={Boolean(p.verificado)}
+                            onChange={() => toggleVerificado(p)}
+                            className="h-4 w-4 cursor-pointer"
+                          />
+                          {p.verificado ? (
+                            <span className="text-xs font-bold" style={{ color: BRAND_GREEN }}>✅ Verificado</span>
+                          ) : (
+                            <span className="text-xs text-slate-400">não</span>
+                          )}
+                        </label>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+
         {/* Feedbacks */}
         <section className="rounded-2xl border bg-white p-5 shadow-sm">
           <h2 className="mb-3 text-base font-bold" style={{ color: BRAND_BLUE }}>💬 Feedbacks recentes de clientes</h2>
-          {/* placeholder */}
           {feedbacks.length === 0 ? (
             <p className="text-sm text-slate-500">Sem feedbacks.</p>
           ) : (
