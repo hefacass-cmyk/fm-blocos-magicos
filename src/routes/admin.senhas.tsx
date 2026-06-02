@@ -1,7 +1,9 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Loader2, Copy, RefreshCw, ArrowLeft } from "lucide-react";
+import { Loader2, Copy, RefreshCw, ArrowLeft, Mail } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
 import { fmSupabase } from "@/lib/fm-supabase";
+import { sendResetEmail } from "@/lib/email-reset.functions";
 import {
   generateToken,
   buildResetUrl,
@@ -35,7 +37,10 @@ function AdminSenhasPage() {
   const [linkRecemGerado, setLinkRecemGerado] = useState<{
     parceiroId: string;
     url: string;
+    enviado: boolean;
+    erroEnvio?: string;
   } | null>(null);
+  const enviarEmail = useServerFn(sendResetEmail);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -88,10 +93,20 @@ function AdminSenhasPage() {
         return;
       }
       const url = buildResetUrl(token);
-      setLinkRecemGerado({ parceiroId: p.id, url });
+      const envio = await enviarEmail({
+        data: { to: p.email, nome: p.nome ?? undefined, resetUrl: url },
+      });
+      setLinkRecemGerado({
+        parceiroId: p.id,
+        url,
+        enviado: envio.ok,
+        erroEnvio: envio.ok ? undefined : envio.error,
+      });
       await logTentativa(
         "reset_admin",
-        `Admin gerou link de reset para ${p.email} (${p.id}): ${url}`,
+        envio.ok
+          ? `Admin gerou e ENVIOU link de reset p/ ${p.email} (${p.id}): ${url}`
+          : `Admin gerou link p/ ${p.email} (${p.id}) mas FALHA no envio (${envio.error}): ${url}`,
       );
       await load();
     } finally {
@@ -162,8 +177,25 @@ function AdminSenhasPage() {
         </div>
 
         {linkRecemGerado && (
-          <div className="rounded-xl border border-green-300 bg-green-50 p-4">
-            <div className="text-sm font-semibold text-green-900">Link gerado:</div>
+          <div
+            className={`rounded-xl border p-4 ${
+              linkRecemGerado.enviado
+                ? "border-green-300 bg-green-50"
+                : "border-yellow-300 bg-yellow-50"
+            }`}
+          >
+            <div className="text-sm font-semibold">
+              {linkRecemGerado.enviado ? (
+                <span className="inline-flex items-center gap-1 text-green-900">
+                  <Mail className="h-4 w-4" /> Email enviado com o link de reset.
+                </span>
+              ) : (
+                <span className="text-yellow-900">
+                  Link gerado, mas falha no envio do email
+                  {linkRecemGerado.erroEnvio ? `: ${linkRecemGerado.erroEnvio}` : ""}. Copie e envie manualmente:
+                </span>
+              )}
+            </div>
             <div className="mt-2 flex flex-wrap items-center gap-2">
               <code className="flex-1 min-w-0 truncate rounded bg-white px-3 py-2 text-xs">
                 {linkRecemGerado.url}
