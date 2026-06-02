@@ -36,6 +36,8 @@ type FormState = {
   segmento: "Fornecedor" | "Parceiro" | "Representante" | "";
   telefone: string;
   email: string;
+  instagram: string;
+  especialidade: string;
   cidade: string;
   estado: string;
   mensagem: string;
@@ -47,6 +49,8 @@ const INITIAL: FormState = {
   segmento: "",
   telefone: "",
   email: "",
+  instagram: "",
+  especialidade: "",
   cidade: "",
   estado: "",
   mensagem: "",
