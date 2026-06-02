@@ -24,6 +24,7 @@ import { Route as ParceiroSlugRouteImport } from './routes/parceiro.$slug'
 import { Route as AdminSenhasRouteImport } from './routes/admin.senhas'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
+import { Route as AdminAuditoriaEmailsRouteImport } from './routes/admin.auditoria-emails'
 
 const ParceirosRoute = ParceirosRouteImport.update({
   id: '/parceiros',
@@ -100,6 +101,11 @@ const AdminDashboardRoute = AdminDashboardRouteImport.update({
   path: '/admin/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminAuditoriaEmailsRoute = AdminAuditoriaEmailsRouteImport.update({
+  id: '/admin/auditoria-emails',
+  path: '/admin/auditoria-emails',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -110,6 +116,7 @@ export interface FileRoutesByFullPath {
   '/fornecedores': typeof FornecedoresRoute
   '/parceiro-invite': typeof ParceiroInviteRoute
   '/parceiros': typeof ParceirosRoute
+  '/admin/auditoria-emails': typeof AdminAuditoriaEmailsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/senhas': typeof AdminSenhasRoute
@@ -127,6 +134,7 @@ export interface FileRoutesByTo {
   '/fornecedores': typeof FornecedoresRoute
   '/parceiro-invite': typeof ParceiroInviteRoute
   '/parceiros': typeof ParceirosRoute
+  '/admin/auditoria-emails': typeof AdminAuditoriaEmailsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/senhas': typeof AdminSenhasRoute
@@ -145,6 +153,7 @@ export interface FileRoutesById {
   '/fornecedores': typeof FornecedoresRoute
   '/parceiro-invite': typeof ParceiroInviteRoute
   '/parceiros': typeof ParceirosRoute
+  '/admin/auditoria-emails': typeof AdminAuditoriaEmailsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/senhas': typeof AdminSenhasRoute
@@ -164,6 +173,7 @@ export interface FileRouteTypes {
     | '/fornecedores'
     | '/parceiro-invite'
     | '/parceiros'
+    | '/admin/auditoria-emails'
     | '/admin/dashboard'
     | '/admin/login'
     | '/admin/senhas'
@@ -181,6 +191,7 @@ export interface FileRouteTypes {
     | '/fornecedores'
     | '/parceiro-invite'
     | '/parceiros'
+    | '/admin/auditoria-emails'
     | '/admin/dashboard'
     | '/admin/login'
     | '/admin/senhas'
@@ -198,6 +209,7 @@ export interface FileRouteTypes {
     | '/fornecedores'
     | '/parceiro-invite'
     | '/parceiros'
+    | '/admin/auditoria-emails'
     | '/admin/dashboard'
     | '/admin/login'
     | '/admin/senhas'
@@ -216,6 +228,7 @@ export interface RootRouteChildren {
   FornecedoresRoute: typeof FornecedoresRoute
   ParceiroInviteRoute: typeof ParceiroInviteRoute
   ParceirosRoute: typeof ParceirosRoute
+  AdminAuditoriaEmailsRoute: typeof AdminAuditoriaEmailsRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminSenhasRoute: typeof AdminSenhasRoute
@@ -332,6 +345,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/auditoria-emails': {
+      id: '/admin/auditoria-emails'
+      path: '/admin/auditoria-emails'
+      fullPath: '/admin/auditoria-emails'
+      preLoaderRoute: typeof AdminAuditoriaEmailsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -344,6 +364,7 @@ const rootRouteChildren: RootRouteChildren = {
   FornecedoresRoute: FornecedoresRoute,
   ParceiroInviteRoute: ParceiroInviteRoute,
   ParceirosRoute: ParceirosRoute,
+  AdminAuditoriaEmailsRoute: AdminAuditoriaEmailsRoute,
   AdminDashboardRoute: AdminDashboardRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminSenhasRoute: AdminSenhasRoute,
@@ -355,3 +376,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
