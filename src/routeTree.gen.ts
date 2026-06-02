@@ -25,7 +25,6 @@ import { Route as AdminSenhasRouteImport } from './routes/admin.senhas'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AdminAuditoriaEmailsRouteImport } from './routes/admin.auditoria-emails'
-import { Route as ApiPublicTestResendRouteImport } from './routes/api/public/test-resend'
 
 const ParceirosRoute = ParceirosRouteImport.update({
   id: '/parceiros',
@@ -107,11 +106,6 @@ const AdminAuditoriaEmailsRoute = AdminAuditoriaEmailsRouteImport.update({
   path: '/admin/auditoria-emails',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicTestResendRoute = ApiPublicTestResendRouteImport.update({
-  id: '/api/public/test-resend',
-  path: '/api/public/test-resend',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -130,7 +124,6 @@ export interface FileRoutesByFullPath {
   '/parceiro/dashboard': typeof ParceiroDashboardRoute
   '/parceiro/login': typeof ParceiroLoginRoute
   '/reset-senha/$token': typeof ResetSenhaTokenRoute
-  '/api/public/test-resend': typeof ApiPublicTestResendRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -149,7 +142,6 @@ export interface FileRoutesByTo {
   '/parceiro/dashboard': typeof ParceiroDashboardRoute
   '/parceiro/login': typeof ParceiroLoginRoute
   '/reset-senha/$token': typeof ResetSenhaTokenRoute
-  '/api/public/test-resend': typeof ApiPublicTestResendRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -169,7 +161,6 @@ export interface FileRoutesById {
   '/parceiro/dashboard': typeof ParceiroDashboardRoute
   '/parceiro/login': typeof ParceiroLoginRoute
   '/reset-senha/$token': typeof ResetSenhaTokenRoute
-  '/api/public/test-resend': typeof ApiPublicTestResendRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -190,7 +181,6 @@ export interface FileRouteTypes {
     | '/parceiro/dashboard'
     | '/parceiro/login'
     | '/reset-senha/$token'
-    | '/api/public/test-resend'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -209,7 +199,6 @@ export interface FileRouteTypes {
     | '/parceiro/dashboard'
     | '/parceiro/login'
     | '/reset-senha/$token'
-    | '/api/public/test-resend'
   id:
     | '__root__'
     | '/'
@@ -228,7 +217,6 @@ export interface FileRouteTypes {
     | '/parceiro/dashboard'
     | '/parceiro/login'
     | '/reset-senha/$token'
-    | '/api/public/test-resend'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -248,7 +236,6 @@ export interface RootRouteChildren {
   ParceiroDashboardRoute: typeof ParceiroDashboardRoute
   ParceiroLoginRoute: typeof ParceiroLoginRoute
   ResetSenhaTokenRoute: typeof ResetSenhaTokenRoute
-  ApiPublicTestResendRoute: typeof ApiPublicTestResendRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -365,13 +352,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAuditoriaEmailsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/test-resend': {
-      id: '/api/public/test-resend'
-      path: '/api/public/test-resend'
-      fullPath: '/api/public/test-resend'
-      preLoaderRoute: typeof ApiPublicTestResendRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
@@ -392,7 +372,6 @@ const rootRouteChildren: RootRouteChildren = {
   ParceiroDashboardRoute: ParceiroDashboardRoute,
   ParceiroLoginRoute: ParceiroLoginRoute,
   ResetSenhaTokenRoute: ResetSenhaTokenRoute,
-  ApiPublicTestResendRoute: ApiPublicTestResendRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
