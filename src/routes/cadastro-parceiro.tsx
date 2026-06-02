@@ -500,6 +500,27 @@ function CadastroParceiroPage() {
                 </Field>
               </div>
 
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <Field label="Instagram">
+                  <input
+                    type="text"
+                    value={form.instagram}
+                    onChange={(e) => update("instagram", e.target.value)}
+                    className={inputClass}
+                    placeholder="@seu_perfil"
+                  />
+                </Field>
+                <Field label="Especialidade">
+                  <input
+                    type="text"
+                    value={form.especialidade}
+                    onChange={(e) => update("especialidade", e.target.value)}
+                    className={inputClass}
+                    placeholder="Ex.: Elétrica, Hidráulica, Pintura"
+                  />
+                </Field>
+              </div>
+
               <Field label="Mensagem ou apresentação">
                 <textarea
                   value={form.mensagem}
