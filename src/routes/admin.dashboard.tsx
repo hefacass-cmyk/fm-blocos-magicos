@@ -266,6 +266,7 @@ function AdminDashboardPage() {
         {/* Feedbacks */}
         <section className="rounded-2xl border bg-white p-5 shadow-sm">
           <h2 className="mb-3 text-base font-bold" style={{ color: BRAND_BLUE }}>💬 Feedbacks recentes de clientes</h2>
+          {/* placeholder */}
           {feedbacks.length === 0 ? (
             <p className="text-sm text-slate-500">Sem feedbacks.</p>
           ) : (
