@@ -15,6 +15,7 @@ import { Route as FornecedoresRouteImport } from './routes/fornecedores'
 import { Route as EsqueciSenhaRouteImport } from './routes/esqueci-senha'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CadastroParceiroRouteImport } from './routes/cadastro-parceiro'
+import { Route as CadastroFornecedorRouteImport } from './routes/cadastro-fornecedor'
 import { Route as BuscarProfissionalRouteImport } from './routes/buscar-profissional'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ResetSenhaTokenRouteImport } from './routes/reset-senha.$token'
@@ -54,6 +55,11 @@ const DashboardRoute = DashboardRouteImport.update({
 const CadastroParceiroRoute = CadastroParceiroRouteImport.update({
   id: '/cadastro-parceiro',
   path: '/cadastro-parceiro',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CadastroFornecedorRoute = CadastroFornecedorRouteImport.update({
+  id: '/cadastro-fornecedor',
+  path: '/cadastro-fornecedor',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BuscarProfissionalRoute = BuscarProfissionalRouteImport.update({
@@ -110,6 +116,7 @@ const AdminAuditoriaEmailsRoute = AdminAuditoriaEmailsRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/buscar-profissional': typeof BuscarProfissionalRoute
+  '/cadastro-fornecedor': typeof CadastroFornecedorRoute
   '/cadastro-parceiro': typeof CadastroParceiroRoute
   '/dashboard': typeof DashboardRoute
   '/esqueci-senha': typeof EsqueciSenhaRoute
@@ -128,6 +135,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/buscar-profissional': typeof BuscarProfissionalRoute
+  '/cadastro-fornecedor': typeof CadastroFornecedorRoute
   '/cadastro-parceiro': typeof CadastroParceiroRoute
   '/dashboard': typeof DashboardRoute
   '/esqueci-senha': typeof EsqueciSenhaRoute
@@ -147,6 +155,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/buscar-profissional': typeof BuscarProfissionalRoute
+  '/cadastro-fornecedor': typeof CadastroFornecedorRoute
   '/cadastro-parceiro': typeof CadastroParceiroRoute
   '/dashboard': typeof DashboardRoute
   '/esqueci-senha': typeof EsqueciSenhaRoute
@@ -167,6 +176,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/buscar-profissional'
+    | '/cadastro-fornecedor'
     | '/cadastro-parceiro'
     | '/dashboard'
     | '/esqueci-senha'
@@ -185,6 +195,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/buscar-profissional'
+    | '/cadastro-fornecedor'
     | '/cadastro-parceiro'
     | '/dashboard'
     | '/esqueci-senha'
@@ -203,6 +214,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/buscar-profissional'
+    | '/cadastro-fornecedor'
     | '/cadastro-parceiro'
     | '/dashboard'
     | '/esqueci-senha'
@@ -222,6 +234,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BuscarProfissionalRoute: typeof BuscarProfissionalRoute
+  CadastroFornecedorRoute: typeof CadastroFornecedorRoute
   CadastroParceiroRoute: typeof CadastroParceiroRoute
   DashboardRoute: typeof DashboardRoute
   EsqueciSenhaRoute: typeof EsqueciSenhaRoute
@@ -280,6 +293,13 @@ declare module '@tanstack/react-router' {
       path: '/cadastro-parceiro'
       fullPath: '/cadastro-parceiro'
       preLoaderRoute: typeof CadastroParceiroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cadastro-fornecedor': {
+      id: '/cadastro-fornecedor'
+      path: '/cadastro-fornecedor'
+      fullPath: '/cadastro-fornecedor'
+      preLoaderRoute: typeof CadastroFornecedorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/buscar-profissional': {
@@ -358,6 +378,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BuscarProfissionalRoute: BuscarProfissionalRoute,
+  CadastroFornecedorRoute: CadastroFornecedorRoute,
   CadastroParceiroRoute: CadastroParceiroRoute,
   DashboardRoute: DashboardRoute,
   EsqueciSenhaRoute: EsqueciSenhaRoute,

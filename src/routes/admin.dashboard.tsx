@@ -33,6 +33,7 @@ function AdminDashboardPage() {
   const [solicitacoes, setSolicitacoes] = useState<Row[]>([]);
   const [feedbacks, setFeedbacks] = useState<Row[]>([]);
   const [logs, setLogs] = useState<Row[]>([]);
+  const [parceiros, setParceiros] = useState<Row[]>([]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -120,6 +121,7 @@ function AdminDashboardPage() {
         setSolicitacoes((solics.data as Row[]) ?? []);
         setFeedbacks((fbs.data as Row[]) ?? []);
         setLogs((logsRes.data as Row[]) ?? []);
+        setParceiros(parceirosRows);
       } catch (e) {
         console.error("[admin] load", e);
       } finally {
@@ -152,6 +154,24 @@ function AdminDashboardPage() {
   };
 
   const sair = () => { sessionStorage.removeItem(ADMIN_KEY); navigate({ to: "/admin/login" }); };
+
+  const toggleVerificado = async (p: Row) => {
+    const novo = !p.verificado;
+    const prev = parceiros;
+    setParceiros((arr) => arr.map((x) => x.id === p.id ? { ...x, verificado: novo } : x));
+    const { error } = await fmSupabase.from("parceiros").update({ verificado: novo }).eq("id", p.id);
+    if (error) {
+      console.error("[admin] toggleVerificado", error);
+      alert("Erro ao atualizar verificação: " + error.message);
+      setParceiros(prev);
+      return;
+    }
+    await logAdmin(
+      novo ? "parceiro_verificado" : "parceiro_desverificado",
+      `${String(p.nome ?? p.empresa ?? p.id)} ${novo ? "marcado como verificado" : "desmarcado"}`,
+      "admin",
+    );
+  };
 
   if (loading) {
     return (
@@ -239,6 +259,51 @@ function AdminDashboardPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+        </section>
+
+        {/* Parceiros — verificação */}
+        <section className="rounded-2xl border bg-white p-5 shadow-sm">
+          <h2 className="mb-3 inline-flex items-center gap-2 text-base font-bold" style={{ color: BRAND_BLUE }}>
+            <Users className="h-4 w-4" /> Parceiros — verificação
+          </h2>
+          {parceiros.length === 0 ? (
+            <p className="text-sm text-slate-500">Nenhum parceiro cadastrado.</p>
+          ) : (
+            <div className="max-h-96 overflow-y-auto">
+              <table className="w-full text-sm">
+                <thead className="sticky top-0 bg-slate-50 text-left text-xs">
+                  <tr>
+                    <th className="p-2">Parceiro</th>
+                    <th className="p-2">Empresa</th>
+                    <th className="p-2 text-center">Verificado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {parceiros.map((p) => (
+                    <tr key={String(p.id)} className="border-t">
+                      <td className="p-2">{String(p.nome ?? "—")}</td>
+                      <td className="p-2 text-slate-600">{String(p.empresa ?? "—")}</td>
+                      <td className="p-2 text-center">
+                        <label className="inline-flex cursor-pointer items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={Boolean(p.verificado)}
+                            onChange={() => toggleVerificado(p)}
+                            className="h-4 w-4 cursor-pointer"
+                          />
+                          {p.verificado ? (
+                            <span className="text-xs font-bold" style={{ color: BRAND_GREEN }}>✅ Verificado</span>
+                          ) : (
+                            <span className="text-xs text-slate-400">não</span>
+                          )}
+                        </label>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </section>

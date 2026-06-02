@@ -310,6 +310,14 @@ function ParceiroPublicoPage() {
           >
             {nome}
           </h1>
+          {Boolean(parceiro?.verificado) && (
+            <span
+              className="mt-2 inline-flex items-center gap-1 rounded-full bg-green-50 px-3 py-1 text-xs font-bold text-green-700 ring-1 ring-green-200"
+              title="Parceiro verificado pela F&M"
+            >
+              ✅ Verificado
+            </span>
+          )}
           {(empresa || especialidade) && (
             <p className="mt-1 text-base font-semibold text-slate-700">
               {[empresa, especialidade].filter(Boolean).join(" • ")}

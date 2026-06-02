@@ -36,6 +36,8 @@ type FormState = {
   segmento: "Fornecedor" | "Parceiro" | "Representante" | "";
   telefone: string;
   email: string;
+  instagram: string;
+  especialidade: string;
   cidade: string;
   estado: string;
   mensagem: string;
@@ -47,6 +49,8 @@ const INITIAL: FormState = {
   segmento: "",
   telefone: "",
   email: "",
+  instagram: "",
+  especialidade: "",
   cidade: "",
   estado: "",
   mensagem: "",
@@ -250,6 +254,8 @@ function CadastroParceiroPage() {
       telefone: form.telefone.trim(),
       whatsapp: form.telefone.trim(),
       email: form.email.trim().toLowerCase(),
+      instagram: form.instagram.trim().replace(/^@/, "") || null,
+      especialidade: form.especialidade.trim() || null,
       cidade: form.cidade.trim(),
       estado: form.estado.trim().toUpperCase(),
       mensagem: form.mensagem.trim() || null,
@@ -491,6 +497,27 @@ function CadastroParceiroPage() {
                       </option>
                     ))}
                   </select>
+                </Field>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <Field label="Instagram">
+                  <input
+                    type="text"
+                    value={form.instagram}
+                    onChange={(e) => update("instagram", e.target.value)}
+                    className={inputClass}
+                    placeholder="@seu_perfil"
+                  />
+                </Field>
+                <Field label="Especialidade">
+                  <input
+                    type="text"
+                    value={form.especialidade}
+                    onChange={(e) => update("especialidade", e.target.value)}
+                    className={inputClass}
+                    placeholder="Ex.: Elétrica, Hidráulica, Pintura"
+                  />
                 </Field>
               </div>
 
