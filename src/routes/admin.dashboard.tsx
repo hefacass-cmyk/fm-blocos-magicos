@@ -155,6 +155,24 @@ function AdminDashboardPage() {
 
   const sair = () => { sessionStorage.removeItem(ADMIN_KEY); navigate({ to: "/admin/login" }); };
 
+  const toggleVerificado = async (p: Row) => {
+    const novo = !p.verificado;
+    const prev = parceiros;
+    setParceiros((arr) => arr.map((x) => x.id === p.id ? { ...x, verificado: novo } : x));
+    const { error } = await fmSupabase.from("parceiros").update({ verificado: novo }).eq("id", p.id);
+    if (error) {
+      console.error("[admin] toggleVerificado", error);
+      alert("Erro ao atualizar verificação: " + error.message);
+      setParceiros(prev);
+      return;
+    }
+    await logAdmin(
+      novo ? "parceiro_verificado" : "parceiro_desverificado",
+      `${String(p.nome ?? p.empresa ?? p.id)} ${novo ? "marcado como verificado" : "desmarcado"}`,
+      "admin",
+    );
+  };
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50">
