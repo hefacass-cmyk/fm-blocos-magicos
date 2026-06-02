@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { fmSupabase } from "@/lib/fm-supabase";
+import { sendResetEmail } from "@/lib/email-reset.functions";
 import {
   countRecentAttempts,
   generateToken,
@@ -23,6 +25,7 @@ function EsqueciSenhaPage() {
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
+  const enviarEmail = useServerFn(sendResetEmail);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -67,9 +70,15 @@ function EsqueciSenhaPage() {
           setErro("Não foi possível gerar o link agora. Tente em instantes.");
           return;
         }
+        const resetUrl = buildResetUrl(token);
+        const envio = await enviarEmail({
+          data: { to: mail, nome: parc.nome ?? undefined, resetUrl },
+        });
         await logTentativa(
           "reset_solicitado",
-          `Link de reset gerado para ${mail} (parceiro ${parc.id}). URL: ${buildResetUrl(token)}`,
+          envio.ok
+            ? `Email enviado para ${mail} (parceiro ${parc.id}). URL: ${resetUrl}`
+            : `Token gerado p/ ${mail} mas FALHA no envio: ${envio.error}. URL: ${resetUrl}`,
         );
       } else {
         await logTentativa("reset_email_inexistente", `Tentativa para ${mail}`);
