@@ -240,7 +240,7 @@ function CadastroParceiroPage() {
 
     if (
       !form.nome.trim() ||
-      !form.empresa.trim() ||
+      (!form.contaPropria && !form.empresa.trim()) ||
       !form.segmento ||
       !form.telefone.trim() ||
       !form.email.trim() ||
@@ -259,15 +259,23 @@ function CadastroParceiroPage() {
     }
 
     setLoading(true);
+    const especialidadesFinal = [
+      ...form.especialidades,
+      ...(form.especialidadeOutros.trim()
+        ? [form.especialidadeOutros.trim()]
+        : []),
+    ];
     const payload = {
       nome: form.nome.trim(),
-      empresa: form.empresa.trim(),
+      empresa: form.contaPropria
+        ? "Conta Própria"
+        : form.empresa.trim(),
       segmento: form.segmento,
       telefone: form.telefone.trim(),
       whatsapp: form.telefone.trim(),
       email: form.email.trim().toLowerCase(),
       instagram: form.instagram.trim().replace(/^@/, "") || null,
-      especialidade: form.especialidade.trim() || null,
+      especialidade: especialidadesFinal.join(", ") || null,
       cidade: form.cidade.trim(),
       estado: form.estado.trim().toUpperCase(),
       mensagem: form.mensagem.trim() || null,
