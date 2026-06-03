@@ -260,7 +260,6 @@ function CadastroParceiroPage() {
       estado: form.estado.trim().toUpperCase(),
       mensagem: form.mensagem.trim() || null,
       status: "pendente",
-      created_at: new Date().toISOString(),
     };
 
     try {
@@ -280,7 +279,6 @@ function CadastroParceiroPage() {
           .insert({
             parceiro_id: parceiroId,
             descricao: obra.descricao.trim() || null,
-            created_at: new Date().toISOString(),
           })
           .select("id")
           .single();
@@ -310,7 +308,6 @@ function CadastroParceiroPage() {
               parceiro_id: parceiroId,
               url: pub.publicUrl,
               path,
-              created_at: new Date().toISOString(),
             });
           if (errFoto) throw errFoto;
         }
@@ -324,7 +321,6 @@ function CadastroParceiroPage() {
           nome_cliente: f.nomeCliente.trim(),
           email_cliente: f.emailCliente.trim() || null,
           telefone_cliente: f.telefoneCliente.trim() || null,
-          created_at: new Date().toISOString(),
         }));
         const { error: errFb } = await fmSupabase
           .from("feedbacks_parceiro")
