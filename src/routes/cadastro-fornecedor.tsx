@@ -28,7 +28,8 @@ const ESTADOS = [
 type FormState = {
   nome: string;
   empresa: string;
-  segmento: string;
+  segmentos: string[];
+  segmentoOutros: string;
   email: string;
   telefone: string;
   whatsapp: string;
@@ -41,7 +42,8 @@ type FormState = {
 const INITIAL: FormState = {
   nome: "",
   empresa: "",
-  segmento: "",
+  segmentos: [],
+  segmentoOutros: "",
   email: "",
   telefone: "",
   whatsapp: "",
@@ -50,6 +52,15 @@ const INITIAL: FormState = {
   ramo: "",
   descricao: "",
 };
+
+const SEGMENTOS_OPCOES = [
+  "Materiais de Construção",
+  "Ferramentas",
+  "Equipamentos",
+  "Aluguel de Equipamentos",
+  "Serviços Especializados",
+  "Mão de Obra",
+];
 
 const inputClass =
   "w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm shadow-sm focus:border-[#1A4D7A] focus:outline-none focus:ring-2 focus:ring-[#1A4D7A]/20";
@@ -76,10 +87,14 @@ function CadastroFornecedorPage() {
     e.preventDefault();
     setError(null);
 
+    const segmentosFinal = [
+      ...form.segmentos,
+      ...(form.segmentoOutros.trim() ? [form.segmentoOutros.trim()] : []),
+    ];
     if (
       !form.nome.trim() ||
       !form.empresa.trim() ||
-      !form.segmento.trim() ||
+      segmentosFinal.length === 0 ||
       !form.email.trim() ||
       !form.telefone.trim() ||
       !form.cidade.trim() ||
@@ -95,7 +110,7 @@ function CadastroFornecedorPage() {
       const payload = {
         nome: form.nome.trim(),
         empresa: form.empresa.trim(),
-        segmento: form.segmento.trim(),
+        segmento: segmentosFinal.join(", "),
         email: form.email.trim().toLowerCase(),
         telefone: form.telefone.trim(),
         whatsapp: form.whatsapp.trim() || form.telefone.trim(),
@@ -206,17 +221,6 @@ function CadastroFornecedorPage() {
               </Field>
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <Field label="Segmento *">
-                  <input
-                    required
-                    type="text"
-                    maxLength={80}
-                    value={form.segmento}
-                    onChange={(e) => update("segmento", e.target.value)}
-                    className={inputClass}
-                    placeholder="Ex.: Materiais, Equipamentos"
-                  />
-                </Field>
                 <Field label="Ramo *">
                   <input
                     required
@@ -228,7 +232,44 @@ function CadastroFornecedorPage() {
                     placeholder="Ex.: Hidráulica, Elétrica"
                   />
                 </Field>
+                <div />
               </div>
+
+              <Field label="Segmento *">
+                <div className="grid grid-cols-1 gap-2 rounded-md border border-slate-200 bg-slate-50/60 p-3 sm:grid-cols-2">
+                  {SEGMENTOS_OPCOES.map((opt) => {
+                    const checked = form.segmentos.includes(opt);
+                    return (
+                      <label
+                        key={opt}
+                        className="inline-flex cursor-pointer items-center gap-2 text-sm text-slate-700"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={(e) => {
+                            setForm((f) => ({
+                              ...f,
+                              segmentos: e.target.checked
+                                ? [...f.segmentos, opt]
+                                : f.segmentos.filter((x) => x !== opt),
+                            }));
+                          }}
+                          className="h-4 w-4 cursor-pointer rounded border-slate-300"
+                        />
+                        {opt}
+                      </label>
+                    );
+                  })}
+                </div>
+                <input
+                  type="text"
+                  value={form.segmentoOutros}
+                  onChange={(e) => update("segmentoOutros", e.target.value)}
+                  className={`${inputClass} mt-2`}
+                  placeholder="Outros (especifique)"
+                />
+              </Field>
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Field label="E-mail *">

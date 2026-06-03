@@ -33,11 +33,13 @@ export const Route = createFileRoute("/cadastro-parceiro")({
 type FormState = {
   nome: string;
   empresa: string;
+  contaPropria: boolean;
   segmento: "Fornecedor" | "Parceiro" | "Representante" | "";
   telefone: string;
   email: string;
   instagram: string;
-  especialidade: string;
+  especialidades: string[];
+  especialidadeOutros: string;
   cidade: string;
   estado: string;
   mensagem: string;
@@ -46,11 +48,13 @@ type FormState = {
 const INITIAL: FormState = {
   nome: "",
   empresa: "",
+  contaPropria: false,
   segmento: "",
   telefone: "",
   email: "",
   instagram: "",
-  especialidade: "",
+  especialidades: [],
+  especialidadeOutros: "",
   cidade: "",
   estado: "",
   mensagem: "",
@@ -59,6 +63,14 @@ const INITIAL: FormState = {
 const ESTADOS = [
   "AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB",
   "PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO",
+];
+
+const ESPECIALIDADES_OPCOES = [
+  "Carpinteiro","Gesseiro","Pedreiro","Mestre de Obras",
+  "Ajudante","Ajudante Prático","Serralheiro",
+  "Eletricista","Hidráulico/Encanador","Pintor",
+  "Azulejista","Soldador","Armador","Cobertor",
+  "Caldeireiro","Marmorista","Vidraceiro","Estuquista",
 ];
 
 const MAX_FOTOS_POR_OBRA = 4;
@@ -228,7 +240,7 @@ function CadastroParceiroPage() {
 
     if (
       !form.nome.trim() ||
-      !form.empresa.trim() ||
+      (!form.contaPropria && !form.empresa.trim()) ||
       !form.segmento ||
       !form.telefone.trim() ||
       !form.email.trim() ||
@@ -247,15 +259,23 @@ function CadastroParceiroPage() {
     }
 
     setLoading(true);
+    const especialidadesFinal = [
+      ...form.especialidades,
+      ...(form.especialidadeOutros.trim()
+        ? [form.especialidadeOutros.trim()]
+        : []),
+    ];
     const payload = {
       nome: form.nome.trim(),
-      empresa: form.empresa.trim(),
+      empresa: form.contaPropria
+        ? "Conta Própria"
+        : form.empresa.trim(),
       segmento: form.segmento,
       telefone: form.telefone.trim(),
       whatsapp: form.telefone.trim(),
       email: form.email.trim().toLowerCase(),
       instagram: form.instagram.trim().replace(/^@/, "") || null,
-      especialidade: form.especialidade.trim() || null,
+      especialidade: especialidadesFinal.join(", ") || null,
       cidade: form.cidade.trim(),
       estado: form.estado.trim().toUpperCase(),
       mensagem: form.mensagem.trim() || null,
@@ -418,15 +438,26 @@ function CadastroParceiroPage() {
                 />
               </Field>
 
-              <Field label="Empresa *">
+              <Field label="Empresa">
                 <input
-                  required
                   type="text"
                   value={form.empresa}
                   onChange={(e) => update("empresa", e.target.value)}
+                  disabled={form.contaPropria}
                   className={inputClass}
                   placeholder="Razão social ou nome fantasia"
                 />
+                <label className="mt-2 inline-flex cursor-pointer items-center gap-2 text-sm font-medium text-slate-700">
+                  <input
+                    type="checkbox"
+                    checked={form.contaPropria}
+                    onChange={(e) =>
+                      update("contaPropria", e.target.checked)
+                    }
+                    className="h-4 w-4 cursor-pointer rounded border-slate-300"
+                  />
+                  Trabalho por Conta Própria
+                </label>
               </Field>
 
               <Field label="Segmento *">
@@ -506,16 +537,46 @@ function CadastroParceiroPage() {
                     placeholder="@seu_perfil"
                   />
                 </Field>
-                <Field label="Especialidade">
-                  <input
-                    type="text"
-                    value={form.especialidade}
-                    onChange={(e) => update("especialidade", e.target.value)}
-                    className={inputClass}
-                    placeholder="Ex.: Elétrica, Hidráulica, Pintura"
-                  />
-                </Field>
+                <div />
               </div>
+
+              <Field label="Especialidades">
+                <div className="grid grid-cols-1 gap-2 rounded-md border border-slate-200 bg-slate-50/60 p-3 sm:grid-cols-2">
+                  {ESPECIALIDADES_OPCOES.map((opt) => {
+                    const checked = form.especialidades.includes(opt);
+                    return (
+                      <label
+                        key={opt}
+                        className="inline-flex cursor-pointer items-center gap-2 text-sm text-slate-700"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={(e) => {
+                            setForm((f) => ({
+                              ...f,
+                              especialidades: e.target.checked
+                                ? [...f.especialidades, opt]
+                                : f.especialidades.filter((x) => x !== opt),
+                            }));
+                          }}
+                          className="h-4 w-4 cursor-pointer rounded border-slate-300"
+                        />
+                        {opt}
+                      </label>
+                    );
+                  })}
+                </div>
+                <input
+                  type="text"
+                  value={form.especialidadeOutros}
+                  onChange={(e) =>
+                    update("especialidadeOutros", e.target.value)
+                  }
+                  className={`${inputClass} mt-2`}
+                  placeholder="Outros (especifique)"
+                />
+              </Field>
 
               <Field label="Mensagem ou apresentação">
                 <textarea
