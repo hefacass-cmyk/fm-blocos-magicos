@@ -221,17 +221,6 @@ function CadastroFornecedorPage() {
               </Field>
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <Field label="Segmento *">
-                  <input
-                    required
-                    type="text"
-                    maxLength={80}
-                    value={form.segmento}
-                    onChange={(e) => update("segmento", e.target.value)}
-                    className={inputClass}
-                    placeholder="Ex.: Materiais, Equipamentos"
-                  />
-                </Field>
                 <Field label="Ramo *">
                   <input
                     required
@@ -243,7 +232,44 @@ function CadastroFornecedorPage() {
                     placeholder="Ex.: Hidráulica, Elétrica"
                   />
                 </Field>
+                <div />
               </div>
+
+              <Field label="Segmento *">
+                <div className="grid grid-cols-1 gap-2 rounded-md border border-slate-200 bg-slate-50/60 p-3 sm:grid-cols-2">
+                  {SEGMENTOS_OPCOES.map((opt) => {
+                    const checked = form.segmentos.includes(opt);
+                    return (
+                      <label
+                        key={opt}
+                        className="inline-flex cursor-pointer items-center gap-2 text-sm text-slate-700"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={(e) => {
+                            setForm((f) => ({
+                              ...f,
+                              segmentos: e.target.checked
+                                ? [...f.segmentos, opt]
+                                : f.segmentos.filter((x) => x !== opt),
+                            }));
+                          }}
+                          className="h-4 w-4 cursor-pointer rounded border-slate-300"
+                        />
+                        {opt}
+                      </label>
+                    );
+                  })}
+                </div>
+                <input
+                  type="text"
+                  value={form.segmentoOutros}
+                  onChange={(e) => update("segmentoOutros", e.target.value)}
+                  className={`${inputClass} mt-2`}
+                  placeholder="Outros (especifique)"
+                />
+              </Field>
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Field label="E-mail *">
