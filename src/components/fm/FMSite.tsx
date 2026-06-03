@@ -114,6 +114,12 @@ function Header({ onLogin }: { onLogin: () => void }) {
           <Link to="/fornecedores" className="text-[13px] font-medium text-foreground/80 hover:text-primary transition-colors whitespace-nowrap">
             Fornecedores
           </Link>
+          <Link to="/cadastro-parceiro" className="text-[13px] font-medium text-accent hover:brightness-110 transition-colors whitespace-nowrap">
+            Seja Parceiro
+          </Link>
+          <Link to="/cadastro-fornecedor" className="text-[13px] font-medium text-accent hover:brightness-110 transition-colors whitespace-nowrap">
+            Seja Fornecedor
+          </Link>
           <Link to="/parceiro/login" className="text-xs font-medium text-foreground/80 hover:text-primary transition-colors whitespace-nowrap">
             Área do Parceiro
           </Link>
@@ -155,6 +161,12 @@ function Header({ onLogin }: { onLogin: () => void }) {
             </Link>
             <Link to="/fornecedores" onClick={() => setOpen(false)} className="py-2 text-sm font-medium text-foreground/80">
               Fornecedores
+            </Link>
+            <Link to="/cadastro-parceiro" onClick={() => setOpen(false)} className="py-2 text-sm font-semibold text-accent">
+              Seja Parceiro
+            </Link>
+            <Link to="/cadastro-fornecedor" onClick={() => setOpen(false)} className="py-2 text-sm font-semibold text-accent">
+              Seja Fornecedor
             </Link>
             <Link to="/parceiro/login" onClick={() => setOpen(false)} className="py-2 text-sm font-medium text-foreground/80">
               Área do Parceiro
