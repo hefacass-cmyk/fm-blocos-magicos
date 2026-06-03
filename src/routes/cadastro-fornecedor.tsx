@@ -28,7 +28,8 @@ const ESTADOS = [
 type FormState = {
   nome: string;
   empresa: string;
-  segmento: string;
+  segmentos: string[];
+  segmentoOutros: string;
   email: string;
   telefone: string;
   whatsapp: string;
@@ -41,7 +42,8 @@ type FormState = {
 const INITIAL: FormState = {
   nome: "",
   empresa: "",
-  segmento: "",
+  segmentos: [],
+  segmentoOutros: "",
   email: "",
   telefone: "",
   whatsapp: "",
@@ -50,6 +52,15 @@ const INITIAL: FormState = {
   ramo: "",
   descricao: "",
 };
+
+const SEGMENTOS_OPCOES = [
+  "Materiais de Construção",
+  "Ferramentas",
+  "Equipamentos",
+  "Aluguel de Equipamentos",
+  "Serviços Especializados",
+  "Mão de Obra",
+];
 
 const inputClass =
   "w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm shadow-sm focus:border-[#1A4D7A] focus:outline-none focus:ring-2 focus:ring-[#1A4D7A]/20";
@@ -76,10 +87,14 @@ function CadastroFornecedorPage() {
     e.preventDefault();
     setError(null);
 
+    const segmentosFinal = [
+      ...form.segmentos,
+      ...(form.segmentoOutros.trim() ? [form.segmentoOutros.trim()] : []),
+    ];
     if (
       !form.nome.trim() ||
       !form.empresa.trim() ||
-      !form.segmento.trim() ||
+      segmentosFinal.length === 0 ||
       !form.email.trim() ||
       !form.telefone.trim() ||
       !form.cidade.trim() ||
@@ -95,7 +110,7 @@ function CadastroFornecedorPage() {
       const payload = {
         nome: form.nome.trim(),
         empresa: form.empresa.trim(),
-        segmento: form.segmento.trim(),
+        segmento: segmentosFinal.join(", "),
         email: form.email.trim().toLowerCase(),
         telefone: form.telefone.trim(),
         whatsapp: form.whatsapp.trim() || form.telefone.trim(),
