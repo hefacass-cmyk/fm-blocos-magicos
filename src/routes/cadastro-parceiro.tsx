@@ -1,10 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
   CheckCircle2,
   Loader2,
-  Loader2,
+  Plus,
+  Trash2,
+  X,
+  ImagePlus,
+  Quote,
+  Building2,
 } from "lucide-react";
 import { fmSupabase } from "@/lib/fm-supabase";
 
