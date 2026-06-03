@@ -438,15 +438,26 @@ function CadastroParceiroPage() {
                 />
               </Field>
 
-              <Field label="Empresa *">
+              <Field label="Empresa">
                 <input
-                  required
                   type="text"
                   value={form.empresa}
                   onChange={(e) => update("empresa", e.target.value)}
+                  disabled={form.contaPropria}
                   className={inputClass}
                   placeholder="Razão social ou nome fantasia"
                 />
+                <label className="mt-2 inline-flex cursor-pointer items-center gap-2 text-sm font-medium text-slate-700">
+                  <input
+                    type="checkbox"
+                    checked={form.contaPropria}
+                    onChange={(e) =>
+                      update("contaPropria", e.target.checked)
+                    }
+                    className="h-4 w-4 cursor-pointer rounded border-slate-300"
+                  />
+                  Trabalho por Conta Própria
+                </label>
               </Field>
 
               <Field label="Segmento *">
@@ -526,16 +537,46 @@ function CadastroParceiroPage() {
                     placeholder="@seu_perfil"
                   />
                 </Field>
-                <Field label="Especialidade">
-                  <input
-                    type="text"
-                    value={form.especialidade}
-                    onChange={(e) => update("especialidade", e.target.value)}
-                    className={inputClass}
-                    placeholder="Ex.: Elétrica, Hidráulica, Pintura"
-                  />
-                </Field>
+                <div />
               </div>
+
+              <Field label="Especialidades">
+                <div className="grid grid-cols-1 gap-2 rounded-md border border-slate-200 bg-slate-50/60 p-3 sm:grid-cols-2">
+                  {ESPECIALIDADES_OPCOES.map((opt) => {
+                    const checked = form.especialidades.includes(opt);
+                    return (
+                      <label
+                        key={opt}
+                        className="inline-flex cursor-pointer items-center gap-2 text-sm text-slate-700"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={(e) => {
+                            setForm((f) => ({
+                              ...f,
+                              especialidades: e.target.checked
+                                ? [...f.especialidades, opt]
+                                : f.especialidades.filter((x) => x !== opt),
+                            }));
+                          }}
+                          className="h-4 w-4 cursor-pointer rounded border-slate-300"
+                        />
+                        {opt}
+                      </label>
+                    );
+                  })}
+                </div>
+                <input
+                  type="text"
+                  value={form.especialidadeOutros}
+                  onChange={(e) =>
+                    update("especialidadeOutros", e.target.value)
+                  }
+                  className={`${inputClass} mt-2`}
+                  placeholder="Outros (especifique)"
+                />
+              </Field>
 
               <Field label="Mensagem ou apresentação">
                 <textarea
