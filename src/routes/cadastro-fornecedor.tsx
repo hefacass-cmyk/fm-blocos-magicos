@@ -104,7 +104,6 @@ function CadastroFornecedorPage() {
         ramo: form.ramo.trim(),
         descricao: form.descricao.trim() || null,
         status: "pendente",
-        created_at: new Date().toISOString(),
       };
       const { error: errIns } = await fmSupabase
         .from("fornecedores")
