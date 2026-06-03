@@ -33,11 +33,13 @@ export const Route = createFileRoute("/cadastro-parceiro")({
 type FormState = {
   nome: string;
   empresa: string;
+  contaPropria: boolean;
   segmento: "Fornecedor" | "Parceiro" | "Representante" | "";
   telefone: string;
   email: string;
   instagram: string;
-  especialidade: string;
+  especialidades: string[];
+  especialidadeOutros: string;
   cidade: string;
   estado: string;
   mensagem: string;
@@ -46,11 +48,13 @@ type FormState = {
 const INITIAL: FormState = {
   nome: "",
   empresa: "",
+  contaPropria: false,
   segmento: "",
   telefone: "",
   email: "",
   instagram: "",
-  especialidade: "",
+  especialidades: [],
+  especialidadeOutros: "",
   cidade: "",
   estado: "",
   mensagem: "",
@@ -59,6 +63,14 @@ const INITIAL: FormState = {
 const ESTADOS = [
   "AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB",
   "PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO",
+];
+
+const ESPECIALIDADES_OPCOES = [
+  "Carpinteiro","Gesseiro","Pedreiro","Mestre de Obras",
+  "Ajudante","Ajudante Prático","Serralheiro",
+  "Eletricista","Hidráulico/Encanador","Pintor",
+  "Azulejista","Soldador","Armador","Cobertor",
+  "Caldeireiro","Marmorista","Vidraceiro","Estuquista",
 ];
 
 const MAX_FOTOS_POR_OBRA = 4;
