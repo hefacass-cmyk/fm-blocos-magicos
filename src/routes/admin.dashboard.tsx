@@ -34,6 +34,8 @@ function AdminDashboardPage() {
   const [feedbacks, setFeedbacks] = useState<Row[]>([]);
   const [logs, setLogs] = useState<Row[]>([]);
   const [parceiros, setParceiros] = useState<Row[]>([]);
+  const [pendentesParc, setPendentesParc] = useState<Row[]>([]);
+  const [pendentesForn, setPendentesForn] = useState<Row[]>([]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -53,19 +55,22 @@ function AdminDashboardPage() {
           obras, fotos,
           avaliacoes,
           solics, fbs, logsRes,
+          pendParcList, pendFornList,
         ] = await Promise.all([
           fmSupabase.from("acessos_site").select("id", { count: "exact", head: true }),
           fmSupabase.from("acessos_site").select("id", { count: "exact", head: true }).gte("criado_em", dayIso),
           fmSupabase.from("acessos_site").select("id", { count: "exact", head: true }).gte("criado_em", weekIso),
           fmSupabase.from("parceiros").select("id, nome, empresa, limite_obras, ativo, criado_em"),
           fmSupabase.from("parceiros").select("id", { count: "exact", head: true }).gte("criado_em", weekIso),
-          fmSupabase.from("parceiros").select("id", { count: "exact", head: true }).eq("ativo", false),
+          fmSupabase.from("parceiros").select("id", { count: "exact", head: true }).not("ativo", "is", true),
           fmSupabase.from("obras_parceiro").select("id, parceiro_id"),
           fmSupabase.from("fotos_obra").select("id", { count: "exact", head: true }),
           fmSupabase.from("avaliacoes").select("parceiro_id, nota"),
           fmSupabase.from("solicitacoes_ampliacao").select("*").order("criado_em", { ascending: false }),
           fmSupabase.from("feedbacks_parceiro").select("*").order("created_at", { ascending: false }).limit(20),
           fmSupabase.from("logs_admin").select("*").order("criado_em", { ascending: false }).limit(50),
+          fmSupabase.from("parceiros").select("id, nome, empresa, segmento, telefone, email, cidade, estado, criado_em").not("ativo", "is", true).order("criado_em", { ascending: false }),
+          fmSupabase.from("fornecedores").select("id, nome, empresa, segmento, telefone, email, cidade, estado, criado_em, status").eq("status", "pendente").order("criado_em", { ascending: false }),
         ]);
         if (!active) return;
 
@@ -122,6 +127,8 @@ function AdminDashboardPage() {
         setFeedbacks((fbs.data as Row[]) ?? []);
         setLogs((logsRes.data as Row[]) ?? []);
         setParceiros(parceirosRows);
+        setPendentesParc((pendParcList.data as Row[]) ?? []);
+        setPendentesForn((pendFornList.data as Row[]) ?? []);
       } catch (e) {
         console.error("[admin] load", e);
       } finally {
@@ -154,6 +161,34 @@ function AdminDashboardPage() {
   };
 
   const sair = () => { sessionStorage.removeItem(ADMIN_KEY); navigate({ to: "/admin/login" }); };
+
+  const aprovarParceiro = async (p: Row) => {
+    const { error } = await fmSupabase.from("parceiros").update({ ativo: true }).eq("id", p.id);
+    if (error) { alert("Erro ao aprovar: " + error.message); return; }
+    await logAdmin("parceiro_aprovado", `Parceiro ${String(p.nome ?? p.id)} aprovado`, "admin");
+    setPendentesParc((arr) => arr.filter((x) => x.id !== p.id));
+    setParceiros((arr) => arr.map((x) => x.id === p.id ? { ...x, ativo: true } : x));
+  };
+  const rejeitarParceiro = async (p: Row) => {
+    if (!confirm(`Excluir cadastro de ${String(p.nome ?? p.id)}?`)) return;
+    const { error } = await fmSupabase.from("parceiros").delete().eq("id", p.id);
+    if (error) { alert("Erro ao rejeitar: " + error.message); return; }
+    await logAdmin("parceiro_rejeitado", `Parceiro ${String(p.nome ?? p.id)} rejeitado`, "admin");
+    setPendentesParc((arr) => arr.filter((x) => x.id !== p.id));
+  };
+  const aprovarFornecedor = async (f: Row) => {
+    const { error } = await fmSupabase.from("fornecedores").update({ status: "ativo" }).eq("id", f.id);
+    if (error) { alert("Erro ao aprovar: " + error.message); return; }
+    await logAdmin("fornecedor_aprovado", `Fornecedor ${String(f.nome ?? f.id)} aprovado`, "admin");
+    setPendentesForn((arr) => arr.filter((x) => x.id !== f.id));
+  };
+  const rejeitarFornecedor = async (f: Row) => {
+    if (!confirm(`Excluir cadastro de ${String(f.nome ?? f.id)}?`)) return;
+    const { error } = await fmSupabase.from("fornecedores").delete().eq("id", f.id);
+    if (error) { alert("Erro ao rejeitar: " + error.message); return; }
+    await logAdmin("fornecedor_rejeitado", `Fornecedor ${String(f.nome ?? f.id)} rejeitado`, "admin");
+    setPendentesForn((arr) => arr.filter((x) => x.id !== f.id));
+  };
 
   const toggleVerificado = async (p: Row) => {
     const novo = !p.verificado;
@@ -223,6 +258,49 @@ function AdminDashboardPage() {
             <strong>{stats.topParceiroNome}</strong>{" "}
             <span className="text-slate-600">— {stats.topParceiroNota.toFixed(1)} ⭐</span>
           </p>
+        </section>
+
+        {/* Pendentes de aprovação */}
+        <section className="rounded-2xl border-2 p-5 shadow-sm" style={{ borderColor: BRAND_YELLOW, backgroundColor: "#FFFBEB" }}>
+          <h2 className="mb-3 inline-flex items-center gap-2 text-base font-bold" style={{ color: BRAND_BLUE }}>
+            ⏳ Pendentes de aprovação ({pendentesParc.length + pendentesForn.length})
+          </h2>
+
+          <div className="mb-4">
+            <h3 className="mb-2 text-sm font-bold text-slate-700">Parceiros ({pendentesParc.length})</h3>
+            {pendentesParc.length === 0 ? (
+              <p className="text-xs text-slate-500">Nenhum parceiro pendente.</p>
+            ) : (
+              <div className="space-y-2">
+                {pendentesParc.map((p) => (
+                  <PendingCard
+                    key={String(p.id)}
+                    row={p}
+                    onApprove={() => aprovarParceiro(p)}
+                    onReject={() => rejeitarParceiro(p)}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div>
+            <h3 className="mb-2 text-sm font-bold text-slate-700">Fornecedores ({pendentesForn.length})</h3>
+            {pendentesForn.length === 0 ? (
+              <p className="text-xs text-slate-500">Nenhum fornecedor pendente.</p>
+            ) : (
+              <div className="space-y-2">
+                {pendentesForn.map((f) => (
+                  <PendingCard
+                    key={String(f.id)}
+                    row={f}
+                    onApprove={() => aprovarFornecedor(f)}
+                    onReject={() => rejeitarFornecedor(f)}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
         </section>
 
         {/* Solicitações */}
