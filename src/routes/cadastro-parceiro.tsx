@@ -43,6 +43,9 @@ type FormState = {
   cidade: string;
   estado: string;
   mensagem: string;
+  tipoPessoa: "PF" | "PJ" | "";
+  cpf: string;
+  cnpj: string;
 };
 
 const INITIAL: FormState = {
@@ -58,6 +61,9 @@ const INITIAL: FormState = {
   cidade: "",
   estado: "",
   mensagem: "",
+  tipoPessoa: "",
+  cpf: "",
+  cnpj: "",
 };
 
 const ESTADOS = [
@@ -176,6 +182,22 @@ function slugify(s: string) {
     .replace(/^-+|-+$/g, "")
     .toLowerCase()
     .slice(0, 60);
+}
+
+function maskCpf(d: string) {
+  const v = d.replace(/\D/g, "").slice(0, 11);
+  return v
+    .replace(/^(\d{3})(\d)/, "$1.$2")
+    .replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3")
+    .replace(/\.(\d{3})(\d)/, ".$1-$2");
+}
+function maskCnpj(d: string) {
+  const v = d.replace(/\D/g, "").slice(0, 14);
+  return v
+    .replace(/^(\d{2})(\d)/, "$1.$2")
+    .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+    .replace(/\.(\d{3})(\d)/, ".$1/$2")
+    .replace(/(\d{4})(\d)/, "$1-$2");
 }
 
 function CadastroParceiroPage() {
