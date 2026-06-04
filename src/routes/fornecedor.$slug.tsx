@@ -57,7 +57,7 @@ function FornecedorPublicoPage() {
       try {
         let row: Row | null = null;
         const bySlug = await fmSupabase
-          .from("Fornecedores")
+          .from("fornecedores_publico")
           .select("*")
           .eq("slug", slug)
           .limit(1)
@@ -65,7 +65,7 @@ function FornecedorPublicoPage() {
         if (bySlug.data) row = bySlug.data as Row;
         if (!row) {
           const byId = await fmSupabase
-            .from("Fornecedores")
+            .from("fornecedores_publico")
             .select("*")
             .eq("id", slug)
             .limit(1)

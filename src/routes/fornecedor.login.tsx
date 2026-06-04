@@ -1,24 +1,28 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { fmSupabase, saveParceiro, type TipoParceiro } from "@/lib/fm-parceiro";
+import { fmSupabase } from "@/lib/fm-supabase";
 
 const BRAND_BLUE = "#1A4D7A";
 const BRAND_YELLOW = "#F4B941";
 const BRAND_GREEN = "#06A77D";
 
-export const Route = createFileRoute("/parceiro/login")({
+const STORAGE_KEY = "fm_fornecedor_logado";
+
+export const Route = createFileRoute("/fornecedor/login")({
   head: () => ({
     meta: [
-      { title: "Área do Parceiro F&M | F&M Construções Inteligentes" },
-      { name: "description", content: "Acesso exclusivo para parceiros F&M." },
+      { title: "Área do Fornecedor F&M | F&M Construções Inteligentes" },
+      { name: "description", content: "Acesso exclusivo para fornecedores F&M." },
     ],
   }),
-  component: ParceiroLoginPage,
+  component: FornecedorLoginPage,
 });
 
-function ParceiroLoginPage() {
+type TipoPessoa = "PF" | "PJ";
+
+function FornecedorLoginPage() {
   const navigate = useNavigate();
-  const [tipo, setTipo] = useState<TipoParceiro>("PF");
+  const [tipo, setTipo] = useState<TipoPessoa>("PJ");
   const [doc, setDoc] = useState("");
   const [erro, setErro] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -38,13 +42,11 @@ function ParceiroLoginPage() {
     try {
       const col = tipo === "PF" ? "cpf" : "cnpj";
       const { data, error } = await fmSupabase
-        .from("parceiros")
+        .from("fornecedores")
         .select("*")
         .eq(col, limpo)
         .limit(1)
         .maybeSingle();
-
-      console.log("[parceiro/login]", { tipo, col, limpo, data, error });
 
       if (error) {
         setErro("Não foi possível validar agora. Tente novamente.");
@@ -54,8 +56,12 @@ function ParceiroLoginPage() {
         setErro("CPF/CNPJ não cadastrado");
         return;
       }
-      saveParceiro({ ...(data as object), Tipo: tipo } as never);
-      navigate({ to: "/parceiro/dashboard" });
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...(data as object), tipo }));
+      } catch {
+        /* ignore */
+      }
+      navigate({ to: "/" });
     } catch (err) {
       console.error(err);
       setErro("Erro inesperado. Tente novamente.");
@@ -80,7 +86,7 @@ function ParceiroLoginPage() {
 
         <div className="mt-6 text-center">
           <h1 className="text-2xl font-bold" style={{ color: BRAND_BLUE }}>
-            Área do Parceiro F&M
+            Área do Fornecedor F&M
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Digite seu CPF ou CNPJ para acessar
@@ -88,7 +94,7 @@ function ParceiroLoginPage() {
         </div>
 
         <div className="mt-6 grid grid-cols-2 gap-2 rounded-lg bg-muted p-1">
-          {(["PF", "PJ"] as TipoParceiro[]).map((t) => {
+          {(["PF", "PJ"] as TipoPessoa[]).map((t) => {
             const active = tipo === t;
             return (
               <button
@@ -141,15 +147,6 @@ function ParceiroLoginPage() {
         <div className="mt-4 text-center">
           <Link to="/" className="text-sm font-medium hover:underline" style={{ color: BRAND_GREEN }}>
             Voltar para o site
-          </Link>
-        </div>
-
-        <div className="mt-2 text-center">
-          <Link
-            to="/esqueci-senha"
-            className="text-xs font-medium text-muted-foreground hover:underline"
-          >
-            Esqueci a senha?
           </Link>
         </div>
       </div>

@@ -38,7 +38,7 @@ function FornecedoresPage() {
   useEffect(() => {
     let active = true;
     async function load() {
-      const { data, error } = await fmSupabase.from("Fornecedores").select("*");
+      const { data, error } = await fmSupabase.from("fornecedores_publico").select("*");
       console.log("[fornecedores] resposta:", { data, error });
       if (!active) return;
       setFornecedores((data as Row[]) ?? []);
