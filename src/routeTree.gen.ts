@@ -27,8 +27,6 @@ import { Route as ParceiroSlugRouteImport } from './routes/parceiro.$slug'
 import { Route as PSlugRouteImport } from './routes/p.$slug'
 import { Route as FornecedorSlugRouteImport } from './routes/fornecedor.$slug'
 import { Route as FSlugRouteImport } from './routes/f.$slug'
-import { Route as CadastroParceiroRouteImport } from './routes/cadastro/parceiro'
-import { Route as CadastroFornecedorRouteImport } from './routes/cadastro/fornecedor'
 import { Route as AdminSenhasRouteImport } from './routes/admin.senhas'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
@@ -124,16 +122,6 @@ const FSlugRoute = FSlugRouteImport.update({
   path: '/f/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CadastroParceiroRoute = CadastroParceiroRouteImport.update({
-  id: '/cadastro/parceiro',
-  path: '/cadastro/parceiro',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CadastroFornecedorRoute = CadastroFornecedorRouteImport.update({
-  id: '/cadastro/fornecedor',
-  path: '/cadastro/fornecedor',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AdminSenhasRoute = AdminSenhasRouteImport.update({
   id: '/admin/senhas',
   path: '/admin/senhas',
@@ -171,8 +159,6 @@ export interface FileRoutesByFullPath {
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/senhas': typeof AdminSenhasRoute
-  '/cadastro/fornecedor': typeof CadastroFornecedorRoute
-  '/cadastro/parceiro': typeof CadastroParceiroRoute
   '/f/$slug': typeof FSlugRoute
   '/fornecedor/$slug': typeof FornecedorSlugRoute
   '/p/$slug': typeof PSlugRoute
@@ -197,8 +183,6 @@ export interface FileRoutesByTo {
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/senhas': typeof AdminSenhasRoute
-  '/cadastro/fornecedor': typeof CadastroFornecedorRoute
-  '/cadastro/parceiro': typeof CadastroParceiroRoute
   '/f/$slug': typeof FSlugRoute
   '/fornecedor/$slug': typeof FornecedorSlugRoute
   '/p/$slug': typeof PSlugRoute
@@ -224,8 +208,6 @@ export interface FileRoutesById {
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/senhas': typeof AdminSenhasRoute
-  '/cadastro/fornecedor': typeof CadastroFornecedorRoute
-  '/cadastro/parceiro': typeof CadastroParceiroRoute
   '/f/$slug': typeof FSlugRoute
   '/fornecedor/$slug': typeof FornecedorSlugRoute
   '/p/$slug': typeof PSlugRoute
@@ -252,8 +234,6 @@ export interface FileRouteTypes {
     | '/admin/dashboard'
     | '/admin/login'
     | '/admin/senhas'
-    | '/cadastro/fornecedor'
-    | '/cadastro/parceiro'
     | '/f/$slug'
     | '/fornecedor/$slug'
     | '/p/$slug'
@@ -278,8 +258,6 @@ export interface FileRouteTypes {
     | '/admin/dashboard'
     | '/admin/login'
     | '/admin/senhas'
-    | '/cadastro/fornecedor'
-    | '/cadastro/parceiro'
     | '/f/$slug'
     | '/fornecedor/$slug'
     | '/p/$slug'
@@ -304,8 +282,6 @@ export interface FileRouteTypes {
     | '/admin/dashboard'
     | '/admin/login'
     | '/admin/senhas'
-    | '/cadastro/fornecedor'
-    | '/cadastro/parceiro'
     | '/f/$slug'
     | '/fornecedor/$slug'
     | '/p/$slug'
@@ -331,8 +307,6 @@ export interface RootRouteChildren {
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminSenhasRoute: typeof AdminSenhasRoute
-  CadastroFornecedorRoute: typeof CadastroFornecedorRoute
-  CadastroParceiroRoute: typeof CadastroParceiroRoute
   FSlugRoute: typeof FSlugRoute
   FornecedorSlugRoute: typeof FornecedorSlugRoute
   PSlugRoute: typeof PSlugRoute
@@ -470,20 +444,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/cadastro/parceiro': {
-      id: '/cadastro/parceiro'
-      path: '/cadastro/parceiro'
-      fullPath: '/cadastro/parceiro'
-      preLoaderRoute: typeof CadastroParceiroRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/cadastro/fornecedor': {
-      id: '/cadastro/fornecedor'
-      path: '/cadastro/fornecedor'
-      fullPath: '/cadastro/fornecedor'
-      preLoaderRoute: typeof CadastroFornecedorRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/admin/senhas': {
       id: '/admin/senhas'
       path: '/admin/senhas'
@@ -531,8 +491,6 @@ const rootRouteChildren: RootRouteChildren = {
   AdminDashboardRoute: AdminDashboardRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminSenhasRoute: AdminSenhasRoute,
-  CadastroFornecedorRoute: CadastroFornecedorRoute,
-  CadastroParceiroRoute: CadastroParceiroRoute,
   FSlugRoute: FSlugRoute,
   FornecedorSlugRoute: FornecedorSlugRoute,
   PSlugRoute: PSlugRoute,
