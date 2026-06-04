@@ -25,6 +25,7 @@ import { Route as ParceiroLoginRouteImport } from './routes/parceiro.login'
 import { Route as ParceiroDashboardRouteImport } from './routes/parceiro.dashboard'
 import { Route as ParceiroSlugRouteImport } from './routes/parceiro.$slug'
 import { Route as PSlugRouteImport } from './routes/p.$slug'
+import { Route as FornecedorLoginRouteImport } from './routes/fornecedor.login'
 import { Route as FornecedorSlugRouteImport } from './routes/fornecedor.$slug'
 import { Route as FSlugRouteImport } from './routes/f.$slug'
 import { Route as AdminSenhasRouteImport } from './routes/admin.senhas'
@@ -112,6 +113,11 @@ const PSlugRoute = PSlugRouteImport.update({
   path: '/p/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FornecedorLoginRoute = FornecedorLoginRouteImport.update({
+  id: '/fornecedor/login',
+  path: '/fornecedor/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FornecedorSlugRoute = FornecedorSlugRouteImport.update({
   id: '/fornecedor/$slug',
   path: '/fornecedor/$slug',
@@ -161,6 +167,7 @@ export interface FileRoutesByFullPath {
   '/admin/senhas': typeof AdminSenhasRoute
   '/f/$slug': typeof FSlugRoute
   '/fornecedor/$slug': typeof FornecedorSlugRoute
+  '/fornecedor/login': typeof FornecedorLoginRoute
   '/p/$slug': typeof PSlugRoute
   '/parceiro/$slug': typeof ParceiroSlugRoute
   '/parceiro/dashboard': typeof ParceiroDashboardRoute
@@ -185,6 +192,7 @@ export interface FileRoutesByTo {
   '/admin/senhas': typeof AdminSenhasRoute
   '/f/$slug': typeof FSlugRoute
   '/fornecedor/$slug': typeof FornecedorSlugRoute
+  '/fornecedor/login': typeof FornecedorLoginRoute
   '/p/$slug': typeof PSlugRoute
   '/parceiro/$slug': typeof ParceiroSlugRoute
   '/parceiro/dashboard': typeof ParceiroDashboardRoute
@@ -210,6 +218,7 @@ export interface FileRoutesById {
   '/admin/senhas': typeof AdminSenhasRoute
   '/f/$slug': typeof FSlugRoute
   '/fornecedor/$slug': typeof FornecedorSlugRoute
+  '/fornecedor/login': typeof FornecedorLoginRoute
   '/p/$slug': typeof PSlugRoute
   '/parceiro/$slug': typeof ParceiroSlugRoute
   '/parceiro/dashboard': typeof ParceiroDashboardRoute
@@ -236,6 +245,7 @@ export interface FileRouteTypes {
     | '/admin/senhas'
     | '/f/$slug'
     | '/fornecedor/$slug'
+    | '/fornecedor/login'
     | '/p/$slug'
     | '/parceiro/$slug'
     | '/parceiro/dashboard'
@@ -260,6 +270,7 @@ export interface FileRouteTypes {
     | '/admin/senhas'
     | '/f/$slug'
     | '/fornecedor/$slug'
+    | '/fornecedor/login'
     | '/p/$slug'
     | '/parceiro/$slug'
     | '/parceiro/dashboard'
@@ -284,6 +295,7 @@ export interface FileRouteTypes {
     | '/admin/senhas'
     | '/f/$slug'
     | '/fornecedor/$slug'
+    | '/fornecedor/login'
     | '/p/$slug'
     | '/parceiro/$slug'
     | '/parceiro/dashboard'
@@ -309,6 +321,7 @@ export interface RootRouteChildren {
   AdminSenhasRoute: typeof AdminSenhasRoute
   FSlugRoute: typeof FSlugRoute
   FornecedorSlugRoute: typeof FornecedorSlugRoute
+  FornecedorLoginRoute: typeof FornecedorLoginRoute
   PSlugRoute: typeof PSlugRoute
   ParceiroSlugRoute: typeof ParceiroSlugRoute
   ParceiroDashboardRoute: typeof ParceiroDashboardRoute
@@ -430,6 +443,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/fornecedor/login': {
+      id: '/fornecedor/login'
+      path: '/fornecedor/login'
+      fullPath: '/fornecedor/login'
+      preLoaderRoute: typeof FornecedorLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/fornecedor/$slug': {
       id: '/fornecedor/$slug'
       path: '/fornecedor/$slug'
@@ -493,6 +513,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminSenhasRoute: AdminSenhasRoute,
   FSlugRoute: FSlugRoute,
   FornecedorSlugRoute: FornecedorSlugRoute,
+  FornecedorLoginRoute: FornecedorLoginRoute,
   PSlugRoute: PSlugRoute,
   ParceiroSlugRoute: ParceiroSlugRoute,
   ParceiroDashboardRoute: ParceiroDashboardRoute,
