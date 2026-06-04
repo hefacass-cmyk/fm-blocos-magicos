@@ -454,3 +454,27 @@ function Kpi({ icon: Icon, label, value, sub }: { icon: React.ComponentType<{ cl
     </div>
   );
 }
+
+function PendingCard({ row, onApprove, onReject }: { row: Row; onApprove: () => void; onReject: () => void }) {
+  return (
+    <div className="flex flex-col gap-2 rounded-lg border bg-white p-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-semibold text-slate-800">
+          {String(row.nome ?? "—")}{row.empresa ? <span className="font-normal text-slate-500"> · {String(row.empresa)}</span> : null}
+        </p>
+        <p className="text-xs text-slate-500">
+          {[row.segmento, row.cidade && row.estado ? `${row.cidade}/${row.estado}` : null, row.telefone, row.email].filter(Boolean).map(String).join(" · ")}
+        </p>
+        <p className="text-[10px] text-slate-400">{String(row.criado_em ?? "").slice(0,16).replace("T"," ")}</p>
+      </div>
+      <div className="flex items-center gap-2">
+        <button onClick={onApprove} className="rounded-md px-3 py-1.5 text-xs font-bold text-white" style={{ backgroundColor: BRAND_GREEN }}>
+          <Check className="inline h-3 w-3" /> Aprovar
+        </button>
+        <button onClick={onReject} className="rounded-md px-3 py-1.5 text-xs font-bold text-white" style={{ backgroundColor: "#ef4444" }}>
+          <X className="inline h-3 w-3" /> Rejeitar
+        </button>
+      </div>
+    </div>
+  );
+}
