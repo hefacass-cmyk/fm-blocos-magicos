@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { fmSupabase } from "@/lib/fm-supabase";
 import { logAdmin, trackAcesso } from "@/lib/fm-tracking";
+import { LeadForm } from "./fornecedor.$slug";
 
 const BRAND_BLUE = "#1A4D7A";
 const BRAND_YELLOW = "#F4B941";
@@ -474,6 +475,17 @@ function ParceiroPublicoPage() {
 
           <AvaliarForm parceiroId={parceiro.id as string | number} onSent={refetchAvaliacoes} />
           </div>
+      </section>
+
+      {/* BLOCO 4.5 — Lead / Orçamento */}
+      <section className="px-4 py-10">
+        <div className="mx-auto max-w-2xl">
+          <LeadForm
+            origem="parceiro"
+            destinatarioId={String(parceiro.id)}
+            destinatarioNome={nome}
+          />
+        </div>
       </section>
 
       {/* BLOCO 5 — Rodapé F&M */}
