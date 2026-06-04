@@ -77,6 +77,7 @@ function ParceiroDashboardPage() {
   const [avaliacoes, setAvaliacoes] = useState<Row[]>([]);
   const [oportunidades, setOportunidades] = useState<Row[]>([]);
   const [obras, setObras] = useState<Row[]>([]);
+  const [leads, setLeads] = useState<Row[]>([]);
   const [limiteObras, setLimiteObras] = useState<number>(4);
   const [ampliacaoStatus, setAmpliacaoStatus] = useState<string | null>(null);
   const [showAmpliar, setShowAmpliar] = useState(false);
