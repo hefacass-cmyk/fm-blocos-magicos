@@ -121,12 +121,18 @@ function ParceiroDashboardPage() {
             .order("criado_em", { ascending: false })
             .limit(1),
         ]);
+        const leadsRes = await fmSupabase
+          .from("leads_indicacao")
+          .select("*")
+          .eq("parceiro_id", String(parceiro!.id))
+          .order("created_at", { ascending: false });
         console.log("[parceiro/dashboard] avaliacoes:", av);
         console.log("[parceiro/dashboard] oportunidades:", op);
         if (!active) return;
         setAvaliacoes((av.data as Row[]) ?? []);
         setOportunidades((op.data as Row[]) ?? []);
         setObras((obrasRes.data as Row[]) ?? []);
+        setLeads((leadsRes.data as Row[]) ?? []);
         const lim = Number((parceiroRes.data as Row | null)?.limite_obras ?? 4) || 4;
         setLimiteObras(lim);
         const ultima = (solicRes.data as Row[] | null)?.[0];
