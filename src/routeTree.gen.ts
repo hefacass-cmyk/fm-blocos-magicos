@@ -24,6 +24,7 @@ import { Route as ResetSenhaTokenRouteImport } from './routes/reset-senha.$token
 import { Route as ParceiroLoginRouteImport } from './routes/parceiro.login'
 import { Route as ParceiroDashboardRouteImport } from './routes/parceiro.dashboard'
 import { Route as ParceiroSlugRouteImport } from './routes/parceiro.$slug'
+import { Route as CadastroParceiroRouteImport } from './routes/cadastro.parceiro'
 import { Route as AdminSenhasRouteImport } from './routes/admin.senhas'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
@@ -104,6 +105,11 @@ const ParceiroSlugRoute = ParceiroSlugRouteImport.update({
   path: '/parceiro/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CadastroParceiroRoute = CadastroParceiroRouteImport.update({
+  id: '/cadastro/parceiro',
+  path: '/cadastro/parceiro',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminSenhasRoute = AdminSenhasRouteImport.update({
   id: '/admin/senhas',
   path: '/admin/senhas',
@@ -141,6 +147,7 @@ export interface FileRoutesByFullPath {
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/senhas': typeof AdminSenhasRoute
+  '/cadastro/parceiro': typeof CadastroParceiroRoute
   '/parceiro/$slug': typeof ParceiroSlugRoute
   '/parceiro/dashboard': typeof ParceiroDashboardRoute
   '/parceiro/login': typeof ParceiroLoginRoute
@@ -162,6 +169,7 @@ export interface FileRoutesByTo {
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/senhas': typeof AdminSenhasRoute
+  '/cadastro/parceiro': typeof CadastroParceiroRoute
   '/parceiro/$slug': typeof ParceiroSlugRoute
   '/parceiro/dashboard': typeof ParceiroDashboardRoute
   '/parceiro/login': typeof ParceiroLoginRoute
@@ -184,6 +192,7 @@ export interface FileRoutesById {
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/senhas': typeof AdminSenhasRoute
+  '/cadastro/parceiro': typeof CadastroParceiroRoute
   '/parceiro/$slug': typeof ParceiroSlugRoute
   '/parceiro/dashboard': typeof ParceiroDashboardRoute
   '/parceiro/login': typeof ParceiroLoginRoute
@@ -207,6 +216,7 @@ export interface FileRouteTypes {
     | '/admin/dashboard'
     | '/admin/login'
     | '/admin/senhas'
+    | '/cadastro/parceiro'
     | '/parceiro/$slug'
     | '/parceiro/dashboard'
     | '/parceiro/login'
@@ -228,6 +238,7 @@ export interface FileRouteTypes {
     | '/admin/dashboard'
     | '/admin/login'
     | '/admin/senhas'
+    | '/cadastro/parceiro'
     | '/parceiro/$slug'
     | '/parceiro/dashboard'
     | '/parceiro/login'
@@ -249,6 +260,7 @@ export interface FileRouteTypes {
     | '/admin/dashboard'
     | '/admin/login'
     | '/admin/senhas'
+    | '/cadastro/parceiro'
     | '/parceiro/$slug'
     | '/parceiro/dashboard'
     | '/parceiro/login'
@@ -271,6 +283,7 @@ export interface RootRouteChildren {
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminSenhasRoute: typeof AdminSenhasRoute
+  CadastroParceiroRoute: typeof CadastroParceiroRoute
   ParceiroSlugRoute: typeof ParceiroSlugRoute
   ParceiroDashboardRoute: typeof ParceiroDashboardRoute
   ParceiroLoginRoute: typeof ParceiroLoginRoute
@@ -384,6 +397,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ParceiroSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cadastro/parceiro': {
+      id: '/cadastro/parceiro'
+      path: '/cadastro/parceiro'
+      fullPath: '/cadastro/parceiro'
+      preLoaderRoute: typeof CadastroParceiroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/senhas': {
       id: '/admin/senhas'
       path: '/admin/senhas'
@@ -431,6 +451,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminDashboardRoute: AdminDashboardRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminSenhasRoute: AdminSenhasRoute,
+  CadastroParceiroRoute: CadastroParceiroRoute,
   ParceiroSlugRoute: ParceiroSlugRoute,
   ParceiroDashboardRoute: ParceiroDashboardRoute,
   ParceiroLoginRoute: ParceiroLoginRoute,
