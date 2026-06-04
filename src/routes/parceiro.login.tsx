@@ -36,9 +36,9 @@ function ParceiroLoginPage() {
     }
     setLoading(true);
     try {
-      const col = tipo === "PF" ? "CPF" : "CNPJ";
+      const col = tipo === "PF" ? "cpf" : "cnpj";
       const { data, error } = await fmSupabase
-        .from("Parceiros")
+        .from("parceiros")
         .select("*")
         .eq(col, limpo)
         .limit(1)
