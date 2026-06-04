@@ -279,6 +279,7 @@ function CadastroParceiroPage() {
       cidade: form.cidade.trim(),
       estado: form.estado.trim().toUpperCase(),
       mensagem: form.mensagem.trim() || null,
+      ativo: false,
     };
 
     try {
