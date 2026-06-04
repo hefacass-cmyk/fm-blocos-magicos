@@ -37,6 +37,9 @@ type FormState = {
   estado: string;
   ramo: string;
   descricao: string;
+  tipoPessoa: "PF" | "PJ" | "";
+  cpf: string;
+  cnpj: string;
 };
 
 const INITIAL: FormState = {
@@ -51,6 +54,9 @@ const INITIAL: FormState = {
   estado: "",
   ramo: "",
   descricao: "",
+  tipoPessoa: "",
+  cpf: "",
+  cnpj: "",
 };
 
 const SEGMENTOS_OPCOES = [
@@ -72,6 +78,22 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       {children}
     </label>
   );
+}
+
+function maskCpf(d: string) {
+  const v = d.replace(/\D/g, "").slice(0, 11);
+  return v
+    .replace(/^(\d{3})(\d)/, "$1.$2")
+    .replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3")
+    .replace(/\.(\d{3})(\d)/, ".$1-$2");
+}
+function maskCnpj(d: string) {
+  const v = d.replace(/\D/g, "").slice(0, 14);
+  return v
+    .replace(/^(\d{2})(\d)/, "$1.$2")
+    .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+    .replace(/\.(\d{3})(\d)/, ".$1/$2")
+    .replace(/(\d{4})(\d)/, "$1-$2");
 }
 
 function CadastroFornecedorPage() {
@@ -104,6 +126,20 @@ function CadastroFornecedorPage() {
       setError("Preencha todos os campos obrigatórios.");
       return;
     }
+    if (!form.tipoPessoa) {
+      setError("Selecione o Tipo de Pessoa.");
+      return;
+    }
+    const cpfDig = form.cpf.replace(/\D/g, "");
+    const cnpjDig = form.cnpj.replace(/\D/g, "");
+    if (form.tipoPessoa === "PF" && cpfDig.length !== 11) {
+      setError("Informe um CPF válido com 11 dígitos.");
+      return;
+    }
+    if (form.tipoPessoa === "PJ" && cnpjDig.length !== 14) {
+      setError("Informe um CNPJ válido com 14 dígitos.");
+      return;
+    }
 
     setLoading(true);
     try {
@@ -118,6 +154,9 @@ function CadastroFornecedorPage() {
         estado: form.estado.trim().toUpperCase(),
         ramo: form.ramo.trim(),
         descricao: form.descricao.trim() || null,
+        tipo_pessoa: form.tipoPessoa,
+        cpf: form.tipoPessoa === "PF" ? cpfDig : null,
+        cnpj: form.tipoPessoa === "PJ" ? cnpjDig : null,
       };
       const { error: errIns } = await fmSupabase
         .from("fornecedores")
