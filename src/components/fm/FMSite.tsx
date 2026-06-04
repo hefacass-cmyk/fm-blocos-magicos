@@ -3,8 +3,14 @@ import {
   Menu, X, AlertTriangle, ShieldCheck, Clock, Wallet, Recycle,
   Layers, Snowflake, PanelsTopLeft, MapPin, Phone, Mail,
   Instagram, Facebook, Linkedin, ArrowRight, CheckCircle2, Calculator,
-  BookOpen, User, Users, Building2, Zap, BadgeDollarSign,
+  BookOpen, User, Users, Building2, Zap, BadgeDollarSign, ChevronDown,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { ClientLoginModal } from "./ClientLoginModal";
 import { Link } from "@tanstack/react-router";
 import fmLogo from "@/assets/fm-logo.png";
