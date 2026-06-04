@@ -9,6 +9,8 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SejaParceiroRouteImport } from './routes/seja-parceiro'
+import { Route as SejaFornecedorRouteImport } from './routes/seja-fornecedor'
 import { Route as ParceirosRouteImport } from './routes/parceiros'
 import { Route as ParceiroInviteRouteImport } from './routes/parceiro-invite'
 import { Route as FornecedoresRouteImport } from './routes/fornecedores'
@@ -27,6 +29,16 @@ import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AdminAuditoriaEmailsRouteImport } from './routes/admin.auditoria-emails'
 
+const SejaParceiroRoute = SejaParceiroRouteImport.update({
+  id: '/seja-parceiro',
+  path: '/seja-parceiro',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SejaFornecedorRoute = SejaFornecedorRouteImport.update({
+  id: '/seja-fornecedor',
+  path: '/seja-fornecedor',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ParceirosRoute = ParceirosRouteImport.update({
   id: '/parceiros',
   path: '/parceiros',
@@ -123,6 +135,8 @@ export interface FileRoutesByFullPath {
   '/fornecedores': typeof FornecedoresRoute
   '/parceiro-invite': typeof ParceiroInviteRoute
   '/parceiros': typeof ParceirosRoute
+  '/seja-fornecedor': typeof SejaFornecedorRoute
+  '/seja-parceiro': typeof SejaParceiroRoute
   '/admin/auditoria-emails': typeof AdminAuditoriaEmailsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/login': typeof AdminLoginRoute
@@ -142,6 +156,8 @@ export interface FileRoutesByTo {
   '/fornecedores': typeof FornecedoresRoute
   '/parceiro-invite': typeof ParceiroInviteRoute
   '/parceiros': typeof ParceirosRoute
+  '/seja-fornecedor': typeof SejaFornecedorRoute
+  '/seja-parceiro': typeof SejaParceiroRoute
   '/admin/auditoria-emails': typeof AdminAuditoriaEmailsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/login': typeof AdminLoginRoute
@@ -162,6 +178,8 @@ export interface FileRoutesById {
   '/fornecedores': typeof FornecedoresRoute
   '/parceiro-invite': typeof ParceiroInviteRoute
   '/parceiros': typeof ParceirosRoute
+  '/seja-fornecedor': typeof SejaFornecedorRoute
+  '/seja-parceiro': typeof SejaParceiroRoute
   '/admin/auditoria-emails': typeof AdminAuditoriaEmailsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/login': typeof AdminLoginRoute
@@ -183,6 +201,8 @@ export interface FileRouteTypes {
     | '/fornecedores'
     | '/parceiro-invite'
     | '/parceiros'
+    | '/seja-fornecedor'
+    | '/seja-parceiro'
     | '/admin/auditoria-emails'
     | '/admin/dashboard'
     | '/admin/login'
@@ -202,6 +222,8 @@ export interface FileRouteTypes {
     | '/fornecedores'
     | '/parceiro-invite'
     | '/parceiros'
+    | '/seja-fornecedor'
+    | '/seja-parceiro'
     | '/admin/auditoria-emails'
     | '/admin/dashboard'
     | '/admin/login'
@@ -221,6 +243,8 @@ export interface FileRouteTypes {
     | '/fornecedores'
     | '/parceiro-invite'
     | '/parceiros'
+    | '/seja-fornecedor'
+    | '/seja-parceiro'
     | '/admin/auditoria-emails'
     | '/admin/dashboard'
     | '/admin/login'
@@ -241,6 +265,8 @@ export interface RootRouteChildren {
   FornecedoresRoute: typeof FornecedoresRoute
   ParceiroInviteRoute: typeof ParceiroInviteRoute
   ParceirosRoute: typeof ParceirosRoute
+  SejaFornecedorRoute: typeof SejaFornecedorRoute
+  SejaParceiroRoute: typeof SejaParceiroRoute
   AdminAuditoriaEmailsRoute: typeof AdminAuditoriaEmailsRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminLoginRoute: typeof AdminLoginRoute
@@ -253,6 +279,20 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/seja-parceiro': {
+      id: '/seja-parceiro'
+      path: '/seja-parceiro'
+      fullPath: '/seja-parceiro'
+      preLoaderRoute: typeof SejaParceiroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/seja-fornecedor': {
+      id: '/seja-fornecedor'
+      path: '/seja-fornecedor'
+      fullPath: '/seja-fornecedor'
+      preLoaderRoute: typeof SejaFornecedorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/parceiros': {
       id: '/parceiros'
       path: '/parceiros'
@@ -385,6 +425,8 @@ const rootRouteChildren: RootRouteChildren = {
   FornecedoresRoute: FornecedoresRoute,
   ParceiroInviteRoute: ParceiroInviteRoute,
   ParceirosRoute: ParceirosRoute,
+  SejaFornecedorRoute: SejaFornecedorRoute,
+  SejaParceiroRoute: SejaParceiroRoute,
   AdminAuditoriaEmailsRoute: AdminAuditoriaEmailsRoute,
   AdminDashboardRoute: AdminDashboardRoute,
   AdminLoginRoute: AdminLoginRoute,
@@ -397,3 +439,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
