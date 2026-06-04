@@ -27,8 +27,8 @@ import { Route as ParceiroSlugRouteImport } from './routes/parceiro.$slug'
 import { Route as PSlugRouteImport } from './routes/p.$slug'
 import { Route as FornecedorSlugRouteImport } from './routes/fornecedor.$slug'
 import { Route as FSlugRouteImport } from './routes/f.$slug'
-import { Route as CadastroParceiroRouteImport } from './routes/cadastro.parceiro'
-import { Route as CadastroFornecedorRouteImport } from './routes/cadastro.fornecedor'
+import { Route as CadastroParceiroRouteImport } from './routes/cadastro/parceiro'
+import { Route as CadastroFornecedorRouteImport } from './routes/cadastro/fornecedor'
 import { Route as AdminSenhasRouteImport } from './routes/admin.senhas'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
@@ -544,3 +544,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
