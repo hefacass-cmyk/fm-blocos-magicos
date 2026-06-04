@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { fmSupabase } from "@/lib/fm-supabase";
 import { logAdmin, trackAcesso } from "@/lib/fm-tracking";
+import { LeadForm } from "./fornecedor.$slug";
 
 const BRAND_BLUE = "#1A4D7A";
 const BRAND_YELLOW = "#F4B941";
