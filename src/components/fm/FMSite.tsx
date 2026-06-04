@@ -100,48 +100,62 @@ function Header({ onLogin }: { onLogin: () => void }) {
   const [open, setOpen] = useState(false);
   return (
     <header className="fixed top-0 inset-x-0 z-50 bg-background/90 backdrop-blur border-b border-border" style={{ minWidth: 320 }}>
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <a href="#home" className="flex items-center gap-2">
-          <img src={fmLogo} alt="F&M Construções Inteligentes" className="h-10 w-auto object-contain" />
+      <div className="mx-auto max-w-7xl px-3 sm:px-5 lg:px-7 h-16 flex items-center justify-between">
+        <a href="#home" className="flex items-center gap-2 shrink-0">
+          <img src={fmLogo} alt="F&M Construções Inteligentes" className="h-9 w-auto object-contain" />
           <div className="hidden sm:block leading-tight">
             <div className="text-sm font-bold text-primary">F&M Construções</div>
             <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Inteligentes</div>
           </div>
         </a>
-        <nav className="hidden lg:flex items-center gap-4">
+        <nav className="hidden xl:flex items-center gap-2">
           {NAV.map((n) => (
-            <a key={n.id} href={`#${n.id}`} className="text-[13px] font-medium text-foreground/80 hover:text-primary transition-colors whitespace-nowrap">
+            <a key={n.id} href={`#${n.id}`} className="text-[12px] font-medium text-foreground/80 hover:text-primary transition-colors whitespace-nowrap px-1.5 py-1">
               {n.label}
             </a>
           ))}
-          <Link to="/parceiros" className="text-[13px] font-medium text-foreground/80 hover:text-primary transition-colors whitespace-nowrap">
-            Parceiros
-          </Link>
-          <Link to="/fornecedores" className="text-[13px] font-medium text-foreground/80 hover:text-primary transition-colors whitespace-nowrap">
-            Fornecedores
-          </Link>
-          <Link to="/cadastro-parceiro" className="text-[13px] font-medium text-accent hover:brightness-110 transition-colors whitespace-nowrap">
-            Seja Parceiro
-          </Link>
-          <Link to="/cadastro-fornecedor" className="text-[13px] font-medium text-accent hover:brightness-110 transition-colors whitespace-nowrap">
-            Seja Fornecedor
-          </Link>
-          <Link to="/parceiro/login" className="text-xs font-medium text-foreground/80 hover:text-primary transition-colors whitespace-nowrap">
+          <DropdownMenu>
+            <DropdownMenuTrigger className="text-[12px] font-medium text-foreground/80 hover:text-primary transition-colors whitespace-nowrap px-1.5 py-1 inline-flex items-center gap-0.5 outline-none">
+              Parceiros <ChevronDown className="h-3 w-3" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="min-w-[10rem]">
+              <DropdownMenuItem asChild>
+                <Link to="/parceiros" className="cursor-pointer text-sm">Ver Parceiros</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/seja-parceiro" className="cursor-pointer text-sm">Seja Parceiro</Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <DropdownMenu>
+            <DropdownMenuTrigger className="text-[12px] font-medium text-foreground/80 hover:text-primary transition-colors whitespace-nowrap px-1.5 py-1 inline-flex items-center gap-0.5 outline-none">
+              Fornecedores <ChevronDown className="h-3 w-3" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="min-w-[10rem]">
+              <DropdownMenuItem asChild>
+                <Link to="/fornecedores" className="cursor-pointer text-sm">Ver Fornecedores</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/seja-fornecedor" className="cursor-pointer text-sm">Seja Fornecedor</Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Link to="/parceiro/login" className="text-[12px] font-medium text-foreground/80 hover:text-primary transition-colors whitespace-nowrap px-1.5 py-1">
             Área do Parceiro
           </Link>
         </nav>
-        <div className="hidden lg:flex items-center gap-3">
+        <div className="hidden xl:flex items-center gap-2 shrink-0">
           <button
             onClick={onLogin}
-            className="inline-flex items-center gap-2 rounded-md border border-primary/30 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/5 transition whitespace-nowrap"
+            className="inline-flex items-center gap-1.5 rounded-md border border-primary/30 px-2.5 py-1.5 text-[11px] font-semibold text-primary hover:bg-primary/5 transition whitespace-nowrap"
           >
-            <User className="h-4 w-4" /> Área do Cliente
+            <User className="h-3.5 w-3.5" /> Área do Cliente
           </button>
-          <a href="#contato" className="inline-flex items-center gap-1.5 rounded-md bg-accent px-3 py-1.5 text-xs font-semibold text-accent-foreground hover:brightness-95 transition whitespace-nowrap">
-            Diagnóstico <ArrowRight className="h-4 w-4" />
+          <a href="#contato" className="inline-flex items-center gap-1 rounded-md bg-accent px-2.5 py-1.5 text-[11px] font-semibold text-accent-foreground hover:brightness-95 transition whitespace-nowrap">
+            Diagnóstico <ArrowRight className="h-3.5 w-3.5" />
           </a>
         </div>
-        <div className="lg:hidden flex items-center gap-2">
+        <div className="xl:hidden flex items-center gap-2">
           <button
             onClick={onLogin}
             className="p-2 text-foreground hover:text-primary transition"
@@ -155,7 +169,7 @@ function Header({ onLogin }: { onLogin: () => void }) {
         </div>
       </div>
       {open && (
-        <div className="lg:hidden border-t border-border bg-background">
+        <div className="xl:hidden border-t border-border bg-background">
           <div className="px-4 py-3 flex flex-col gap-1">
             {NAV.map((n) => (
               <a key={n.id} href={`#${n.id}`} onClick={() => setOpen(false)} className="py-2 text-sm font-medium text-foreground/80">
@@ -163,15 +177,15 @@ function Header({ onLogin }: { onLogin: () => void }) {
               </a>
             ))}
             <Link to="/parceiros" onClick={() => setOpen(false)} className="py-2 text-sm font-medium text-foreground/80">
-              Parceiros
+              Ver Parceiros
             </Link>
-            <Link to="/fornecedores" onClick={() => setOpen(false)} className="py-2 text-sm font-medium text-foreground/80">
-              Fornecedores
-            </Link>
-            <Link to="/cadastro-parceiro" onClick={() => setOpen(false)} className="py-2 text-sm font-semibold text-accent">
+            <Link to="/seja-parceiro" onClick={() => setOpen(false)} className="py-2 text-sm font-semibold text-accent">
               Seja Parceiro
             </Link>
-            <Link to="/cadastro-fornecedor" onClick={() => setOpen(false)} className="py-2 text-sm font-semibold text-accent">
+            <Link to="/fornecedores" onClick={() => setOpen(false)} className="py-2 text-sm font-medium text-foreground/80">
+              Ver Fornecedores
+            </Link>
+            <Link to="/seja-fornecedor" onClick={() => setOpen(false)} className="py-2 text-sm font-semibold text-accent">
               Seja Fornecedor
             </Link>
             <Link to="/parceiro/login" onClick={() => setOpen(false)} className="py-2 text-sm font-medium text-foreground/80">
