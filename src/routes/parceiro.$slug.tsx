@@ -477,6 +477,17 @@ function ParceiroPublicoPage() {
           </div>
       </section>
 
+      {/* BLOCO 4.5 — Lead / Orçamento */}
+      <section className="px-4 py-10">
+        <div className="mx-auto max-w-2xl">
+          <LeadForm
+            origem="parceiro"
+            destinatarioId={String(parceiro.id)}
+            destinatarioNome={nome}
+          />
+        </div>
+      </section>
+
       {/* BLOCO 5 — Rodapé F&M */}
       <footer
         className="px-4 py-10 text-center text-white"
