@@ -84,7 +84,7 @@ function ParceiroPublicoPage() {
         // tenta por slug; fallback por id
         let row: Row | null = null;
         const bySlug = await fmSupabase
-          .from("parceiros")
+          .from("parceiros_publico")
           .select("*")
           .eq("slug", slug)
           .limit(1)
@@ -92,7 +92,7 @@ function ParceiroPublicoPage() {
         if (bySlug.data) row = bySlug.data as Row;
         if (!row) {
           const byId = await fmSupabase
-            .from("parceiros")
+            .from("parceiros_publico")
             .select("*")
             .eq("id", slug)
             .limit(1)

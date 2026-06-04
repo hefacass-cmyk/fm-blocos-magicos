@@ -254,7 +254,7 @@ function ParceirosPublicPage() {
     let active = true;
     async function load() {
       const [p, a] = await Promise.all([
-        fmSupabase.from("Parceiros").select("*").eq("Status", "ativo"),
+        fmSupabase.from("parceiros_publico").select("*"),
         fmSupabase.from("Avaliacoes").select("*"),
       ]);
       console.log("[parceiros] parceiros:", p);
