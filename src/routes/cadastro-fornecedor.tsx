@@ -118,7 +118,6 @@ function CadastroFornecedorPage() {
         estado: form.estado.trim().toUpperCase(),
         ramo: form.ramo.trim(),
         descricao: form.descricao.trim() || null,
-        status: "pendente",
       };
       const { error: errIns } = await fmSupabase
         .from("fornecedores")
