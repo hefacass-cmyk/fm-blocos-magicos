@@ -273,6 +273,21 @@ function CadastroParceiroPage() {
       return;
     }
 
+    if (!form.tipoPessoa) {
+      setError("Selecione o Tipo de Pessoa.");
+      return;
+    }
+    const cpfDig = form.cpf.replace(/\D/g, "");
+    const cnpjDig = form.cnpj.replace(/\D/g, "");
+    if (form.tipoPessoa === "PF" && cpfDig.length !== 11) {
+      setError("Informe um CPF válido com 11 dígitos.");
+      return;
+    }
+    if (form.tipoPessoa === "PJ" && cnpjDig.length !== 14) {
+      setError("Informe um CNPJ válido com 14 dígitos.");
+      return;
+    }
+
     for (const fb of feedbacks) {
       if (!fb.depoimento.trim() || !fb.nomeCliente.trim()) {
         setError("Em cada depoimento, preencha o texto e o nome do cliente.");
@@ -302,6 +317,9 @@ function CadastroParceiroPage() {
       estado: form.estado.trim().toUpperCase(),
       mensagem: form.mensagem.trim() || null,
       ativo: false,
+      tipo_pessoa: form.tipoPessoa,
+      cpf: form.tipoPessoa === "PF" ? cpfDig : null,
+      cnpj: form.tipoPessoa === "PJ" ? cnpjDig : null,
     };
 
     try {
