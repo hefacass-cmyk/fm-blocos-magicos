@@ -318,6 +318,8 @@ function ParceiroDashboardPage() {
 
         {shareUrl && <ShareCardSection shareUrl={shareUrl} nome={nomeExibido} />}
 
+        {shareUrl && <LeadsSection leads={leads} />}
+
         <section className="rounded-2xl bg-white p-6 shadow-sm border">
           <div className="flex items-center justify-between flex-wrap gap-3">
             <h2 className="inline-flex items-center gap-2 text-lg font-bold" style={{ color: BRAND_DARK }}>
