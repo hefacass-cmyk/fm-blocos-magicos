@@ -448,6 +448,69 @@ function CadastroParceiroPage() {
                 </label>
               </Field>
 
+              <Field label="Tipo de Pessoa *">
+                <div className="flex flex-wrap gap-4">
+                  <label className="inline-flex cursor-pointer items-center gap-2 text-sm font-medium text-slate-700">
+                    <input
+                      type="radio"
+                      name="tipoPessoa"
+                      value="PF"
+                      checked={form.tipoPessoa === "PF"}
+                      onChange={() => update("tipoPessoa", "PF")}
+                      className="h-4 w-4 cursor-pointer"
+                    />
+                    Pessoa Física
+                  </label>
+                  <label className="inline-flex cursor-pointer items-center gap-2 text-sm font-medium text-slate-700">
+                    <input
+                      type="radio"
+                      name="tipoPessoa"
+                      value="PJ"
+                      checked={form.tipoPessoa === "PJ"}
+                      onChange={() => update("tipoPessoa", "PJ")}
+                      className="h-4 w-4 cursor-pointer"
+                    />
+                    Pessoa Jurídica
+                  </label>
+                </div>
+              </Field>
+
+              {form.tipoPessoa === "PF" && (
+                <Field label="CPF *">
+                  <input
+                    required
+                    type="text"
+                    inputMode="numeric"
+                    value={form.cpf}
+                    onChange={(e) => update("cpf", maskCpf(e.target.value))}
+                    className={inputClass}
+                    placeholder="000.000.000-00"
+                    maxLength={14}
+                  />
+                  <p className="mt-1 text-xs text-slate-500">
+                    🔒 Seu CPF é usado apenas para acesso à sua área restrita e nunca será exibido publicamente.
+                  </p>
+                </Field>
+              )}
+
+              {form.tipoPessoa === "PJ" && (
+                <Field label="CNPJ *">
+                  <input
+                    required
+                    type="text"
+                    inputMode="numeric"
+                    value={form.cnpj}
+                    onChange={(e) => update("cnpj", maskCnpj(e.target.value))}
+                    className={inputClass}
+                    placeholder="00.000.000/0000-00"
+                    maxLength={18}
+                  />
+                  <p className="mt-1 text-xs text-slate-500">
+                    🔒 Seu CNPJ é usado apenas para acesso à sua área restrita e nunca será exibido publicamente.
+                  </p>
+                </Field>
+              )}
+
               <Field label="Segmento *">
                 <select
                   required
