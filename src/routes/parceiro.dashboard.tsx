@@ -565,11 +565,7 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
 
 function ShareCardSection({ shareUrl, nome }: { shareUrl: string; nome: string }) {
   const [copied, setCopied] = useState(false);
-  const qrUrl = useMemo(
-    () =>
-      `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shareUrl)}`,
-    [shareUrl],
-  );
+  const qrRef = useRef<HTMLDivElement>(null);
   const msg = encodeURIComponent(
     `Conheça meu cartão de visita digital F&M: ${shareUrl}`,
   );
@@ -582,6 +578,18 @@ function ShareCardSection({ shareUrl, nome }: { shareUrl: string; nome: string }
     } catch {
       /* ignore */
     }
+  };
+
+  const downloadPng = () => {
+    const canvas = qrRef.current?.querySelector("canvas");
+    if (!canvas) return;
+    const url = canvas.toDataURL("image/png");
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `fm-qrcode-${(nome || "parceiro").toLowerCase().replace(/[^a-z0-9]+/g, "-")}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   };
 
   return (
@@ -598,15 +606,30 @@ function ShareCardSection({ shareUrl, nome }: { shareUrl: string; nome: string }
 
       <div className="mt-4 grid grid-cols-1 gap-5 md:grid-cols-[auto_1fr]">
         <div
+          ref={qrRef}
           className="flex items-center justify-center rounded-xl border bg-white p-3"
           style={{ borderColor: BRAND_YELLOW }}
         >
-          <img
-            src={qrUrl}
-            alt="QR Code do cartão"
-            width={180}
-            height={180}
-            className="h-44 w-44"
+          <QRCodeCanvas
+            value={shareUrl}
+            size={220}
+            level="H"
+            includeMargin
+            bgColor="#ffffff"
+            fgColor={BRAND_BLUE}
+            imageSettings={{
+              src:
+                "data:image/svg+xml;utf8," +
+                encodeURIComponent(
+                  `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'>
+                    <rect width='80' height='80' rx='12' fill='${BRAND_YELLOW}'/>
+                    <text x='50%' y='54%' text-anchor='middle' font-family='Arial Black, Arial, sans-serif' font-size='30' font-weight='900' fill='${BRAND_BLUE}'>F&amp;M</text>
+                  </svg>`,
+                ),
+              height: 44,
+              width: 44,
+              excavate: true,
+            }}
           />
         </div>
 
@@ -628,6 +651,15 @@ function ShareCardSection({ shareUrl, nome }: { shareUrl: string; nome: string }
               {copied ? "Copiado" : "Copiar"}
             </button>
           </div>
+
+          <button
+            type="button"
+            onClick={downloadPng}
+            className="inline-flex items-center justify-center gap-2 self-start rounded-lg px-4 py-2 text-sm font-bold text-white transition hover:brightness-110"
+            style={{ backgroundColor: BRAND_BLUE }}
+          >
+            <Download className="h-4 w-4" /> Baixar QR Code (PNG)
+          </button>
 
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
             <a
@@ -677,6 +709,84 @@ function ShareCardSection({ shareUrl, nome }: { shareUrl: string; nome: string }
           </p>
         </div>
       </div>
+    </section>
+  );
+}
+
+function LeadsSection({ leads }: { leads: Row[] }) {
+  return (
+    <section className="rounded-2xl bg-white p-6 shadow-sm border">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="inline-flex items-center gap-2 text-lg font-bold" style={{ color: BRAND_DARK }}>
+          <Users className="h-5 w-5" /> Leads recebidos
+        </h2>
+        <span
+          className="rounded-full px-3 py-1 text-xs font-bold text-white"
+          style={{ backgroundColor: BRAND_BLUE }}
+        >
+          {leads.length}
+        </span>
+      </div>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Clientes que chegaram via seu link/QR Code personalizado.
+      </p>
+
+      {leads.length === 0 ? (
+        <p className="mt-4 rounded-lg border border-dashed p-4 text-center text-sm text-muted-foreground">
+          Nenhum lead ainda. Divulgue seu link!
+        </p>
+      ) : (
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b text-left text-xs uppercase text-muted-foreground">
+                <th className="py-2 pr-3">Data</th>
+                <th className="py-2 pr-3">Nome</th>
+                <th className="py-2 pr-3">Telefone</th>
+                <th className="py-2 pr-3">E-mail</th>
+                <th className="py-2">Mensagem</th>
+              </tr>
+            </thead>
+            <tbody>
+              {leads.map((l, i) => {
+                const tel = String(l.telefone_cliente ?? "");
+                const telDigits = tel.replace(/\D/g, "");
+                return (
+                  <tr key={i} className="border-b last:border-0">
+                    <td className="py-2 pr-3 text-xs text-muted-foreground">
+                      {String(l.created_at ?? "").slice(0, 10)}
+                    </td>
+                    <td className="py-2 pr-3 font-semibold" style={{ color: BRAND_BLUE }}>
+                      {String(l.nome_cliente ?? "—")}
+                    </td>
+                    <td className="py-2 pr-3">
+                      {tel ? (
+                        <a
+                          href={`https://wa.me/${telDigits.length >= 11 && !telDigits.startsWith("55") ? "55" + telDigits : telDigits}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 hover:underline"
+                          style={{ color: BRAND_GREEN }}
+                        >
+                          <MessageCircle className="h-3 w-3" /> {tel}
+                        </a>
+                      ) : (
+                        "—"
+                      )}
+                    </td>
+                    <td className="py-2 pr-3 text-xs">
+                      {l.email_cliente ? String(l.email_cliente) : "—"}
+                    </td>
+                    <td className="py-2 text-xs text-foreground/80">
+                      {l.mensagem ? String(l.mensagem) : "—"}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
     </section>
   );
 }
