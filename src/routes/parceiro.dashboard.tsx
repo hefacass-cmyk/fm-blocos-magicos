@@ -563,7 +563,7 @@ function ParceiroDashboardPage() {
       <SolicitarAmpliacaoModal
         open={showAmpliar}
         onClose={() => { setShowAmpliar(false); setAmpliacaoStatus("pendente"); }}
-        parceiroId={parceiro.id!}
+        parceiroId={parceiro.id as string | number}
         parceiroNome={nomeExibido}
       />
     </div>
