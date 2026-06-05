@@ -4,6 +4,7 @@ import { Users, Building2, MessageSquare, Star, Activity, Eye, LogOut, Check, X,
 import { fmSupabase } from "@/lib/fm-supabase";
 import { logAdmin } from "@/lib/fm-tracking";
 import { toast } from "sonner";
+import ClientesSection from "@/components/admin/ClientesSection";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -313,6 +314,8 @@ function AdminDashboardPage() {
             <span className="text-slate-600">— {stats.topParceiroNota.toFixed(1)} ⭐</span>
           </p>
         </section>
+
+        <ClientesSection />
 
         {/* Pendentes de aprovação */}
         <section className="rounded-2xl border-2 p-5 shadow-sm" style={{ borderColor: BRAND_YELLOW, backgroundColor: "#FFFBEB" }}>
