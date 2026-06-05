@@ -1,8 +1,19 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Users, Building2, MessageSquare, Star, Activity, Eye, LogOut, Check, X, Loader2, KeyRound, Mail } from "lucide-react";
+import { Users, Building2, MessageSquare, Star, Activity, Eye, LogOut, Check, X, Loader2, KeyRound, Mail, Trash2 } from "lucide-react";
 import { fmSupabase } from "@/lib/fm-supabase";
 import { logAdmin } from "@/lib/fm-tracking";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const BRAND_BLUE = "#1A4D7A";
 const BRAND_YELLOW = "#F4B941";
