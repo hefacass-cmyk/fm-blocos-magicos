@@ -433,6 +433,64 @@ function AdminDashboardPage() {
                           )}
                         </label>
                       </td>
+                      <td className="p-2 text-center">
+                        <button
+                          onClick={() => abrirDelete(p, "parceiro")}
+                          className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-bold text-white"
+                          style={{ backgroundColor: "#ef4444" }}
+                          title="Excluir parceiro"
+                        >
+                          <Trash2 className="h-3 w-3" /> Excluir
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+
+        {/* Fornecedores — verificação */}
+        <section className="rounded-2xl border bg-white p-5 shadow-sm">
+          <h2 className="mb-3 inline-flex items-center gap-2 text-base font-bold" style={{ color: BRAND_BLUE }}>
+            <Building2 className="h-4 w-4" /> Fornecedores
+          </h2>
+          {fornecedores.length === 0 ? (
+            <p className="text-sm text-slate-500">Nenhum fornecedor cadastrado.</p>
+          ) : (
+            <div className="max-h-96 overflow-y-auto">
+              <table className="w-full text-sm">
+                <thead className="sticky top-0 bg-slate-50 text-left text-xs">
+                  <tr>
+                    <th className="p-2">Fornecedor</th>
+                    <th className="p-2">Empresa</th>
+                    <th className="p-2 text-center">Status</th>
+                    <th className="p-2 text-center">Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {fornecedores.map((f) => (
+                    <tr key={String(f.id)} className="border-t">
+                      <td className="p-2">{String(f.nome ?? "—")}</td>
+                      <td className="p-2 text-slate-600">{String(f.empresa ?? "—")}</td>
+                      <td className="p-2 text-center">
+                        <span className="rounded-full px-2 py-0.5 text-[10px] font-bold uppercase text-white"
+                          style={{ backgroundColor:
+                            f.status === "ativo" ? BRAND_GREEN :
+                            f.status === "pendente" ? BRAND_YELLOW : "#94a3b8" }}
+                        >{String(f.status ?? "—")}</span>
+                      </td>
+                      <td className="p-2 text-center">
+                        <button
+                          onClick={() => abrirDelete(f, "fornecedor")}
+                          className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-bold text-white"
+                          style={{ backgroundColor: "#ef4444" }}
+                          title="Excluir fornecedor"
+                        >
+                          <Trash2 className="h-3 w-3" /> Excluir
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
