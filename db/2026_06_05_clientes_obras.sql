@@ -63,12 +63,13 @@ create policy "clientes delete" on public.clientes for delete to anon, authentic
 create table if not exists public.obra_atualizacoes (
   id uuid primary key default gen_random_uuid(),
   cliente_id uuid not null references public.clientes(id) on delete cascade,
-  titulo text,
-  descricao text,
-  profissionais_canteiro int default 0,
-  data date default current_date,
   criado_em timestamptz not null default now()
 );
+alter table public.obra_atualizacoes
+  add column if not exists titulo text,
+  add column if not exists descricao text,
+  add column if not exists profissionais_canteiro int default 0,
+  add column if not exists data date default current_date;
 create index if not exists obra_atualizacoes_cliente_idx on public.obra_atualizacoes (cliente_id, data desc);
 grant select, insert, update, delete on public.obra_atualizacoes to anon, authenticated;
 grant all on public.obra_atualizacoes to service_role;
@@ -82,13 +83,14 @@ create policy "obra_atu all" on public.obra_atualizacoes for all to anon, authen
 create table if not exists public.obra_etapas (
   id uuid primary key default gen_random_uuid(),
   cliente_id uuid not null references public.clientes(id) on delete cascade,
-  nome text,
-  data_inicio date,
-  data_fim date,
-  status text default 'pendente',
-  ordem int default 0,
   criado_em timestamptz not null default now()
 );
+alter table public.obra_etapas
+  add column if not exists nome text,
+  add column if not exists data_inicio date,
+  add column if not exists data_fim date,
+  add column if not exists status text default 'pendente',
+  add column if not exists ordem int default 0;
 create index if not exists obra_etapas_cliente_idx on public.obra_etapas (cliente_id, ordem);
 grant select, insert, update, delete on public.obra_etapas to anon, authenticated;
 grant all on public.obra_etapas to service_role;
@@ -102,11 +104,12 @@ create policy "obra_etapas all" on public.obra_etapas for all to anon, authentic
 create table if not exists public.obra_fotos (
   id uuid primary key default gen_random_uuid(),
   cliente_id uuid not null references public.clientes(id) on delete cascade,
-  foto_url text not null,
-  legenda text,
-  semana int,
   criado_em timestamptz not null default now()
 );
+alter table public.obra_fotos
+  add column if not exists foto_url text,
+  add column if not exists legenda text,
+  add column if not exists semana int;
 create index if not exists obra_fotos_cliente_idx on public.obra_fotos (cliente_id, criado_em desc);
 grant select, insert, update, delete on public.obra_fotos to anon, authenticated;
 grant all on public.obra_fotos to service_role;
@@ -120,11 +123,12 @@ create policy "obra_fotos all" on public.obra_fotos for all to anon, authenticat
 create table if not exists public.obra_documentos (
   id uuid primary key default gen_random_uuid(),
   cliente_id uuid not null references public.clientes(id) on delete cascade,
-  doc_url text not null,
-  nome text,
-  tipo text default 'outro',
   criado_em timestamptz not null default now()
 );
+alter table public.obra_documentos
+  add column if not exists doc_url text,
+  add column if not exists nome text,
+  add column if not exists tipo text default 'outro';
 create index if not exists obra_documentos_cliente_idx on public.obra_documentos (cliente_id, criado_em desc);
 grant select, insert, update, delete on public.obra_documentos to anon, authenticated;
 grant all on public.obra_documentos to service_role;
