@@ -48,7 +48,7 @@ export default function ClientesSection() {
     const term = q.trim().toLowerCase();
     if (!term) return rows;
     return rows.filter((r) =>
-      [r.nome, r.codigo_cliente, r.cpf_cnpj, r.obra_nome, r.cidade]
+      [r.nome, r.codigo_cliente ?? r.codigo, r.cpf_cnpj, r.obra_nome, r.cidade]
         .map((v) => String(v ?? "").toLowerCase())
         .some((s) => s.includes(term)),
     );
@@ -144,7 +144,7 @@ export default function ClientesSection() {
                 const status = (r.obra_status as ObraStatus) ?? "orcamento";
                 return (
                   <tr key={String(r.id)} className="border-t">
-                    <td className="p-2 font-mono text-xs">{String(r.codigo_cliente ?? "—")}</td>
+                    <td className="p-2 font-mono text-xs">{String(r.codigo_cliente ?? r.codigo ?? "—")}</td>
                     <td className="p-2">
                       <Link to="/admin/clientes/$id" params={{ id: String(r.id) }} className="font-semibold text-[#1A4D7A] hover:underline">
                         {String(r.nome ?? "—")}

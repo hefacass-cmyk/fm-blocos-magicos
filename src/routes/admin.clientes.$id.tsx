@@ -67,7 +67,7 @@ function DetalhePage() {
         <section className="rounded-2xl border bg-white p-5 shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="font-mono text-xs text-slate-500">{String(cliente.codigo_cliente ?? "—")}</p>
+              <p className="font-mono text-xs text-slate-500">{String(cliente.codigo_cliente ?? cliente.codigo ?? "—")}</p>
               <h2 className="text-xl font-extrabold" style={{ color: BRAND_BLUE }}>{String(cliente.obra_nome ?? "—")}</h2>
               <p className="text-xs text-slate-500">
                 {String(cliente.obra_tipo ?? "—")} · {cliente.area_m2 ? `${cliente.area_m2} m²` : "—"} · {cliente.cidade ? `${cliente.cidade}/${cliente.estado ?? ""}` : "—"}

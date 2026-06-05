@@ -40,35 +40,15 @@ export function ClientLoginModal({ open, onClose }: ClientLoginModalProps) {
       const codigoLimpo = codigo.trim().toUpperCase();
       const cpfLimpo = cpfCnpj.replace(/\D/g, "");
 
-      console.log("[login] valores do estado:", { codigo, cpfCnpj });
-
-      console.log("[login] enviando para Supabase:", {
-        tabela: "Clientes",
-        Cos_cliente: codigoLimpo,
-        Cpf_cnpj: cpfLimpo,
-        tipos: { Cos_cliente: typeof codigoLimpo, Cpf_cnpj: typeof cpfLimpo },
-      });
-
-      // Diagnóstico: busca 1 linha qualquer pra inspecionar nomes/tipos das colunas
-      const amostra = await fmSupabase.from("Clientes").select("*").limit(1);
-      console.log("[login] amostra da tabela Clientes:", {
-        error: amostra.error,
-        primeiraLinha: amostra.data?.[0],
-        colunas: amostra.data?.[0] ? Object.keys(amostra.data[0]) : null,
-      });
-
       const { data, error } = await fmSupabase
-        .from("Clientes")
+        .from("clientes")
         .select("*")
-        .eq("Cos_cliente", codigoLimpo)
-        .eq("Cpf_cnpj", cpfLimpo)
+        .or(`codigo_cliente.eq.${codigoLimpo},codigo.eq.${codigoLimpo}`)
+        .eq("cpf_cnpj", cpfLimpo)
         .limit(1)
         .maybeSingle();
 
-      console.log("[login] resposta Supabase:", { data, error });
-
       if (error) {
-        console.error("[login] erro supabase:", error);
         setErroGeral("Não foi possível validar agora. Tente novamente.");
         return;
       }
