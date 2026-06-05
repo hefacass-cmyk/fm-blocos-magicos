@@ -105,15 +105,16 @@ function DashboardPage() {
     return fallback;
   };
 
-  const progresso = Number(pick<number | string>(["Percentual", "percentual"], 0)) || 0;
+  const progresso = Number(pick<number | string>(["progresso", "Percentual", "percentual"], 0)) || 0;
   const orcado = Number(pick<number | string>(["orcado", "orcamento", "valor_orcado"], 0)) || 0;
   const pago = Number(pick<number | string>(["pago", "valor_pago"], 0)) || 0;
   const saldo = Math.max(orcado - pago, 0);
   const dataInicio = pick<string>(["Data", "data_inicio", "inicio"], "—");
   const prazoEsperado = pick<string>(
-    ["Prazo_esperado", "Prazo", "Previsao_termino", "prazo_esperado", "prazo", "previsao_termino"],
+    ["data_termino", "Prazo_esperado", "Prazo", "Previsao_termino", "prazo_esperado", "prazo", "previsao_termino"],
     "",
   );
+  const percentualFinanceiro = orcado > 0 ? Math.round((pago / orcado) * 100) : 0;
   const hojeDescricao = pick<string>(["titulo", "descricao", "Descricao", "hoje_descricao"], "Sem atividade registrada para hoje");
   const hojeHorario = pick<string>(["data", "Data", "hoje_horario", "horario"], "");
   const equipe = Number(
@@ -308,13 +309,13 @@ function DashboardPage() {
             <div className="flex items-end justify-between mb-2 text-sm">
               <span className="font-semibold text-foreground">Execução financeira</span>
               <span className="font-bold" style={{ color: BRAND_GREEN }}>
-                {Math.round((pago / orcado) * 100)}%
+                {percentualFinanceiro}%
               </span>
             </div>
             <div className="h-2.5 w-full rounded-full bg-muted overflow-hidden">
               <div
                 className="h-full rounded-full"
-                style={{ width: `${(pago / orcado) * 100}%`, backgroundColor: BRAND_GREEN }}
+                style={{ width: `${percentualFinanceiro}%`, backgroundColor: BRAND_GREEN }}
               />
             </div>
           </div>
