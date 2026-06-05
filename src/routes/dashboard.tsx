@@ -20,6 +20,8 @@ const BRAND_BLUE = "#1A4D7A";
 const BRAND_GREEN = "#06A77D";
 const BRAND_YELLOW = "#F4B941";
 
+type Row = Record<string, unknown>;
+
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
     meta: [
@@ -34,7 +36,8 @@ function DashboardPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
-  const [obra, setObra] = useState<Record<string, unknown> | null>(null);
+  const [clienteData, setClienteData] = useState<Row | null>(null);
+  const [atualizacaoHoje, setAtualizacaoHoje] = useState<Row | null>(null);
   const cliente = typeof window !== "undefined" ? getCliente() : null;
 
   useEffect(() => {
@@ -46,23 +49,37 @@ function DashboardPage() {
         return;
       }
       try {
-        const { data, error } = await fmSupabase
-          .from("Progresso_obra")
-          .select("*")
-          .eq("Cliente_id", cliente.id as string | number)
-          .order("Data", { ascending: false })
-          .limit(1)
-          .maybeSingle();
-        console.log("[dashboard] Progresso_obra:", { cliente_id: cliente.id, data, error });
+        const [{ data: clienteRow, error: clienteError }, { data: updateRow, error: updateError }] = await Promise.all([
+          fmSupabase
+            .from("clientes")
+            .select("*")
+            .eq("id", cliente.id as string | number)
+            .maybeSingle(),
+          fmSupabase
+            .from("obra_atualizacoes")
+            .select("*")
+            .eq("cliente_id", cliente.id as string | number)
+            .order("data", { ascending: false })
+            .limit(1)
+            .maybeSingle(),
+        ]);
+
+        console.log("[dashboard] clientes:", { cliente_id: cliente.id, data: clienteRow, error: clienteError });
+        console.log("[dashboard] obra_atualizacoes:", { cliente_id: cliente.id, data: updateRow, error: updateError });
 
         if (!active) return;
-        if (error) {
-          console.error("[dashboard] erro:", error);
+        if (clienteError) {
+          console.error("[dashboard] erro ao carregar cliente:", clienteError);
           setErro("Erro ao carregar dados da obra.");
-        } else if (!data) {
-          setErro("Nenhum registro de obra encontrado para este cliente.");
+        } else if (!clienteRow) {
+          setErro("Nenhum cadastro de obra foi encontrado para este cliente.");
         } else {
-          setObra(data as Record<string, unknown>);
+          if (updateError) {
+            console.error("[dashboard] erro ao carregar atualização:", updateError);
+          }
+          setClienteData(clienteRow as Row);
+          setAtualizacaoHoje((updateRow as Row | null) ?? null);
+          setErro(null);
         }
       } catch (e) {
         console.error(e);
@@ -78,10 +95,12 @@ function DashboardPage() {
   }, [cliente?.id]);
 
   const pick = <T,>(keys: string[], fallback: T): T => {
-    if (!obra) return fallback;
-    for (const k of keys) {
-      const v = obra[k];
-      if (v !== undefined && v !== null && v !== "") return v as T;
+    for (const source of [atualizacaoHoje, clienteData, cliente as Row | null]) {
+      if (!source) continue;
+      for (const k of keys) {
+        const v = source[k];
+        if (v !== undefined && v !== null && v !== "") return v as T;
+      }
     }
     return fallback;
   };
@@ -95,14 +114,14 @@ function DashboardPage() {
     ["Prazo_esperado", "Prazo", "Previsao_termino", "prazo_esperado", "prazo", "previsao_termino"],
     "",
   );
-  const hojeDescricao = pick<string>(["Descricao", "descricao", "hoje_descricao"], "Sem atividade registrada para hoje");
-  const hojeHorario = pick<string>(["hoje_horario", "horario"], "");
+  const hojeDescricao = pick<string>(["titulo", "descricao", "Descricao", "hoje_descricao"], "Sem atividade registrada para hoje");
+  const hojeHorario = pick<string>(["data", "Data", "hoje_horario", "horario"], "");
   const equipe = Number(
-    pick<number | string>(["Equipe", "Profissionais", "Equipe_hoje", "equipe", "profissionais", "equipe_hoje"], 0),
+    pick<number | string>(["profissionais_canteiro", "Equipe", "Profissionais", "Equipe_hoje", "equipe", "profissionais", "equipe_hoje"], 0),
   ) || 0;
-  const gerente = pick<string>(["gerente", "responsavel"], cliente?.Nome as string ?? "Equipe F&M");
+  const gerente = pick<string>(["gerente_nome", "gerente", "responsavel", "nome"], "Equipe F&M");
   const cargo = pick<string>(["gerente_cargo", "responsavel_cargo"], "Engenheiro responsável");
-  const tituloObra = (cliente?.Obra_nome as string) || pick<string>(["titulo", "nome_obra", "endereco"], "Sua Obra em Camaçari");
+  const tituloObra = pick<string>(["obra_nome", "Obra_nome", "titulo", "nome_obra", "endereco"], "Sua Obra em Camaçari");
 
   const fmt = (n: number) =>
     n.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
@@ -122,7 +141,7 @@ function DashboardPage() {
     );
   }
 
-  if (erro && !obra) {
+  if (erro && !clienteData) {
     return (
       <div className="min-h-screen grid place-items-center bg-muted/30 p-6">
         <div className="max-w-md w-full rounded-2xl bg-white border p-6 text-center shadow-sm">
