@@ -45,8 +45,12 @@ function AdminDashboardPage() {
   const [feedbacks, setFeedbacks] = useState<Row[]>([]);
   const [logs, setLogs] = useState<Row[]>([]);
   const [parceiros, setParceiros] = useState<Row[]>([]);
+  const [fornecedores, setFornecedores] = useState<Row[]>([]);
   const [pendentesParc, setPendentesParc] = useState<Row[]>([]);
   const [pendentesForn, setPendentesForn] = useState<Row[]>([]);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<Row | null>(null);
+  const [deleteType, setDeleteType] = useState<"parceiro" | "fornecedor" | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
