@@ -32,6 +32,7 @@ import { Route as AdminSenhasRouteImport } from './routes/admin.senhas'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AdminAuditoriaEmailsRouteImport } from './routes/admin.auditoria-emails'
+import { Route as AdminClientesIdRouteImport } from './routes/admin.clientes.$id'
 
 const SejaParceiroRoute = SejaParceiroRouteImport.update({
   id: '/seja-parceiro',
@@ -148,6 +149,11 @@ const AdminAuditoriaEmailsRoute = AdminAuditoriaEmailsRouteImport.update({
   path: '/admin/auditoria-emails',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminClientesIdRoute = AdminClientesIdRouteImport.update({
+  id: '/admin/clientes/$id',
+  path: '/admin/clientes/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -173,6 +179,7 @@ export interface FileRoutesByFullPath {
   '/parceiro/dashboard': typeof ParceiroDashboardRoute
   '/parceiro/login': typeof ParceiroLoginRoute
   '/reset-senha/$token': typeof ResetSenhaTokenRoute
+  '/admin/clientes/$id': typeof AdminClientesIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -198,6 +205,7 @@ export interface FileRoutesByTo {
   '/parceiro/dashboard': typeof ParceiroDashboardRoute
   '/parceiro/login': typeof ParceiroLoginRoute
   '/reset-senha/$token': typeof ResetSenhaTokenRoute
+  '/admin/clientes/$id': typeof AdminClientesIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -224,6 +232,7 @@ export interface FileRoutesById {
   '/parceiro/dashboard': typeof ParceiroDashboardRoute
   '/parceiro/login': typeof ParceiroLoginRoute
   '/reset-senha/$token': typeof ResetSenhaTokenRoute
+  '/admin/clientes/$id': typeof AdminClientesIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -251,6 +260,7 @@ export interface FileRouteTypes {
     | '/parceiro/dashboard'
     | '/parceiro/login'
     | '/reset-senha/$token'
+    | '/admin/clientes/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -276,6 +286,7 @@ export interface FileRouteTypes {
     | '/parceiro/dashboard'
     | '/parceiro/login'
     | '/reset-senha/$token'
+    | '/admin/clientes/$id'
   id:
     | '__root__'
     | '/'
@@ -301,6 +312,7 @@ export interface FileRouteTypes {
     | '/parceiro/dashboard'
     | '/parceiro/login'
     | '/reset-senha/$token'
+    | '/admin/clientes/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -327,6 +339,7 @@ export interface RootRouteChildren {
   ParceiroDashboardRoute: typeof ParceiroDashboardRoute
   ParceiroLoginRoute: typeof ParceiroLoginRoute
   ResetSenhaTokenRoute: typeof ResetSenhaTokenRoute
+  AdminClientesIdRoute: typeof AdminClientesIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -492,6 +505,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAuditoriaEmailsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/clientes/$id': {
+      id: '/admin/clientes/$id'
+      path: '/admin/clientes/$id'
+      fullPath: '/admin/clientes/$id'
+      preLoaderRoute: typeof AdminClientesIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -519,6 +539,7 @@ const rootRouteChildren: RootRouteChildren = {
   ParceiroDashboardRoute: ParceiroDashboardRoute,
   ParceiroLoginRoute: ParceiroLoginRoute,
   ResetSenhaTokenRoute: ResetSenhaTokenRoute,
+  AdminClientesIdRoute: AdminClientesIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
