@@ -86,6 +86,7 @@ function AdminDashboardPage() {
           fmSupabase.from("logs_admin").select("*").order("criado_em", { ascending: false }).limit(50),
           fmSupabase.from("parceiros").select("id, nome, empresa, segmento, telefone, email, cidade, estado, criado_em").not("ativo", "is", true).order("criado_em", { ascending: false }),
           fmSupabase.from("fornecedores").select("id, nome, empresa, segmento, telefone, email, cidade, estado, criado_em, status").eq("status", "pendente").order("criado_em", { ascending: false }),
+          fmSupabase.from("fornecedores").select("id, nome, empresa, segmento, telefone, email, cidade, estado, status, verificado, criado_em").order("criado_em", { ascending: false }),
         ]);
         if (!active) return;
 
