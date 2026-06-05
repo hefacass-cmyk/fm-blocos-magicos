@@ -1,8 +1,19 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Users, Building2, MessageSquare, Star, Activity, Eye, LogOut, Check, X, Loader2, KeyRound, Mail } from "lucide-react";
+import { Users, Building2, MessageSquare, Star, Activity, Eye, LogOut, Check, X, Loader2, KeyRound, Mail, Trash2 } from "lucide-react";
 import { fmSupabase } from "@/lib/fm-supabase";
 import { logAdmin } from "@/lib/fm-tracking";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const BRAND_BLUE = "#1A4D7A";
 const BRAND_YELLOW = "#F4B941";
@@ -34,8 +45,12 @@ function AdminDashboardPage() {
   const [feedbacks, setFeedbacks] = useState<Row[]>([]);
   const [logs, setLogs] = useState<Row[]>([]);
   const [parceiros, setParceiros] = useState<Row[]>([]);
+  const [fornecedores, setFornecedores] = useState<Row[]>([]);
   const [pendentesParc, setPendentesParc] = useState<Row[]>([]);
   const [pendentesForn, setPendentesForn] = useState<Row[]>([]);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<Row | null>(null);
+  const [deleteType, setDeleteType] = useState<"parceiro" | "fornecedor" | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -55,7 +70,7 @@ function AdminDashboardPage() {
           obras, fotos,
           avaliacoes,
           solics, fbs, logsRes,
-          pendParcList, pendFornList,
+          pendParcList, pendFornList, fornecedoresList,
         ] = await Promise.all([
           fmSupabase.from("acessos_site").select("id", { count: "exact", head: true }),
           fmSupabase.from("acessos_site").select("id", { count: "exact", head: true }).gte("criado_em", dayIso),
@@ -71,6 +86,7 @@ function AdminDashboardPage() {
           fmSupabase.from("logs_admin").select("*").order("criado_em", { ascending: false }).limit(50),
           fmSupabase.from("parceiros").select("id, nome, empresa, segmento, telefone, email, cidade, estado, criado_em").not("ativo", "is", true).order("criado_em", { ascending: false }),
           fmSupabase.from("fornecedores").select("id, nome, empresa, segmento, telefone, email, cidade, estado, criado_em, status").eq("status", "pendente").order("criado_em", { ascending: false }),
+          fmSupabase.from("fornecedores").select("id, nome, empresa, segmento, telefone, email, cidade, estado, status, verificado, criado_em").order("criado_em", { ascending: false }),
         ]);
         if (!active) return;
 
@@ -127,6 +143,7 @@ function AdminDashboardPage() {
         setFeedbacks((fbs.data as Row[]) ?? []);
         setLogs((logsRes.data as Row[]) ?? []);
         setParceiros(parceirosRows);
+        setFornecedores((fornecedoresList.data as Row[]) ?? []);
         setPendentesParc((pendParcList.data as Row[]) ?? []);
         setPendentesForn((pendFornList.data as Row[]) ?? []);
       } catch (e) {
@@ -188,6 +205,43 @@ function AdminDashboardPage() {
     if (error) { alert("Erro ao rejeitar: " + error.message); return; }
     await logAdmin("fornecedor_rejeitado", `Fornecedor ${String(f.nome ?? f.id)} rejeitado`, "admin");
     setPendentesForn((arr) => arr.filter((x) => x.id !== f.id));
+  };
+
+  const abrirDelete = (row: Row, type: "parceiro" | "fornecedor") => {
+    setDeleteTarget(row);
+    setDeleteType(type);
+    setDeleteOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget || !deleteType) return;
+    const row = deleteTarget;
+    if (deleteType === "parceiro") {
+      const { error } = await fmSupabase.from("parceiros").delete().eq("id", row.id);
+      if (error) {
+        toast.error("Erro ao excluir parceiro: " + error.message);
+        setDeleteOpen(false);
+        return;
+      }
+      await logAdmin("parceiro_excluido", `Parceiro ${String(row.nome ?? row.id)} excluído`, "admin");
+      setParceiros((arr) => arr.filter((x) => x.id !== row.id));
+      setPendentesParc((arr) => arr.filter((x) => x.id !== row.id));
+      toast.success("Parceiro excluído com sucesso");
+    } else {
+      const { error } = await fmSupabase.from("fornecedores").delete().eq("id", row.id);
+      if (error) {
+        toast.error("Erro ao excluir fornecedor: " + error.message);
+        setDeleteOpen(false);
+        return;
+      }
+      await logAdmin("fornecedor_excluido", `Fornecedor ${String(row.nome ?? row.id)} excluído`, "admin");
+      setFornecedores((arr) => arr.filter((x) => x.id !== row.id));
+      setPendentesForn((arr) => arr.filter((x) => x.id !== row.id));
+      toast.success("Fornecedor excluído com sucesso");
+    }
+    setDeleteOpen(false);
+    setDeleteTarget(null);
+    setDeleteType(null);
   };
 
   const toggleVerificado = async (p: Row) => {
@@ -356,6 +410,7 @@ function AdminDashboardPage() {
                     <th className="p-2">Parceiro</th>
                     <th className="p-2">Empresa</th>
                     <th className="p-2 text-center">Verificado</th>
+                    <th className="p-2 text-center">Ações</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -377,6 +432,64 @@ function AdminDashboardPage() {
                             <span className="text-xs text-slate-400">não</span>
                           )}
                         </label>
+                      </td>
+                      <td className="p-2 text-center">
+                        <button
+                          onClick={() => abrirDelete(p, "parceiro")}
+                          className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-bold text-white"
+                          style={{ backgroundColor: "#ef4444" }}
+                          title="Excluir parceiro"
+                        >
+                          <Trash2 className="h-3 w-3" /> Excluir
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+
+        {/* Fornecedores — verificação */}
+        <section className="rounded-2xl border bg-white p-5 shadow-sm">
+          <h2 className="mb-3 inline-flex items-center gap-2 text-base font-bold" style={{ color: BRAND_BLUE }}>
+            <Building2 className="h-4 w-4" /> Fornecedores
+          </h2>
+          {fornecedores.length === 0 ? (
+            <p className="text-sm text-slate-500">Nenhum fornecedor cadastrado.</p>
+          ) : (
+            <div className="max-h-96 overflow-y-auto">
+              <table className="w-full text-sm">
+                <thead className="sticky top-0 bg-slate-50 text-left text-xs">
+                  <tr>
+                    <th className="p-2">Fornecedor</th>
+                    <th className="p-2">Empresa</th>
+                    <th className="p-2 text-center">Status</th>
+                    <th className="p-2 text-center">Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {fornecedores.map((f) => (
+                    <tr key={String(f.id)} className="border-t">
+                      <td className="p-2">{String(f.nome ?? "—")}</td>
+                      <td className="p-2 text-slate-600">{String(f.empresa ?? "—")}</td>
+                      <td className="p-2 text-center">
+                        <span className="rounded-full px-2 py-0.5 text-[10px] font-bold uppercase text-white"
+                          style={{ backgroundColor:
+                            f.status === "ativo" ? BRAND_GREEN :
+                            f.status === "pendente" ? BRAND_YELLOW : "#94a3b8" }}
+                        >{String(f.status ?? "—")}</span>
+                      </td>
+                      <td className="p-2 text-center">
+                        <button
+                          onClick={() => abrirDelete(f, "fornecedor")}
+                          className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-bold text-white"
+                          style={{ backgroundColor: "#ef4444" }}
+                          title="Excluir fornecedor"
+                        >
+                          <Trash2 className="h-3 w-3" /> Excluir
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -436,6 +549,27 @@ function AdminDashboardPage() {
           )}
         </section>
       </main>
+
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir este {deleteType === "parceiro" ? "parceiro" : "fornecedor"}? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setDeleteOpen(false)}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="font-bold text-white"
+              style={{ backgroundColor: "#ef4444" }}
+            >
+              Confirmar Exclusão
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
