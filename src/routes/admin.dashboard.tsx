@@ -70,7 +70,7 @@ function AdminDashboardPage() {
           obras, fotos,
           avaliacoes,
           solics, fbs, logsRes,
-          pendParcList, pendFornList,
+          pendParcList, pendFornList, fornecedoresList,
         ] = await Promise.all([
           fmSupabase.from("acessos_site").select("id", { count: "exact", head: true }),
           fmSupabase.from("acessos_site").select("id", { count: "exact", head: true }).gte("criado_em", dayIso),
