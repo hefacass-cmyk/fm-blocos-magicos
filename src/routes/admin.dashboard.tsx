@@ -4,6 +4,7 @@ import { Users, Building2, MessageSquare, Star, Activity, Eye, LogOut, Check, X,
 import { fmSupabase } from "@/lib/fm-supabase";
 import { logAdmin } from "@/lib/fm-tracking";
 import { toast } from "sonner";
+import ClientesSection from "@/components/admin/ClientesSection";
 import {
   AlertDialog,
   AlertDialogAction,
