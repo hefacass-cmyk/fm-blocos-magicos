@@ -48,8 +48,8 @@ export function parseEspecialidades(v: unknown): string[] {
 }
 
 export function maskCpf(v: string) {
-  const d = v.replace(/\D/g, "").padStart(11, "*").slice(-11);
-  return `***.${d.slice(3, 6)}.${d.slice(6, 9)}-**`;
+  const d = v.replace(/\D/g, "").slice(-11).padStart(11, "0");
+  return `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6, 9)}-**`;
 }
 
 export function maskCnpj(v: string) {
