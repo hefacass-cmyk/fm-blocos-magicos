@@ -143,6 +143,7 @@ function AdminDashboardPage() {
         setFeedbacks((fbs.data as Row[]) ?? []);
         setLogs((logsRes.data as Row[]) ?? []);
         setParceiros(parceirosRows);
+        setFornecedores((fornecedoresList.data as Row[]) ?? []);
         setPendentesParc((pendParcList.data as Row[]) ?? []);
         setPendentesForn((pendFornList.data as Row[]) ?? []);
       } catch (e) {
