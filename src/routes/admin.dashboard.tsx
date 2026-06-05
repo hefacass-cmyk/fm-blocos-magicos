@@ -315,6 +315,8 @@ function AdminDashboardPage() {
           </p>
         </section>
 
+        <ClientesSection />
+
         {/* Pendentes de aprovação */}
         <section className="rounded-2xl border-2 p-5 shadow-sm" style={{ borderColor: BRAND_YELLOW, backgroundColor: "#FFFBEB" }}>
           <h2 className="mb-3 inline-flex items-center gap-2 text-base font-bold" style={{ color: BRAND_BLUE }}>
