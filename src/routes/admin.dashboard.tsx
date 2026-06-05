@@ -207,6 +207,43 @@ function AdminDashboardPage() {
     setPendentesForn((arr) => arr.filter((x) => x.id !== f.id));
   };
 
+  const abrirDelete = (row: Row, type: "parceiro" | "fornecedor") => {
+    setDeleteTarget(row);
+    setDeleteType(type);
+    setDeleteOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget || !deleteType) return;
+    const row = deleteTarget;
+    if (deleteType === "parceiro") {
+      const { error } = await fmSupabase.from("parceiros").delete().eq("id", row.id);
+      if (error) {
+        toast.error("Erro ao excluir parceiro: " + error.message);
+        setDeleteOpen(false);
+        return;
+      }
+      await logAdmin("parceiro_excluido", `Parceiro ${String(row.nome ?? row.id)} excluído`, "admin");
+      setParceiros((arr) => arr.filter((x) => x.id !== row.id));
+      setPendentesParc((arr) => arr.filter((x) => x.id !== row.id));
+      toast.success("Parceiro excluído com sucesso");
+    } else {
+      const { error } = await fmSupabase.from("fornecedores").delete().eq("id", row.id);
+      if (error) {
+        toast.error("Erro ao excluir fornecedor: " + error.message);
+        setDeleteOpen(false);
+        return;
+      }
+      await logAdmin("fornecedor_excluido", `Fornecedor ${String(row.nome ?? row.id)} excluído`, "admin");
+      setFornecedores((arr) => arr.filter((x) => x.id !== row.id));
+      setPendentesForn((arr) => arr.filter((x) => x.id !== row.id));
+      toast.success("Fornecedor excluído com sucesso");
+    }
+    setDeleteOpen(false);
+    setDeleteTarget(null);
+    setDeleteType(null);
+  };
+
   const toggleVerificado = async (p: Row) => {
     const novo = !p.verificado;
     const prev = parceiros;
