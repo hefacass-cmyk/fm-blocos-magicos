@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Plus, Search, Pencil, Trash2, Loader2, Eye } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Loader2, Eye, KeyRound } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,7 +15,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import ClienteFormModal from "./ClienteFormModal";
-import { fmSupabase, STATUS_COLORS, STATUS_LABELS, type ObraStatus } from "@/lib/fm-clientes";
+import { fmSupabase, gerarCodigoCliente, STATUS_COLORS, STATUS_LABELS, type ObraStatus } from "@/lib/fm-clientes";
 import { logAdmin } from "@/lib/fm-tracking";
 
 type Row = Record<string, unknown>;
@@ -48,7 +48,7 @@ export default function ClientesSection() {
     const term = q.trim().toLowerCase();
     if (!term) return rows;
     return rows.filter((r) =>
-      [r.nome, r.codigo_cliente, r.cpf_cnpj, r.obra_nome, r.cidade]
+      [r.nome, r.codigo_cliente ?? r.codigo, r.cpf_cnpj, r.obra_nome, r.cidade]
         .map((v) => String(v ?? "").toLowerCase())
         .some((s) => s.includes(term)),
     );
@@ -72,6 +72,31 @@ export default function ClientesSection() {
     await logAdmin("cliente_excluido", `Cliente ${String(delTarget.nome ?? delTarget.id)}`, "admin");
     setDelOpen(false);
     setDelTarget(null);
+  };
+
+  const regenerateAccess = async (row: Row) => {
+    const codigo = gerarCodigoCliente(String(row.nome ?? "CLIENTE"));
+    const { data, error } = await fmSupabase
+      .from("clientes")
+      .update({ codigo, codigo_cliente: codigo })
+      .eq("id", row.id)
+      .select()
+      .maybeSingle();
+
+    if (error) {
+      toast.error("Erro ao gerar novo acesso: " + error.message);
+      return;
+    }
+
+    const next = (data as Row) ?? { ...row, codigo, codigo_cliente: codigo };
+    setRows((arr) => arr.map((x) => (x.id === row.id ? { ...x, ...next } : x)));
+
+    try {
+      await navigator.clipboard.writeText(codigo);
+      toast.success("Novo acesso gerado e copiado", { description: codigo });
+    } catch {
+      toast.success("Novo acesso gerado", { description: codigo });
+    }
   };
 
   return (
@@ -119,7 +144,7 @@ export default function ClientesSection() {
                 const status = (r.obra_status as ObraStatus) ?? "orcamento";
                 return (
                   <tr key={String(r.id)} className="border-t">
-                    <td className="p-2 font-mono text-xs">{String(r.codigo_cliente ?? "—")}</td>
+                    <td className="p-2 font-mono text-xs">{String(r.codigo_cliente ?? r.codigo ?? "—")}</td>
                     <td className="p-2">
                       <Link to="/admin/clientes/$id" params={{ id: String(r.id) }} className="font-semibold text-[#1A4D7A] hover:underline">
                         {String(r.nome ?? "—")}
@@ -143,6 +168,13 @@ export default function ClientesSection() {
                         <button onClick={() => { setEditing(r); setModalOpen(true); }}
                           className="inline-flex h-8 w-8 items-center justify-center rounded-md border hover:bg-slate-50" title="Editar">
                           <Pencil className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => regenerateAccess(r)}
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-md border hover:bg-slate-50"
+                          title="Gerar novo acesso"
+                        >
+                          <KeyRound className="h-4 w-4" />
                         </button>
                         <button onClick={() => { setDelTarget(r); setDelOpen(true); }}
                           className="inline-flex h-8 w-8 items-center justify-center rounded-md text-white hover:opacity-90"
