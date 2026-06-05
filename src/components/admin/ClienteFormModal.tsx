@@ -79,11 +79,13 @@ export default function ClienteFormModal({ open, onOpenChange, cliente, parceiro
     if (!open) return;
     setCodigoFinal(null);
     if (cliente) {
+      const codigoExistente = String(cliente.codigo_cliente ?? cliente.codigo ?? "");
       setForm({
         ...empty,
         ...Object.fromEntries(
           Object.entries(cliente).map(([k, v]) => [k, v ?? (empty as Row)[k] ?? ""]),
         ),
+        codigo_cliente: codigoExistente,
         cpf_cnpj: maskCpfCnpj(String(cliente.cpf_cnpj ?? ""), (cliente.tipo_pessoa as TipoPessoa) ?? "PF"),
       } as typeof empty);
     } else {
@@ -124,6 +126,7 @@ export default function ClienteFormModal({ open, onOpenChange, cliente, parceiro
     const codigo = (form.codigo_cliente || gerarCodigoCliente(form.nome)).trim();
 
     const payload: Row = {
+      codigo,
       codigo_cliente: codigo,
       tipo_pessoa: form.tipo_pessoa,
       cpf_cnpj: cpfDigits,
@@ -180,7 +183,12 @@ export default function ClienteFormModal({ open, onOpenChange, cliente, parceiro
       }
     } catch (e) {
       console.error("[ClienteFormModal] erro ao salvar:", e);
-      const msg = e instanceof Error ? e.message : String(e);
+      const msg =
+        e instanceof Error
+          ? e.message
+          : typeof e === "object" && e !== null && "message" in e
+            ? String((e as { message?: unknown }).message ?? "Erro desconhecido")
+            : String(e);
       toast.error("Erro ao salvar: " + msg);
     } finally {
       setSaving(false);
