@@ -410,6 +410,7 @@ function AdminDashboardPage() {
                     <th className="p-2">Parceiro</th>
                     <th className="p-2">Empresa</th>
                     <th className="p-2 text-center">Verificado</th>
+                    <th className="p-2 text-center">Ações</th>
                   </tr>
                 </thead>
                 <tbody>
