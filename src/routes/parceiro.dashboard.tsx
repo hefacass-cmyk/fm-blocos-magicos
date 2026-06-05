@@ -707,7 +707,7 @@ function ShareCardSection({ shareUrl, nome }: { shareUrl: string; nome: string }
           </div>
 
           <p className="text-xs text-muted-foreground">
-            Dica: o link foi copiado automaticamente ao abrir Instagram/TikTok — basta colar no app.
+            Dica: o link foi copiado automaticamente ao abrir Instagram — basta colar no app.
           </p>
         </div>
       </div>
