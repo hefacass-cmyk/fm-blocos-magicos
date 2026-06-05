@@ -704,24 +704,10 @@ function ShareCardSection({ shareUrl, nome }: { shareUrl: string; nome: string }
             >
               <Instagram className="h-4 w-4" /> Instagram
             </a>
-            <a
-              href="https://www.tiktok.com/"
-              target="_blank"
-              rel="noreferrer"
-              onClick={(e) => {
-                e.preventDefault();
-                copy();
-                window.open("https://www.tiktok.com/", "_blank");
-              }}
-              className="inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-bold text-white transition hover:brightness-110"
-              style={{ backgroundColor: "#111" }}
-            >
-              <Share2 className="h-4 w-4" /> TikTok
-            </a>
           </div>
 
           <p className="text-xs text-muted-foreground">
-            Dica: o link foi copiado automaticamente ao abrir Instagram/TikTok — basta colar no app.
+            Dica: o link foi copiado automaticamente ao abrir Instagram — basta colar no app.
           </p>
         </div>
       </div>
