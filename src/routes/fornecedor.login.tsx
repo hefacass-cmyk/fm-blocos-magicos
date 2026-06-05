@@ -28,7 +28,22 @@ function FornecedorLoginPage() {
   const [loading, setLoading] = useState(false);
 
   const max = tipo === "PF" ? 11 : 14;
-  const onlyDigits = (v: string) => v.replace(/\D/g, "").slice(0, max);
+  const maskLen = tipo === "PF" ? 14 : 18;
+  const formatDoc = (digits: string) => {
+    const d = digits.replace(/\D/g, "").slice(0, max);
+    if (tipo === "PF") {
+      return d
+        .replace(/^(\d{3})(\d)/, "$1.$2")
+        .replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3")
+        .replace(/\.(\d{3})(\d)/, ".$1-$2");
+    }
+    return d
+      .replace(/^(\d{2})(\d)/, "$1.$2")
+      .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+      .replace(/\.(\d{3})(\d)/, ".$1/$2")
+      .replace(/(\d{4})(\d)/, "$1-$2");
+  };
+  const handleDocChange = (v: string) => setDoc(formatDoc(v));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -127,9 +142,9 @@ function FornecedorLoginPage() {
               type="text"
               inputMode="numeric"
               value={doc}
-              onChange={(e) => setDoc(onlyDigits(e.target.value))}
-              placeholder={tipo === "PF" ? "Somente números: 12345678900" : "Somente números: 12345678000199"}
-              maxLength={max}
+              onChange={(e) => handleDocChange(e.target.value)}
+              placeholder={tipo === "PF" ? "000.000.000-00" : "00.000.000/0000-00"}
+              maxLength={maskLen}
               className="mt-1.5 w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
             />
           </div>
