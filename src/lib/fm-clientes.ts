@@ -89,7 +89,8 @@ export function gerarCodigoCliente(nome: string, date = new Date()) {
   const dd = String(date.getDate()).padStart(2, "0");
   const mm = String(date.getMonth() + 1).padStart(2, "0");
   const yyyy = String(date.getFullYear());
-  return `FM-${primeiro || "CLIENTE"}-${dd}${mm}${yyyy}`;
+  const random = Math.random().toString(36).toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 4).padEnd(4, "X");
+  return `FM-${primeiro || "CLIENTE"}-${dd}${mm}${yyyy}-${random}`;
 }
 
 export { fmSupabase };

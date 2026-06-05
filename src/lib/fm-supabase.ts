@@ -14,8 +14,10 @@ const STORAGE_KEY = "fm_cliente_logado";
 export interface ClienteLogado {
   id?: string | number;
   codigo_cliente: string;
+  codigo?: string | null;
   cpf_cnpj: string;
   nome?: string | null;
+  obra_nome?: string | null;
   [key: string]: unknown;
 }
 
