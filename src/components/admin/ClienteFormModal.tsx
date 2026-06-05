@@ -179,6 +179,7 @@ export default function ClienteFormModal({ open, onOpenChange, cliente, parceiro
         setCodigoFinal(codigo);
       }
     } catch (e) {
+      console.error("[ClienteFormModal] erro ao salvar:", e);
       const msg = e instanceof Error ? e.message : String(e);
       toast.error("Erro ao salvar: " + msg);
     } finally {
