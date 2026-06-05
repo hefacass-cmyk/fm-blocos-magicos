@@ -23,6 +23,7 @@ import {
 import {
   fmSupabase,
   getParceiro,
+  saveParceiro,
   clearParceiro,
   parseEspecialidades,
   maskCpf,
@@ -72,7 +73,8 @@ function Stars({ rating, size = 16 }: { rating: number; size?: number }) {
 
 function ParceiroDashboardPage() {
   const navigate = useNavigate();
-  const parceiro = typeof window !== "undefined" ? getParceiro() : null;
+  const stored = typeof window !== "undefined" ? getParceiro() : null;
+  const [parceiro, setParceiro] = useState<Row | null>(stored as Row | null);
 
   const [avaliacoes, setAvaliacoes] = useState<Row[]>([]);
   const [oportunidades, setOportunidades] = useState<Row[]>([]);
@@ -111,7 +113,7 @@ function ParceiroDashboardPage() {
             .order("created_at", { ascending: false }),
           fmSupabase
             .from("parceiros")
-            .select("limite_obras")
+            .select("*")
             .eq("id", parceiro!.id as string | number)
             .maybeSingle(),
           fmSupabase
@@ -133,7 +135,13 @@ function ParceiroDashboardPage() {
         setOportunidades((op.data as Row[]) ?? []);
         setObras((obrasRes.data as Row[]) ?? []);
         setLeads((leadsRes.data as Row[]) ?? []);
-        const lim = Number((parceiroRes.data as Row | null)?.limite_obras ?? 4) || 4;
+        const fresh = parceiroRes.data as Row | null;
+        if (fresh) {
+          const merged = { ...(parceiro as Row), ...fresh, Tipo: parceiro?.Tipo ?? (fresh.tipo_pessoa as string | undefined) };
+          setParceiro(merged);
+          saveParceiro(merged as never);
+        }
+        const lim = Number(fresh?.limite_obras ?? 4) || 4;
         setLimiteObras(lim);
         const ultima = (solicRes.data as Row[] | null)?.[0];
         setAmpliacaoStatus(ultima ? String(ultima.status ?? "") : null);
@@ -159,19 +167,28 @@ function ParceiroDashboardPage() {
 
   if (!parceiro) return null;
 
-  const tipo = (parceiro.Tipo as "PF" | "PJ" | undefined) ?? (parceiro.CNPJ ? "PJ" : "PF");
+  const tipoRaw = pick<string>(parceiro as Row, ["Tipo", "tipo_pessoa", "tipoPessoa"], "");
+  const tipo: "PF" | "PJ" = (tipoRaw === "PJ" || tipoRaw === "PF")
+    ? tipoRaw
+    : (pick<string>(parceiro as Row, ["CNPJ", "cnpj"], "") ? "PJ" : "PF");
   const especialidadesParceiro = parseEspecialidades(
-    parceiro.Especialidade ?? (parceiro as Row).Especialidades ?? (parceiro as Row).especialidades,
+    pick<string>(parceiro as Row, ["Especialidade", "especialidade", "Especialidades", "especialidades"], ""),
   );
+  const nome = pick<string>(parceiro as Row, ["Nome", "nome"], "");
+  const empresa = pick<string>(parceiro as Row, ["Empresa", "empresa", "Razao_social", "Razao_Social", "Nome_fantasia"], "");
+  const cpf = pick<string>(parceiro as Row, ["CPF", "cpf"], "");
+  const cnpj = pick<string>(parceiro as Row, ["CNPJ", "cnpj"], "");
+  const statusTxt = pick<string>(parceiro as Row, ["Status", "status"], "") ||
+    (parceiro.ativo === true ? "ativo" : parceiro.ativo === false ? "pendente" : "");
   const nomeExibido =
     tipo === "PJ"
-      ? pick<string>(parceiro as Row, ["Nome_fantasia", "Razao_social", "Nome"], "Parceiro")
-      : (parceiro.Nome ?? "Parceiro");
+      ? (empresa || nome || "Parceiro")
+      : (nome || "Parceiro");
   const anos = pick<string | number>(parceiro as Row, ["Anos_experiencia", "anos_experiencia", "Experiencia"], "");
   const cidade = pick<string>(parceiro as Row, ["Cidade", "cidade"], "");
   const estado = pick<string>(parceiro as Row, ["Estado", "UF", "estado"], "");
   const email = pick<string>(parceiro as Row, ["Email", "email"], "");
-  const whats = pick<string>(parceiro as Row, ["Whatsapp", "WhatsApp", "whatsapp"], "");
+  const whats = pick<string>(parceiro as Row, ["Whatsapp", "WhatsApp", "whatsapp", "Telefone", "telefone"], "");
 
   const slug = String(
     pick<string>(parceiro as Row, ["slug", "Slug"], "") ||
@@ -267,30 +284,29 @@ function ParceiroDashboardPage() {
               className="inline-flex items-center rounded-full px-3 py-1 text-xs font-bold uppercase"
               style={{
                 backgroundColor:
-                  String(parceiro.Status ?? "").toLowerCase() === "ativo" ? BRAND_GREEN : "#94a3b8",
+                  statusTxt.toLowerCase() === "ativo" ? BRAND_GREEN : "#94a3b8",
                 color: "#fff",
               }}
             >
-              {parceiro.Status ?? "—"}
+              {statusTxt || "—"}
             </span>
           </div>
 
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
             {tipo === "PF" ? (
               <>
-                <InfoRow label="Nome" value={parceiro.Nome ?? "—"} />
-                <InfoRow label="CPF" value={parceiro.CPF ? maskCpf(String(parceiro.CPF)) : "—"} />
-                <InfoRow label="RG" value={pick<string>(parceiro as Row, ["RG", "rg"], "—")} />
+                <InfoRow label="Nome" value={nome || "—"} />
+                <InfoRow label="CPF" value={cpf ? maskCpf(String(cpf)) : "—"} />
+                <InfoRow label="Empresa / Razão Social" value={empresa || "—"} />
                 <InfoRow label="WhatsApp" value={whats || "—"} />
                 <InfoRow label="Email" value={email || "—"} />
                 <InfoRow label="Cidade / Estado" value={[cidade, estado].filter(Boolean).join(" / ") || "—"} />
               </>
             ) : (
               <>
-                <InfoRow label="Razão Social" value={pick<string>(parceiro as Row, ["Razao_social", "Razao_Social"], "—")} />
-                <InfoRow label="Nome Fantasia" value={pick<string>(parceiro as Row, ["Nome_fantasia", "Nome"], "—")} />
-                <InfoRow label="CNPJ" value={parceiro.CNPJ ? maskCnpj(String(parceiro.CNPJ)) : "—"} />
-                <InfoRow label="Responsável" value={pick<string>(parceiro as Row, ["Responsavel", "responsavel"], "—")} />
+                <InfoRow label="Empresa / Razão Social" value={empresa || "—"} />
+                <InfoRow label="CNPJ" value={cnpj ? maskCnpj(String(cnpj)) : "—"} />
+                <InfoRow label="Responsável" value={nome || pick<string>(parceiro as Row, ["Responsavel", "responsavel"], "—")} />
                 <InfoRow label="WhatsApp" value={whats || "—"} />
                 <InfoRow label="Email" value={email || "—"} />
                 <InfoRow label="Cidade / Estado" value={[cidade, estado].filter(Boolean).join(" / ") || "—"} />
