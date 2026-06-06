@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, CheckCircle2, Copy, Loader2, Send } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { fmSupabase, precoM2, brl, PLANOS_CAMERA } from "@/lib/fm-contratos";
+import { fmSupabase, PLANOS_CAMERA } from "@/lib/fm-contratos";
 import { maskCep, maskCpf, maskCpfCnpj, maskPhone, onlyDigits, viaCep, type TipoPessoa } from "@/lib/fm-clientes";
 
 export const Route = createFileRoute("/iniciar-contrato")({
@@ -29,7 +29,7 @@ type Form = {
   tipo_pessoa: TipoPessoa;
   nome: string; cpf_cnpj: string; rg: string;
   nacionalidade: string; estado_civil: string; profissao: string;
-  email: string; telefone: string;
+  email: string; telefone: string; whatsapp: string;
   cep: string; rua: string; numero: string; bairro: string; cidade: string; estado: string;
   conjuge_nome: string; conjuge_cpf: string; conjuge_rg: string;
   conjuge_email: string; conjuge_telefone: string;
@@ -38,7 +38,7 @@ type Form = {
   obra_cep: string; obra_rua: string; obra_numero: string;
   obra_bairro: string; obra_cidade: string; obra_estado: string;
   tamanho_terreno: string; tipo_terreno: string; area_construir: string;
-  tipo_obra_construcao: boolean; tipo_obra_reforma: boolean; tipo_obra_ampliacao: boolean;
+  tipo_obra: string[];
   sistema: string; servico: string; plano_camera: string;
   prazo_desejado: string; observacoes: string;
 };
@@ -47,7 +47,7 @@ const VAZIO: Form = {
   tipo_pessoa: "PF",
   nome: "", cpf_cnpj: "", rg: "",
   nacionalidade: "Brasileiro", estado_civil: "", profissao: "",
-  email: "", telefone: "",
+  email: "", telefone: "", whatsapp: "",
   cep: "", rua: "", numero: "", bairro: "", cidade: "", estado: "",
   conjuge_nome: "", conjuge_cpf: "", conjuge_rg: "",
   conjuge_email: "", conjuge_telefone: "",
@@ -56,7 +56,7 @@ const VAZIO: Form = {
   obra_cep: "", obra_rua: "", obra_numero: "",
   obra_bairro: "", obra_cidade: "", obra_estado: "",
   tamanho_terreno: "", tipo_terreno: "", area_construir: "",
-  tipo_obra_construcao: false, tipo_obra_reforma: false, tipo_obra_ampliacao: false,
+  tipo_obra: [],
   sistema: "", servico: "", plano_camera: "sem_camera",
   prazo_desejado: "", observacoes: "",
 };
@@ -120,8 +120,7 @@ function IniciarContratoPage() {
     if (!f.area_construir) return "Informe a área a construir/reformar";
     if (!f.sistema) return "Escolha o sistema construtivo";
     if (!f.servico) return "Escolha o tipo de serviço";
-    if (!f.tipo_obra_construcao && !f.tipo_obra_reforma && !f.tipo_obra_ampliacao)
-      return "Selecione ao menos um tipo de obra";
+    if (f.tipo_obra.length === 0) return "Selecione ao menos um tipo de obra";
     return null;
   };
 
@@ -146,7 +145,15 @@ function IniciarContratoPage() {
   const enviar = async () => {
     if (!confirmou) { toast.error("Confirme a veracidade das informações"); return; }
     setEnviando(true);
-    const payload = { ...f, tamanho_terreno: f.tamanho_terreno || null, area_construir: f.area_construir || null };
+    const payload = {
+      ...f,
+      whatsapp: f.whatsapp || f.telefone,
+      tamanho_terreno: f.tamanho_terreno || null,
+      area_construir: f.area_construir || null,
+      sistema_preferido: f.sistema,
+      servico_preferido: f.servico,
+      camera_preferida: f.plano_camera,
+    };
     const { data, error } = await fmSupabase.rpc("criar_contrato_publico", {
       p_dados: payload, p_parceiro_slug: parceiroSlug,
     });
@@ -288,7 +295,8 @@ function Etapa1({
         </Field>
         <Field label="Profissão"><Input value={f.profissao} onChange={(e) => set({ profissao: e.target.value })} /></Field>
         <Field label="E-mail *"><Input type="email" value={f.email} onChange={(e) => set({ email: e.target.value })} /></Field>
-        <Field label="WhatsApp *"><Input value={f.telefone} onChange={(e) => set({ telefone: maskPhone(e.target.value) })} /></Field>
+        <Field label="Telefone *"><Input value={f.telefone} onChange={(e) => set({ telefone: maskPhone(e.target.value) })} /></Field>
+        <Field label="WhatsApp"><Input value={f.whatsapp} onChange={(e) => set({ whatsapp: maskPhone(e.target.value) })} placeholder="Se diferente do telefone" /></Field>
       </Grid>
 
       <h3 className="mt-4 text-sm font-semibold text-slate-700">Endereço residencial</h3>
@@ -343,11 +351,10 @@ function Etapa2({
 }: {
   f: Form; set: (p: Partial<Form>) => void; buscarCep: (cep: string) => void; preencherDoResid: () => void;
 }) {
-  const precoPreview = useMemo(() => {
-    const p = precoM2(f.sistema, f.servico);
-    return p > 0 ? `${brl(p)}/m²` : null;
-  }, [f.sistema, f.servico]);
-
+  const toggleTipo = (t: string) => {
+    const arr = f.tipo_obra.includes(t) ? f.tipo_obra.filter((x) => x !== t) : [...f.tipo_obra, t];
+    set({ tipo_obra: arr });
+  };
   return (
     <Card titulo="Etapa 2 — Dados da Obra">
       <label className="flex items-center gap-2 text-sm">
@@ -388,14 +395,10 @@ function Etapa2({
 
       <Field label="Tipo de obra *">
         <div className="flex flex-wrap gap-4">
-          {[
-            ["tipo_obra_construcao", "Construção"],
-            ["tipo_obra_reforma", "Reforma"],
-            ["tipo_obra_ampliacao", "Ampliação"],
-          ].map(([k, l]) => (
-            <label key={k} className="flex items-center gap-2 text-sm">
-              <Checkbox checked={Boolean(f[k as keyof Form])} onCheckedChange={(v) => set({ [k]: Boolean(v) } as Partial<Form>)} />
-              {l}
+          {["Construção", "Reforma", "Ampliação", "Casa", "Galpão", "Prédio", "Vilage", "Outro"].map((t) => (
+            <label key={t} className="flex items-center gap-2 text-sm">
+              <Checkbox checked={f.tipo_obra.includes(t)} onCheckedChange={() => toggleTipo(t)} />
+              {t}
             </label>
           ))}
         </div>
@@ -414,23 +417,16 @@ function Etapa2({
 
       <Field label="Tipo de serviço *">
         <div className="grid gap-2 md:grid-cols-2">
-          {SERVICOS.map((s) => {
-            const preco = precoM2(f.sistema, s.v);
-            return (
-              <label key={s.v} className={`flex cursor-pointer items-start gap-2 rounded-md border p-3 text-sm ${f.servico === s.v ? "border-blue-500 bg-blue-50" : "border-slate-200"}`}>
-                <input type="radio" checked={f.servico === s.v} onChange={() => set({ servico: s.v })} />
-                <div>
-                  <div className="font-semibold">{s.t}</div>
-                  <div className="text-xs text-slate-500">{s.d}</div>
-                  {preco > 0 && <div className="mt-1 text-xs font-semibold" style={{ color: COR_AZUL }}>{brl(preco)}/m²</div>}
-                </div>
-              </label>
-            );
-          })}
+          {SERVICOS.map((s) => (
+            <label key={s.v} className={`flex cursor-pointer items-start gap-2 rounded-md border p-3 text-sm ${f.servico === s.v ? "border-blue-500 bg-blue-50" : "border-slate-200"}`}>
+              <input type="radio" checked={f.servico === s.v} onChange={() => set({ servico: s.v })} />
+              <div>
+                <div className="font-semibold">{s.t}</div>
+                <div className="text-xs text-slate-500">{s.d}</div>
+              </div>
+            </label>
+          ))}
         </div>
-        {precoPreview && (
-          <p className="mt-2 text-xs text-slate-600">Valor estimado: <strong>{precoPreview}</strong></p>
-        )}
       </Field>
 
       <Field label="Câmera ao vivo">
@@ -454,14 +450,7 @@ function Etapa2({
 function Etapa3({
   f, confirmou, setConfirmou,
 }: { f: Form; confirmou: boolean; setConfirmou: (v: boolean) => void }) {
-  const tipos = [
-    f.tipo_obra_construcao && "Construção",
-    f.tipo_obra_reforma && "Reforma",
-    f.tipo_obra_ampliacao && "Ampliação",
-  ].filter(Boolean).join(", ") || "—";
-  const preco = precoM2(f.sistema, f.servico);
-  const area = Number(f.area_construir || 0);
-  const estimado = preco * area;
+  const tipos = f.tipo_obra.join(", ") || "—";
 
   return (
     <Card titulo="Etapa 3 — Confirmação">
@@ -470,7 +459,8 @@ function Etapa3({
         <Linha k={f.tipo_pessoa === "PF" ? "Nome" : "Razão Social"} v={f.nome} />
         <Linha k={f.tipo_pessoa === "PF" ? "CPF" : "CNPJ"} v={f.cpf_cnpj} />
         <Linha k="E-mail" v={f.email} />
-        <Linha k="WhatsApp" v={f.telefone} />
+        <Linha k="Telefone" v={f.telefone} />
+        <Linha k="WhatsApp" v={f.whatsapp || f.telefone} />
         <Linha k="Estado civil" v={f.estado_civil} />
         <Linha k="Endereço" v={`${f.rua}, ${f.numero} — ${f.bairro}, ${f.cidade}/${f.estado}`} />
       </Resumo>
@@ -489,7 +479,6 @@ function Etapa3({
         <Linha k="Sistema" v={f.sistema} />
         <Linha k="Serviço" v={f.servico} />
         <Linha k="Câmera" v={PLANOS_CAMERA[f.plano_camera as keyof typeof PLANOS_CAMERA]?.label || "—"} />
-        {estimado > 0 && <Linha k="Estimativa" v={`${brl(estimado)} (${brl(preco)}/m² × ${area} m²)`} />}
         {f.prazo_desejado && <Linha k="Prazo desejado" v={f.prazo_desejado} />}
         {f.observacoes && <Linha k="Observações" v={f.observacoes} />}
       </Resumo>

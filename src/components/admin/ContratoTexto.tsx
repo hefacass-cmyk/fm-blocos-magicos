@@ -1,83 +1,248 @@
 import { brl, fmtData, PLANOS_CAMERA, type PlanoCamera } from "@/lib/fm-contratos";
+import { EMPRESA_DEFAULT, type EmpresaConfig } from "@/lib/fm-empresa";
+import { valorPorExtenso } from "@/lib/fm-extenso";
 
 type Row = Record<string, unknown>;
 
-export default function ContratoTexto({ c }: { c: Row }) {
-  const get = (k: string) => (c[k] as string | number | boolean | null | undefined) ?? "";
+const MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+
+function dataExtenso(d?: string | null): string {
+  const dt = d ? new Date(d.includes("T") ? d : d + "T00:00:00") : new Date();
+  return `${dt.getDate()} de ${MESES[dt.getMonth()]} de ${dt.getFullYear()}`;
+}
+
+export default function ContratoTexto({ c, empresa }: { c: Row; empresa?: EmpresaConfig }) {
+  const e = empresa || EMPRESA_DEFAULT;
+  const s = (k: string) => String(c[k] ?? "");
+
+  // tipo_obra: prefere array novo, fallback aos booleans antigos
+  const tipoObraArr = Array.isArray(c.prospect_tipo_obra) ? (c.prospect_tipo_obra as string[]) : [];
+  const tiposFromBool = [
+    c.tipo_construcao && "Construção",
+    c.tipo_reforma && "Reforma",
+    c.tipo_ampliacao && "Ampliação",
+  ].filter(Boolean) as string[];
+  const tipos = (tipoObraArr.length ? tipoObraArr : tiposFromBool).join(", ") || "—";
+
   const modalidades = [
     c.modalidade_empreitada_mista && "Empreitada Mista",
     c.modalidade_empreitada_mo && "Empreitada MO",
     c.modalidade_gerenciamento && "Gerenciamento",
     c.modalidade_ambos && "Ambos",
-  ].filter(Boolean).join(", ") || "—";
-  const tipos = [
-    c.tipo_construcao && "Construção",
-    c.tipo_reforma && "Reforma",
-    c.tipo_ampliacao && "Ampliação",
-  ].filter(Boolean).join(", ") || "—";
+  ].filter(Boolean).join(", ") || s("tipo_servico") || "—";
+
   const camera = PLANOS_CAMERA[(c.plano_camera as PlanoCamera) || "sem_camera"];
   const essencial = c.tipo_servico === "F&M ESSENCIAL";
+  const sistemaIBPP = (c.sistema_construtivo || c.prospect_sistema) === "IBPP";
+
+  const area = Number(c.area_m2 || c.prospect_area_construir || 0);
+  const terreno = Number(c.prospect_tamanho_terreno || 0);
   const valorTotal = Number(c.valor_total || 0);
-  const adiant = Number(c.valor_adiantamento || 0);
-  const restante = valorTotal - adiant;
+  const adiant = Number(c.valor_adiantamento || valorTotal * 0.15);
+
+  const enderecoObra = `${s("prospect_obra_rua")}, ${s("prospect_obra_numero")} — ${s("prospect_obra_bairro")}, ${s("prospect_obra_cidade")}/${s("prospect_obra_estado")} (CEP ${s("prospect_obra_cep")})`;
+  const enderecoContratante = `${s("cliente_rua") || s("prospect_rua")}, ${s("cliente_numero") || s("prospect_numero")} — ${s("cliente_bairro") || s("prospect_bairro")}, ${s("cliente_cidade") || s("prospect_cidade")}/${s("cliente_estado") || s("prospect_estado")}, CEP ${s("cliente_cep") || s("prospect_cep")}`;
+
+  const temConjuge = Boolean(c.prospect_conjuge_nome);
 
   return (
     <div className="prose prose-sm max-w-none text-slate-800">
       <h2 className="text-center">CONTRATO DE PRESTAÇÃO DE SERVIÇOS DE CONSTRUÇÃO CIVIL</h2>
-      <p className="text-center text-xs text-slate-500">Nº {String(get("numero") || "—")}</p>
+      <p className="text-center text-xs text-slate-500">Nº {s("numero") || "—"}</p>
 
-      <p><strong>CONTRATANTE:</strong> {String(get("cliente_nome") || "—")}, portador(a) do CPF/CNPJ nº {String(get("cliente_cpf_cnpj") || "—")}, RG nº {String(get("cliente_rg") || "—")}, residente em {String(get("cliente_rua") || "—")}, {String(get("cliente_numero") || "—")}, bairro {String(get("cliente_bairro") || "—")}, {String(get("cliente_cidade") || "—")}/{String(get("cliente_estado") || "—")}, CEP {String(get("cliente_cep") || "—")}, e-mail {String(get("cliente_email") || "—")}, telefone {String(get("cliente_telefone") || "—")}.</p>
+      <h3>CLÁUSULA 1ª — QUALIFICAÇÃO DAS PARTES</h3>
+      <p>
+        <strong>CONTRATADA:</strong> {e.razao_social}, inscrita no CNPJ sob nº {e.cnpj},
+        com sede em {e.endereco}, neste ato representada por <strong>{e.representante_nome}</strong>,
+        {e.representante_estado_civil.toLowerCase()}, {e.representante_profissao.toLowerCase()},
+        nascido em {fmtData(e.representante_nascimento)}, portador do RG nº {e.representante_rg}
+        {" e do CPF nº "}{e.representante_cpf}, residente em {e.representante_endereco}.
+      </p>
+      <p>
+        <strong>CONTRATANTE:</strong> {s("cliente_nome") || s("prospect_nome") || "—"},
+        {" "}{(s("prospect_nacionalidade") || "brasileiro(a)").toLowerCase()},
+        {" "}{(s("prospect_estado_civil") || "—").toLowerCase()},
+        {" "}{(s("prospect_profissao") || "—").toLowerCase()},
+        portador(a) do RG nº {s("cliente_rg") || s("prospect_rg") || "—"} e CPF/CNPJ nº {s("cliente_cpf_cnpj") || s("prospect_cpf_cnpj") || "—"},
+        e-mail {s("cliente_email") || s("prospect_email") || "—"}, telefone {s("cliente_telefone") || s("prospect_telefone") || "—"},
+        residente em {enderecoContratante}.
+      </p>
+      {temConjuge && (
+        <p>
+          <strong>INTERVENIENTE ANUENTE (cônjuge/companheiro(a)):</strong> {s("prospect_conjuge_nome")},
+          {" "}{(s("prospect_conjuge_nacionalidade") || "brasileiro(a)").toLowerCase()},
+          {" "}{(s("prospect_conjuge_profissao") || "—").toLowerCase()},
+          portador(a) do RG nº {s("prospect_conjuge_rg") || "—"} e CPF nº {s("prospect_conjuge_cpf") || "—"},
+          e-mail {s("prospect_conjuge_email") || "—"}, telefone {s("prospect_conjuge_telefone") || "—"}.
+        </p>
+      )}
 
-      <p><strong>CONTRATADA:</strong> F&M SMART BUILD, representada pelo Responsável Técnico {String(get("responsavel_tecnico"))}, CREA {String(get("crea"))}, e pelo Gerente de Obra {String(get("gerente_nome"))} ({String(get("gerente_cargo"))}), WhatsApp {String(get("gerente_whatsapp"))}.</p>
+      <h3>CLÁUSULA 2ª — OBJETO DO CONTRATO</h3>
+      <p>
+        O presente contrato tem por objeto a prestação de serviços de <strong>{modalidades}</strong> para
+        <strong> {tipos.toLowerCase()}</strong> do imóvel localizado em {enderecoObra},
+        com área de <strong>{area} m²</strong> sobre terreno de {terreno} m² ({s("prospect_tipo_terreno") || "—"}),
+        pelo sistema construtivo <strong>{s("sistema_construtivo") || s("prospect_sistema") || "—"}</strong>,
+        na modalidade <strong>{s("tipo_servico") || s("prospect_servico") || "—"}</strong>.
+      </p>
 
-      <h3>CLÁUSULA 1ª – DO OBJETO</h3>
-      <p>O presente contrato tem por objeto a prestação de serviços de construção civil na modalidade <strong>{modalidades}</strong>, do tipo <strong>{tipos}</strong>, utilizando o sistema construtivo <strong>{String(get("sistema_construtivo") || "—")}</strong>, na configuração de serviço <strong>{String(get("tipo_servico") || "—")}</strong>.</p>
+      <h3>CLÁUSULA 3ª — PRAZO DE EXECUÇÃO</h3>
+      <p>
+        O prazo de execução será de <strong>{Number(c.prazo_dias || 0)} dias corridos</strong>,
+        com início previsto para <strong>{fmtData(s("data_inicio"))}</strong> e conclusão prevista para
+        <strong> {fmtData(s("data_previsao_fim"))}</strong>. O prazo poderá ser prorrogado em caso de:
+        chuvas que impeçam o trabalho por mais de 3 dias consecutivos; atraso na entrega de materiais
+        pelo CONTRATANTE; inadimplência financeira; força maior ou caso fortuito.
+      </p>
 
-      <h3>CLÁUSULA 2ª – DA ÁREA E DO PREÇO</h3>
-      <p>A obra contempla área total de <strong>{Number(c.area_m2 || 0)} m²</strong> ao valor unitário de <strong>{brl(Number(c.valor_m2 || 0))}/m²</strong>, totalizando {brl(Number(c.valor_servico || 0))} de serviços.</p>
+      <h3>CLÁUSULA 4ª — SERVIÇOS ADICIONAIS E ADITIVOS</h3>
+      <p>
+        Qualquer serviço não previsto no objeto deste contrato deverá ser objeto de Termo Aditivo,
+        aprovado por ambas as partes em até 5 dias úteis, com adiantamento de 15% do valor do aditivo.
+      </p>
 
-      <h3>CLÁUSULA 3ª – DO MONITORAMENTO POR CÂMERA</h3>
-      <p>Plano contratado: <strong>{camera.label}</strong>{camera.valor > 0 ? `, no valor de ${brl(camera.valor)}/mês.` : "."}</p>
+      <h3>CLÁUSULA 5ª — VALOR E FORMA DE PAGAMENTO</h3>
+      <p>
+        O valor total dos serviços é de <strong>{brl(valorTotal)}</strong> ({valorPorExtenso(valorTotal)}), sendo:
+      </p>
+      <ul>
+        <li>Adiantamento de 15%: <strong>{brl(adiant)}</strong> na assinatura;</li>
+        <li>Medições toda sexta-feira;</li>
+        <li>Pagamentos toda segunda-feira via PIX CNPJ {e.pix_chave};</li>
+        <li>Reajuste anual pelo INCC/IPCA.</li>
+      </ul>
+      {camera.valor > 0 && (
+        <p>Adicional <strong>F&M Live</strong>: {brl(camera.valor)}/mês ({camera.label}).</p>
+      )}
+      {c.databook_eletronico ? (
+        <p>Adicional <strong>Databook Eletrônico</strong>: {brl(Number(c.valor_databook || 0))} (3% do contrato).</p>
+      ) : null}
 
-      <h3>CLÁUSULA 4ª – DO DATABOOK ELETRÔNICO</h3>
-      <p>{c.databook_eletronico ? `Contratado, no valor de ${brl(Number(c.valor_databook || 0))} (3% do valor de serviço).` : "Não contratado."}</p>
+      <h3>CLÁUSULA 6ª — OBRIGAÇÕES DA CONTRATADA</h3>
+      <ul>
+        <li>Executar os serviços com técnica e qualidade;</li>
+        <li>Manter registro fotográfico semanal;</li>
+        <li>Disponibilizar acesso ao dashboard do cliente;</li>
+        <li>Cumprir as normas ABNT aplicáveis ao sistema construtivo contratado;</li>
+        <li>Comunicar imprevistos em até 48 horas.</li>
+      </ul>
 
-      <h3>CLÁUSULA 5ª – DO VALOR TOTAL</h3>
-      <p>O valor total do contrato é de <strong>{brl(valorTotal)}</strong>, sendo {brl(adiant)} (15%) a título de adiantamento e {brl(restante)} parcelados em medições semanais.</p>
+      <h3>CLÁUSULA 7ª — OBRIGAÇÕES DO CONTRATANTE</h3>
+      <ul>
+        <li>Efetuar pagamentos nos prazos acordados;</li>
+        <li>Fornecer acesso ao imóvel;</li>
+        <li>Não interferir na execução técnica;</li>
+        <li>Comunicar alterações com antecedência mínima de 5 dias úteis;</li>
+        {essencial && <li>Fornecer os materiais nos prazos estabelecidos pela CONTRATADA (F&M ESSENCIAL).</li>}
+      </ul>
 
-      <h3>CLÁUSULA 6ª – DA FORMA DE PAGAMENTO</h3>
-      <p>O pagamento será semanal, mediante medição dos serviços executados, com vencimento toda segunda-feira subsequente à semana de referência.</p>
+      <h3>CLÁUSULA 8ª — RESPONSABILIDADE TÉCNICA</h3>
+      <p>
+        Os serviços serão executados sob responsabilidade técnica de
+        <strong> {e.responsavel_tecnico}</strong>, CREA {e.crea}, com emissão de ART.
+      </p>
 
-      <h3>CLÁUSULA 7ª – DO PRAZO</h3>
-      <p>Início em <strong>{fmtData(get("data_inicio") as string)}</strong>, com prazo de execução de <strong>{Number(c.prazo_dias || 0)} dias</strong>, prevendo término em <strong>{fmtData(get("data_previsao_fim") as string)}</strong>.</p>
-
-      <h3>CLÁUSULA 8ª – DAS OBRIGAÇÕES DA CONTRATADA</h3>
-      <p>Executar os serviços conforme normas técnicas (ABNT) e boas práticas, fornecer mão de obra qualificada e prestar contas semanalmente ao CONTRATANTE.</p>
-
-      <h3>CLÁUSULA 9ª – DAS OBRIGAÇÕES DO CONTRATANTE</h3>
-      <p>Efetuar os pagamentos nas datas acordadas, fornecer acesso à obra e às informações necessárias.</p>
-
-      {essencial && (
+      {sistemaIBPP && (
         <>
-          <h3>CLÁUSULA 9ª.1 – DO FORNECIMENTO DE MATERIAL (F&M ESSENCIAL)</h3>
-          <p>O CONTRATANTE se compromete a fornecer os materiais nos prazos estabelecidos pela CONTRATADA, sob pena de multa diária de R$ 500,00 por dia de atraso na entrega de material que cause paralisação da obra.</p>
+          <h3>CLÁUSULA 9ª — ESPECIFICAÇÕES TÉCNICAS IBPP</h3>
+          <p>
+            O sistema Inova Blocos Paredes Prontas® (IBPP), patente INPI BR 20 2024 012110 0,
+            utiliza painéis pré-moldados com núcleo EPS T1AF antichamas e duas faces de
+            microconceto de 15mm, eliminando etapas de chapisco e reboco. Espessura total
+            da parede: 13cm (fora a fora).
+          </p>
         </>
       )}
 
-      <h3>CLÁUSULA 10ª – DOS ADITIVOS</h3>
-      <p>Quaisquer acréscimos de área, escopo ou prazo serão formalizados por aditivo escrito, com os novos valores e prazos.</p>
+      <h3>CLÁUSULA 10ª — RESCISÃO CONTRATUAL</h3>
+      <p>
+        O contrato poderá ser rescindido por qualquer das partes, mediante notificação por escrito
+        com 15 (quinze) dias de antecedência, em caso de inadimplemento, descumprimento de cláusula
+        contratual ou inviabilidade técnica/financeira de continuação da obra. Em caso de rescisão
+        unilateral injustificada, a parte que der causa pagará multa equivalente a 10% do saldo
+        remanescente do contrato.
+      </p>
 
-      <h3>CLÁUSULA 11ª – DA RESCISÃO</h3>
-      <p>O contrato poderá ser rescindido por inadimplemento de qualquer das partes, mediante notificação por escrito com 15 dias de antecedência.</p>
+      <h3>CLÁUSULA 11ª — PENALIDADES AO CONTRATANTE</h3>
+      <p>
+        O atraso no pagamento de qualquer parcela acarretará multa de 2% sobre o valor em atraso,
+        acrescida de juros de 1% ao mês.
+      </p>
+      {essencial && (
+        <p>
+          Na modalidade F&M ESSENCIAL, o atraso na entrega de materiais que cause paralisação
+          da obra acarretará multa diária de R$ 500,00 por dia de paralisação.
+        </p>
+      )}
 
-      <h3>CLÁUSULA 12ª – DA GARANTIA</h3>
-      <p>A CONTRATADA garante os serviços executados pelo prazo legal, conforme art. 618 do Código Civil.</p>
+      <h3>CLÁUSULA 12ª — GARANTIA LEGAL</h3>
+      <p>
+        Nos termos do Art. 618 do Código Civil Brasileiro, a CONTRATADA garante a solidez e
+        segurança da obra pelo prazo de 5 (cinco) anos após a conclusão.
+      </p>
 
-      <h3>CLÁUSULA 13ª – DO FORO</h3>
-      <p>Fica eleito o foro da Comarca de Salvador/BA para dirimir qualquer questão oriunda deste contrato.</p>
+      <h3>CLÁUSULA 13ª — ALTERAÇÕES CONTRATUAIS</h3>
+      <p>
+        Qualquer alteração deste contrato somente terá validade se efetuada por escrito e
+        assinada por ambas as partes.
+      </p>
 
-      <h3>CLÁUSULA 14ª – DAS DISPOSIÇÕES GERAIS</h3>
-      <p>{String(c.observacoes || "Este contrato representa a totalidade do acordado entre as partes e somente poderá ser alterado por instrumento escrito.")}</p>
+      <h3>CLÁUSULA 14ª — DISPOSIÇÕES GERAIS</h3>
+      <p>
+        Fica eleito o foro da Comarca de Camaçari/BA para dirimir quaisquer dúvidas oriundas
+        deste contrato, com renúncia a qualquer outro, por mais privilegiado que seja.
+        {c.observacoes ? ` Observações: ${String(c.observacoes)}.` : ""}
+      </p>
+
+      <p className="mt-6">Camaçari/BA, {dataExtenso(s("data_inicio") || null)}.</p>
+
+      <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2">
+        <div>
+          <div className="border-b border-slate-400 pb-2 h-20 flex items-end justify-center">
+            {c.assinatura_fm ? <img src={c.assinatura_fm as string} alt="" className="h-16" /> : <span className="text-slate-300">—</span>}
+          </div>
+          <p className="mt-1 text-center text-xs">
+            <strong>CONTRATADA</strong><br />
+            {e.razao_social}<br />
+            {e.representante_nome} — CPF: {e.representante_cpf}<br />
+            {c.assinatura_fm_data ? `Assinado em ${fmtData(s("assinatura_fm_data"))}` : ""}
+          </p>
+        </div>
+        <div>
+          <div className="border-b border-slate-400 pb-2 h-20 flex items-end justify-center">
+            {c.assinatura_cliente ? <img src={c.assinatura_cliente as string} alt="" className="h-16" /> : <span className="text-slate-300">—</span>}
+          </div>
+          <p className="mt-1 text-center text-xs">
+            <strong>CONTRATANTE</strong><br />
+            {s("cliente_nome") || s("prospect_nome") || "—"}<br />
+            CPF/CNPJ: {s("cliente_cpf_cnpj") || s("prospect_cpf_cnpj") || "—"}<br />
+            {c.assinatura_cliente_data ? `Assinado em ${fmtData(s("assinatura_cliente_data"))}` : ""}
+          </p>
+        </div>
+        {temConjuge && (
+          <div>
+            <div className="border-b border-slate-400 pb-2 h-20 flex items-end justify-center">
+              {c.prospect_conjuge_assinatura ? <img src={c.prospect_conjuge_assinatura as string} alt="" className="h-16" /> : <span className="text-slate-300">—</span>}
+            </div>
+            <p className="mt-1 text-center text-xs">
+              <strong>INTERVENIENTE ANUENTE</strong><br />
+              {s("prospect_conjuge_nome")}<br />
+              CPF: {s("prospect_conjuge_cpf") || "—"}
+            </p>
+          </div>
+        )}
+      </div>
+
+      <div className="mt-8 grid grid-cols-2 gap-8">
+        <div>
+          <div className="border-b border-slate-400 h-12" />
+          <p className="mt-1 text-center text-xs">TESTEMUNHA 1 (Nome / CPF)</p>
+        </div>
+        <div>
+          <div className="border-b border-slate-400 h-12" />
+          <p className="mt-1 text-center text-xs">TESTEMUNHA 2 (Nome / CPF)</p>
+        </div>
+      </div>
     </div>
   );
 }
