@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VamosConstruirRouteImport } from './routes/vamos-construir'
 import { Route as SejaParceiroRouteImport } from './routes/seja-parceiro'
 import { Route as SejaFornecedorRouteImport } from './routes/seja-fornecedor'
 import { Route as PrecosRouteImport } from './routes/precos'
@@ -43,6 +44,11 @@ import { Route as AdminAuditoriaEmailsRouteImport } from './routes/admin.auditor
 import { Route as AdminContratosIdRouteImport } from './routes/admin.contratos.$id'
 import { Route as AdminClientesIdRouteImport } from './routes/admin.clientes.$id'
 
+const VamosConstruirRoute = VamosConstruirRouteImport.update({
+  id: '/vamos-construir',
+  path: '/vamos-construir',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SejaParceiroRoute = SejaParceiroRouteImport.update({
   id: '/seja-parceiro',
   path: '/seja-parceiro',
@@ -223,6 +229,7 @@ export interface FileRoutesByFullPath {
   '/precos': typeof PrecosRoute
   '/seja-fornecedor': typeof SejaFornecedorRoute
   '/seja-parceiro': typeof SejaParceiroRoute
+  '/vamos-construir': typeof VamosConstruirRoute
   '/admin/auditoria-emails': typeof AdminAuditoriaEmailsRoute
   '/admin/avaliacoes': typeof AdminAvaliacoesRoute
   '/admin/contratos': typeof AdminContratosRouteWithChildren
@@ -258,6 +265,7 @@ export interface FileRoutesByTo {
   '/precos': typeof PrecosRoute
   '/seja-fornecedor': typeof SejaFornecedorRoute
   '/seja-parceiro': typeof SejaParceiroRoute
+  '/vamos-construir': typeof VamosConstruirRoute
   '/admin/auditoria-emails': typeof AdminAuditoriaEmailsRoute
   '/admin/avaliacoes': typeof AdminAvaliacoesRoute
   '/admin/contratos': typeof AdminContratosRouteWithChildren
@@ -294,6 +302,7 @@ export interface FileRoutesById {
   '/precos': typeof PrecosRoute
   '/seja-fornecedor': typeof SejaFornecedorRoute
   '/seja-parceiro': typeof SejaParceiroRoute
+  '/vamos-construir': typeof VamosConstruirRoute
   '/admin/auditoria-emails': typeof AdminAuditoriaEmailsRoute
   '/admin/avaliacoes': typeof AdminAvaliacoesRoute
   '/admin/contratos': typeof AdminContratosRouteWithChildren
@@ -331,6 +340,7 @@ export interface FileRouteTypes {
     | '/precos'
     | '/seja-fornecedor'
     | '/seja-parceiro'
+    | '/vamos-construir'
     | '/admin/auditoria-emails'
     | '/admin/avaliacoes'
     | '/admin/contratos'
@@ -366,6 +376,7 @@ export interface FileRouteTypes {
     | '/precos'
     | '/seja-fornecedor'
     | '/seja-parceiro'
+    | '/vamos-construir'
     | '/admin/auditoria-emails'
     | '/admin/avaliacoes'
     | '/admin/contratos'
@@ -401,6 +412,7 @@ export interface FileRouteTypes {
     | '/precos'
     | '/seja-fornecedor'
     | '/seja-parceiro'
+    | '/vamos-construir'
     | '/admin/auditoria-emails'
     | '/admin/avaliacoes'
     | '/admin/contratos'
@@ -437,6 +449,7 @@ export interface RootRouteChildren {
   PrecosRoute: typeof PrecosRoute
   SejaFornecedorRoute: typeof SejaFornecedorRoute
   SejaParceiroRoute: typeof SejaParceiroRoute
+  VamosConstruirRoute: typeof VamosConstruirRoute
   AdminAuditoriaEmailsRoute: typeof AdminAuditoriaEmailsRoute
   AdminAvaliacoesRoute: typeof AdminAvaliacoesRoute
   AdminContratosRoute: typeof AdminContratosRouteWithChildren
@@ -460,6 +473,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/vamos-construir': {
+      id: '/vamos-construir'
+      path: '/vamos-construir'
+      fullPath: '/vamos-construir'
+      preLoaderRoute: typeof VamosConstruirRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/seja-parceiro': {
       id: '/seja-parceiro'
       path: '/seja-parceiro'
@@ -720,6 +740,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrecosRoute: PrecosRoute,
   SejaFornecedorRoute: SejaFornecedorRoute,
   SejaParceiroRoute: SejaParceiroRoute,
+  VamosConstruirRoute: VamosConstruirRoute,
   AdminAuditoriaEmailsRoute: AdminAuditoriaEmailsRoute,
   AdminAvaliacoesRoute: AdminAvaliacoesRoute,
   AdminContratosRoute: AdminContratosRouteWithChildren,
@@ -743,13 +764,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

@@ -28,7 +28,6 @@ const NAV = [
   { id: "solucao", label: "Solução" },
   { id: "tecnologias", label: "Tecnologias" },
   { id: "portfolio", label: "Portfólio" },
-  { id: "calculadora", label: "Economia" },
   { id: "blog", label: "Blog" },
   { id: "contato", label: "Contato" },
 ];
