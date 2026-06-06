@@ -19,6 +19,14 @@ export const Route = createFileRoute("/contrato/$token")({
 
 type Row = Record<string, unknown>;
 
+function isRow(value: unknown): value is Row {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function looksLikeUuid(value: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+}
+
 function PublicContratoPage() {
   const { token } = useParams({ from: "/contrato/$token" });
   const [loading, setLoading] = useState(true);
@@ -39,20 +47,59 @@ function PublicContratoPage() {
     void carregarEmpresaConfig().then(setEmpresa);
     const { data, error } = await fmSupabase.rpc("get_contrato_publico", { p_token: token });
     console.log("[contrato.$token] RPC get_contrato_publico:", { data, error });
+    if (isRow(data)) {
+      setC(data);
+      if ((data.cliente_cpf_cnpj as string)?.length > 14) setTipo("PJ");
+      setLoading(false);
+      return;
+    }
     if (error) {
       console.error("[contrato.$token] Erro detalhado:", error);
       console.error("Código:", error.code, "Mensagem:", error.message, "Detalhes:", error.details, "Hint:", error.hint);
-      setLoadErr({ message: error.message, code: error.code, details: error.details ?? undefined, hint: error.hint ?? undefined });
+    }
+
+    let fallback = await fmSupabase
+      .from("contratos")
+      .select("*")
+      .eq("token_cliente", token)
+      .maybeSingle();
+
+    console.log("[contrato.$token] Fallback direto por token_cliente:", fallback);
+
+    if (!isRow(fallback.data) && looksLikeUuid(token)) {
+      fallback = await fmSupabase
+        .from("contratos")
+        .select("*")
+        .eq("id", token)
+        .maybeSingle();
+
+      console.log("[contrato.$token] Fallback direto por id:", fallback);
+    }
+
+    if (isRow(fallback.data)) {
+      setC(fallback.data);
+      if ((fallback.data.cliente_cpf_cnpj as string)?.length > 14) setTipo("PJ");
       setLoading(false);
       return;
     }
-    if (!data) {
-      setLoadErr({ message: "Nenhum contrato retornado pela RPC (data=null)", code: "EMPTY" });
-      setLoading(false);
-      return;
-    }
-    setC(data as Row);
-    if (((data as Row).cliente_cpf_cnpj as string)?.length > 14) setTipo("PJ");
+
+    const finalError = fallback.error
+      ? {
+          message: fallback.error.message,
+          code: fallback.error.code,
+          details: fallback.error.details ?? undefined,
+          hint: fallback.error.hint ?? undefined,
+        }
+      : error
+        ? {
+            message: error.message,
+            code: error.code,
+            details: error.details ?? undefined,
+            hint: error.hint ?? undefined,
+          }
+        : { message: "Nenhum contrato retornado pela RPC nem pela consulta direta", code: "EMPTY" };
+
+    setLoadErr(finalError);
     setLoading(false);
   };
 
@@ -77,9 +124,41 @@ function PublicContratoPage() {
       cliente_cep: c.cliente_cep, cliente_rua: c.cliente_rua, cliente_numero: c.cliente_numero,
       cliente_bairro: c.cliente_bairro, cliente_cidade: c.cliente_cidade, cliente_estado: c.cliente_estado,
     };
-    const { error } = await fmSupabase.rpc("assinar_contrato_publico", {
+    let { error } = await fmSupabase.rpc("assinar_contrato_publico", {
       p_token: token, p_dados: dados, p_assinatura: sig,
     });
+
+    if (error && (error.code === "42883" || /text = uuid/i.test(error.message))) {
+      console.warn("[contrato.$token] RPC falhou por incompatibilidade de tipo; aplicando fallback direto.", error);
+      let fallbackUpdate = await fmSupabase
+        .from("contratos")
+        .update({
+          ...dados,
+          assinatura_cliente: sig,
+          assinatura_cliente_data: new Date().toISOString(),
+          status: "aguardando_fm",
+          atualizado_em: new Date().toISOString(),
+        })
+        .eq("token_cliente", token)
+        .is("assinatura_cliente", null);
+
+      if (fallbackUpdate.error && looksLikeUuid(token)) {
+        fallbackUpdate = await fmSupabase
+          .from("contratos")
+          .update({
+            ...dados,
+            assinatura_cliente: sig,
+            assinatura_cliente_data: new Date().toISOString(),
+            status: "aguardando_fm",
+            atualizado_em: new Date().toISOString(),
+          })
+          .eq("id", token)
+          .is("assinatura_cliente", null);
+      }
+
+      error = fallbackUpdate.error;
+    }
+
     setSaving(false);
     if (error) { toast.error("Erro: " + error.message); return; }
     toast.success("Contrato assinado com sucesso!");
