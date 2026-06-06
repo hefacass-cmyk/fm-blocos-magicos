@@ -1,6 +1,15 @@
 import { fmSupabase } from "./fm-supabase";
 
-export type ContratoStatus = "rascunho" | "aguardando_cliente" | "aguardando_fm" | "assinado" | "cancelado";
+export type ContratoStatus =
+  | "rascunho"
+  | "aguardando_cliente"
+  | "dados_cliente_enviados"
+  | "aguardando_revisao"
+  | "em_revisao"
+  | "aguardando_fm"
+  | "assinado_cliente"
+  | "assinado"
+  | "cancelado";
 export type SistemaConstrutivo = "IBPP" | "Alvenaria" | "ICF";
 export type TipoServico = "F&M TOTAL" | "F&M GESTÃO" | "F&M ESSENCIAL" | "Só Gestão";
 export type PlanoCamera = "sem_camera" | "live" | "live_pro";
@@ -9,7 +18,11 @@ export type FinanceiroStatus = "pendente" | "pago" | "atrasado";
 export const STATUS_LABELS: Record<ContratoStatus, string> = {
   rascunho: "Rascunho",
   aguardando_cliente: "Aguardando Cliente",
+  dados_cliente_enviados: "Dados Recebidos",
+  aguardando_revisao: "Aguardando Revisão",
+  em_revisao: "Alteração Solicitada",
   aguardando_fm: "Aguardando F&M",
+  assinado_cliente: "Assinado p/ Cliente",
   assinado: "Assinado",
   cancelado: "Cancelado",
 };
@@ -17,10 +30,30 @@ export const STATUS_LABELS: Record<ContratoStatus, string> = {
 export const STATUS_COLORS: Record<ContratoStatus, string> = {
   rascunho: "#94a3b8",
   aguardando_cliente: "#F4B941",
+  dados_cliente_enviados: "#3B82F6",
+  aguardando_revisao: "#F4B941",
+  em_revisao: "#ef4444",
   aguardando_fm: "#3B82F6",
+  assinado_cliente: "#06A77D",
   assinado: "#06A77D",
   cancelado: "#ef4444",
 };
+
+/** Retorna o caminho público da etapa atual do fluxo de contrato. */
+export function linkPublicoEtapa(status: string | null | undefined, token: string): string {
+  switch (status) {
+    case "aguardando_revisao":
+    case "em_revisao":
+      return `/contrato/revisar/${token}`;
+    case "assinado_cliente":
+    case "assinado":
+      return `/contrato/revisar/${token}`;
+    case "dados_cliente_enviados":
+      return `/contrato/revisar/${token}`;
+    default:
+      return `/contrato/dados/${token}`;
+  }
+}
 
 export const FIN_LABELS: Record<FinanceiroStatus, string> = {
   pendente: "Pendente",

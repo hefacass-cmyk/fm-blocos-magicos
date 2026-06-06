@@ -42,6 +42,9 @@ import { Route as AdminContratosRouteImport } from './routes/admin.contratos'
 import { Route as AdminConfiguracoesRouteImport } from './routes/admin.configuracoes'
 import { Route as AdminAvaliacoesRouteImport } from './routes/admin.avaliacoes'
 import { Route as AdminAuditoriaEmailsRouteImport } from './routes/admin.auditoria-emails'
+import { Route as ContratoRevisarTokenRouteImport } from './routes/contrato.revisar.$token'
+import { Route as ContratoDadosTokenRouteImport } from './routes/contrato.dados.$token'
+import { Route as ContratoAssinarTokenRouteImport } from './routes/contrato.assinar.$token'
 import { Route as AdminContratosIdRouteImport } from './routes/admin.contratos.$id'
 import { Route as AdminClientesIdRouteImport } from './routes/admin.clientes.$id'
 
@@ -210,6 +213,21 @@ const AdminAuditoriaEmailsRoute = AdminAuditoriaEmailsRouteImport.update({
   path: '/admin/auditoria-emails',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ContratoRevisarTokenRoute = ContratoRevisarTokenRouteImport.update({
+  id: '/contrato/revisar/$token',
+  path: '/contrato/revisar/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContratoDadosTokenRoute = ContratoDadosTokenRouteImport.update({
+  id: '/contrato/dados/$token',
+  path: '/contrato/dados/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContratoAssinarTokenRoute = ContratoAssinarTokenRouteImport.update({
+  id: '/contrato/assinar/$token',
+  path: '/contrato/assinar/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminContratosIdRoute = AdminContratosIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -257,6 +275,9 @@ export interface FileRoutesByFullPath {
   '/reset-senha/$token': typeof ResetSenhaTokenRoute
   '/admin/clientes/$id': typeof AdminClientesIdRoute
   '/admin/contratos/$id': typeof AdminContratosIdRoute
+  '/contrato/assinar/$token': typeof ContratoAssinarTokenRoute
+  '/contrato/dados/$token': typeof ContratoDadosTokenRoute
+  '/contrato/revisar/$token': typeof ContratoRevisarTokenRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -294,6 +315,9 @@ export interface FileRoutesByTo {
   '/reset-senha/$token': typeof ResetSenhaTokenRoute
   '/admin/clientes/$id': typeof AdminClientesIdRoute
   '/admin/contratos/$id': typeof AdminContratosIdRoute
+  '/contrato/assinar/$token': typeof ContratoAssinarTokenRoute
+  '/contrato/dados/$token': typeof ContratoDadosTokenRoute
+  '/contrato/revisar/$token': typeof ContratoRevisarTokenRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -332,6 +356,9 @@ export interface FileRoutesById {
   '/reset-senha/$token': typeof ResetSenhaTokenRoute
   '/admin/clientes/$id': typeof AdminClientesIdRoute
   '/admin/contratos/$id': typeof AdminContratosIdRoute
+  '/contrato/assinar/$token': typeof ContratoAssinarTokenRoute
+  '/contrato/dados/$token': typeof ContratoDadosTokenRoute
+  '/contrato/revisar/$token': typeof ContratoRevisarTokenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -371,6 +398,9 @@ export interface FileRouteTypes {
     | '/reset-senha/$token'
     | '/admin/clientes/$id'
     | '/admin/contratos/$id'
+    | '/contrato/assinar/$token'
+    | '/contrato/dados/$token'
+    | '/contrato/revisar/$token'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -408,6 +438,9 @@ export interface FileRouteTypes {
     | '/reset-senha/$token'
     | '/admin/clientes/$id'
     | '/admin/contratos/$id'
+    | '/contrato/assinar/$token'
+    | '/contrato/dados/$token'
+    | '/contrato/revisar/$token'
   id:
     | '__root__'
     | '/'
@@ -445,6 +478,9 @@ export interface FileRouteTypes {
     | '/reset-senha/$token'
     | '/admin/clientes/$id'
     | '/admin/contratos/$id'
+    | '/contrato/assinar/$token'
+    | '/contrato/dados/$token'
+    | '/contrato/revisar/$token'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -482,6 +518,9 @@ export interface RootRouteChildren {
   ParceiroLoginRoute: typeof ParceiroLoginRoute
   ResetSenhaTokenRoute: typeof ResetSenhaTokenRoute
   AdminClientesIdRoute: typeof AdminClientesIdRoute
+  ContratoAssinarTokenRoute: typeof ContratoAssinarTokenRoute
+  ContratoDadosTokenRoute: typeof ContratoDadosTokenRoute
+  ContratoRevisarTokenRoute: typeof ContratoRevisarTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -717,6 +756,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAuditoriaEmailsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/contrato/revisar/$token': {
+      id: '/contrato/revisar/$token'
+      path: '/contrato/revisar/$token'
+      fullPath: '/contrato/revisar/$token'
+      preLoaderRoute: typeof ContratoRevisarTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contrato/dados/$token': {
+      id: '/contrato/dados/$token'
+      path: '/contrato/dados/$token'
+      fullPath: '/contrato/dados/$token'
+      preLoaderRoute: typeof ContratoDadosTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contrato/assinar/$token': {
+      id: '/contrato/assinar/$token'
+      path: '/contrato/assinar/$token'
+      fullPath: '/contrato/assinar/$token'
+      preLoaderRoute: typeof ContratoAssinarTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/contratos/$id': {
       id: '/admin/contratos/$id'
       path: '/$id'
@@ -781,17 +841,10 @@ const rootRouteChildren: RootRouteChildren = {
   ParceiroLoginRoute: ParceiroLoginRoute,
   ResetSenhaTokenRoute: ResetSenhaTokenRoute,
   AdminClientesIdRoute: AdminClientesIdRoute,
+  ContratoAssinarTokenRoute: ContratoAssinarTokenRoute,
+  ContratoDadosTokenRoute: ContratoDadosTokenRoute,
+  ContratoRevisarTokenRoute: ContratoRevisarTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
