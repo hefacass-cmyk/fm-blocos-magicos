@@ -6,46 +6,7 @@ declare r public.contratos;
 begin
   select * into r from public.contratos where token_cliente::text = p_token;
   if not found then return null; end if;
-  return jsonb_build_object(
-    'id', r.id,
-    'numero', r.numero,
-    'status', r.status,
-    'sistema_construtivo', r.sistema_construtivo,
-    'tipo_servico', r.tipo_servico,
-    'area_m2', r.area_m2,
-    'valor_m2', r.valor_m2,
-    'plano_camera', r.plano_camera,
-    'valor_camera', r.valor_camera,
-    'databook_eletronico', r.databook_eletronico,
-    'data_inicio', r.data_inicio,
-    'prazo_dias', r.prazo_dias,
-    'data_previsao_fim', r.data_previsao_fim,
-    'valor_servico', r.valor_servico,
-    'valor_databook', r.valor_databook,
-    'valor_total', r.valor_total,
-    'valor_adiantamento', r.valor_adiantamento,
-    'observacoes', r.observacoes,
-    'gerente_nome', r.gerente_nome,
-    'gerente_cargo', r.gerente_cargo,
-    'gerente_whatsapp', r.gerente_whatsapp,
-    'responsavel_tecnico', r.responsavel_tecnico,
-    'crea', r.crea,
-    'cliente_nome', r.cliente_nome,
-    'cliente_cpf_cnpj', r.cliente_cpf_cnpj,
-    'cliente_rg', r.cliente_rg,
-    'cliente_email', r.cliente_email,
-    'cliente_telefone', r.cliente_telefone,
-    'cliente_cep', r.cliente_cep,
-    'cliente_rua', r.cliente_rua,
-    'cliente_numero', r.cliente_numero,
-    'cliente_bairro', r.cliente_bairro,
-    'cliente_cidade', r.cliente_cidade,
-    'cliente_estado', r.cliente_estado,
-    'assinatura_cliente', r.assinatura_cliente,
-    'assinatura_cliente_data', r.assinatura_cliente_data,
-    'assinatura_fm', r.assinatura_fm,
-    'assinatura_fm_data', r.assinatura_fm_data
-  );
+  return to_jsonb(r) - 'token_cliente' - 'cliente_id' - 'parceiro_indicador_id';
 end $$;
 
 grant execute on function public.get_contrato_publico(text) to anon, authenticated;

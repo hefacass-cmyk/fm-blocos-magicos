@@ -23,47 +23,6 @@ function isRow(value: unknown): value is Row {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-const PUBLIC_CONTRATO_COLUMNS = [
-  "id",
-  "numero",
-  "status",
-  "sistema_construtivo",
-  "tipo_servico",
-  "area_m2",
-  "valor_m2",
-  "plano_camera",
-  "valor_camera",
-  "databook_eletronico",
-  "data_inicio",
-  "prazo_dias",
-  "data_previsao_fim",
-  "valor_servico",
-  "valor_databook",
-  "valor_total",
-  "valor_adiantamento",
-  "observacoes",
-  "gerente_nome",
-  "gerente_cargo",
-  "gerente_whatsapp",
-  "responsavel_tecnico",
-  "crea",
-  "cliente_nome",
-  "cliente_cpf_cnpj",
-  "cliente_rg",
-  "cliente_email",
-  "cliente_telefone",
-  "cliente_cep",
-  "cliente_rua",
-  "cliente_numero",
-  "cliente_bairro",
-  "cliente_cidade",
-  "cliente_estado",
-  "assinatura_cliente",
-  "assinatura_cliente_data",
-  "assinatura_fm",
-  "assinatura_fm_data",
-].join(", ");
-
 function PublicContratoPage() {
   const { token } = useParams({ from: "/contrato/$token" });
   const [loading, setLoading] = useState(true);
@@ -97,7 +56,7 @@ function PublicContratoPage() {
 
     const fallback = await fmSupabase
       .from("contratos")
-      .select(PUBLIC_CONTRATO_COLUMNS)
+      .select("*")
       .eq("token_cliente", token)
       .maybeSingle();
 
