@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { fmSupabase, precoM2, brl, PLANOS_CAMERA } from "@/lib/fm-contratos";
+import { fmSupabase, PLANOS_CAMERA } from "@/lib/fm-contratos";
 import { maskCep, maskCpf, maskCpfCnpj, maskPhone, onlyDigits, viaCep, type TipoPessoa } from "@/lib/fm-clientes";
 
 export const Route = createFileRoute("/iniciar-contrato")({
@@ -29,7 +29,7 @@ type Form = {
   tipo_pessoa: TipoPessoa;
   nome: string; cpf_cnpj: string; rg: string;
   nacionalidade: string; estado_civil: string; profissao: string;
-  email: string; telefone: string;
+  email: string; telefone: string; whatsapp: string;
   cep: string; rua: string; numero: string; bairro: string; cidade: string; estado: string;
   conjuge_nome: string; conjuge_cpf: string; conjuge_rg: string;
   conjuge_email: string; conjuge_telefone: string;
@@ -38,7 +38,7 @@ type Form = {
   obra_cep: string; obra_rua: string; obra_numero: string;
   obra_bairro: string; obra_cidade: string; obra_estado: string;
   tamanho_terreno: string; tipo_terreno: string; area_construir: string;
-  tipo_obra_construcao: boolean; tipo_obra_reforma: boolean; tipo_obra_ampliacao: boolean;
+  tipo_obra: string[];
   sistema: string; servico: string; plano_camera: string;
   prazo_desejado: string; observacoes: string;
 };
@@ -47,7 +47,7 @@ const VAZIO: Form = {
   tipo_pessoa: "PF",
   nome: "", cpf_cnpj: "", rg: "",
   nacionalidade: "Brasileiro", estado_civil: "", profissao: "",
-  email: "", telefone: "",
+  email: "", telefone: "", whatsapp: "",
   cep: "", rua: "", numero: "", bairro: "", cidade: "", estado: "",
   conjuge_nome: "", conjuge_cpf: "", conjuge_rg: "",
   conjuge_email: "", conjuge_telefone: "",
@@ -56,7 +56,7 @@ const VAZIO: Form = {
   obra_cep: "", obra_rua: "", obra_numero: "",
   obra_bairro: "", obra_cidade: "", obra_estado: "",
   tamanho_terreno: "", tipo_terreno: "", area_construir: "",
-  tipo_obra_construcao: false, tipo_obra_reforma: false, tipo_obra_ampliacao: false,
+  tipo_obra: [],
   sistema: "", servico: "", plano_camera: "sem_camera",
   prazo_desejado: "", observacoes: "",
 };
@@ -120,8 +120,7 @@ function IniciarContratoPage() {
     if (!f.area_construir) return "Informe a área a construir/reformar";
     if (!f.sistema) return "Escolha o sistema construtivo";
     if (!f.servico) return "Escolha o tipo de serviço";
-    if (!f.tipo_obra_construcao && !f.tipo_obra_reforma && !f.tipo_obra_ampliacao)
-      return "Selecione ao menos um tipo de obra";
+    if (f.tipo_obra.length === 0) return "Selecione ao menos um tipo de obra";
     return null;
   };
 
@@ -146,7 +145,15 @@ function IniciarContratoPage() {
   const enviar = async () => {
     if (!confirmou) { toast.error("Confirme a veracidade das informações"); return; }
     setEnviando(true);
-    const payload = { ...f, tamanho_terreno: f.tamanho_terreno || null, area_construir: f.area_construir || null };
+    const payload = {
+      ...f,
+      whatsapp: f.whatsapp || f.telefone,
+      tamanho_terreno: f.tamanho_terreno || null,
+      area_construir: f.area_construir || null,
+      sistema_preferido: f.sistema,
+      servico_preferido: f.servico,
+      camera_preferida: f.plano_camera,
+    };
     const { data, error } = await fmSupabase.rpc("criar_contrato_publico", {
       p_dados: payload, p_parceiro_slug: parceiroSlug,
     });
