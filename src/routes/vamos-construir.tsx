@@ -80,6 +80,8 @@ function VamosConstruirPage() {
   const toggleTipo = (t: string) =>
     setTipos((arr) => (arr.includes(t) ? arr.filter((x) => x !== t) : [...arr, t]));
 
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const parsed = schema.safeParse({
@@ -91,9 +93,17 @@ function VamosConstruirPage() {
       observacoes: obs,
     });
     if (!parsed.success) {
-      toast.error(parsed.error.issues[0].message);
+      const fieldErrors: Record<string, string> = {};
+      parsed.error.issues.forEach((issue) => {
+        const key = String(issue.path[0] ?? "");
+        if (!fieldErrors[key]) fieldErrors[key] = issue.message;
+      });
+      setErrors(fieldErrors);
+      const firstMsg = parsed.error.issues[0]?.message ?? "Corrija os campos destacados";
+      toast.error(firstMsg);
       return;
     }
+    setErrors({});
     setEnviando(true);
     try {
       let projeto_url: string | null = null;
