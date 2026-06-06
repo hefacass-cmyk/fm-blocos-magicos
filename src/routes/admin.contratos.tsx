@@ -4,11 +4,12 @@ import { Plus, Search, Pencil, Trash2, Eye, Loader2, ArrowLeft } from "lucide-re
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { fmSupabase, STATUS_COLORS, STATUS_LABELS, brl, type ContratoStatus } from "@/lib/fm-contratos";
+import { fmSupabase, STATUS_COLORS, STATUS_LABELS, brl, fmtData, type ContratoStatus } from "@/lib/fm-contratos";
 
 export const Route = createFileRoute("/admin/contratos")({
   head: () => ({ meta: [{ title: "Contratos · F&M" }] }),
@@ -45,13 +46,26 @@ function AdminContratosPage() {
 
   const filtered = useMemo(() => {
     const t = q.trim().toLowerCase();
-    if (!t) return rows;
-    return rows.filter((r) => {
+    const base = t ? rows.filter((r) => {
       const cli = (r.clientes as { nome?: string } | null)?.nome ?? "";
-      return [r.numero, cli, r.sistema_construtivo, r.tipo_servico]
+      const prosp = String(r.prospect_nome ?? "");
+      return [r.numero, cli, prosp, r.sistema_construtivo, r.tipo_servico, r.prospect_obra_cidade]
         .map((v) => String(v ?? "").toLowerCase()).some((s) => s.includes(t));
-    });
+    }) : rows;
+    return base;
   }, [rows, q]);
+
+  const buckets = useMemo(() => {
+    const pendentes: Row[] = [], andamento: Row[] = [], assinados: Row[] = [], outros: Row[] = [];
+    for (const r of filtered) {
+      const s = (r.status as ContratoStatus) || "rascunho";
+      if (s === "rascunho") pendentes.push(r);
+      else if (s === "aguardando_cliente" || s === "aguardando_fm") andamento.push(r);
+      else if (s === "assinado") assinados.push(r);
+      else outros.push(r);
+    }
+    return { pendentes, andamento, assinados, outros };
+  }, [filtered]);
 
   const onDelete = async () => {
     if (!delTarget) return;
@@ -83,65 +97,32 @@ function AdminContratosPage() {
       <main className="mx-auto max-w-7xl space-y-4 p-4">
         <div className="relative">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar por número, cliente, sistema..." className="pl-9" />
+          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar por protocolo, cliente, cidade, sistema..." className="pl-9" />
         </div>
 
-        <div className="rounded-lg border bg-white">
-          {loading ? (
-            <div className="flex items-center justify-center p-12"><Loader2 className="h-6 w-6 animate-spin text-slate-400" /></div>
-          ) : filtered.length === 0 ? (
-            <div className="p-12 text-center text-sm text-slate-500">Nenhum contrato encontrado.</div>
-          ) : (
-            <table className="w-full text-sm">
-              <thead className="border-b bg-slate-50 text-left text-xs uppercase text-slate-500">
-                <tr>
-                  <th className="p-3">Número</th>
-                  <th className="p-3">Cliente</th>
-                  <th className="p-3">Sistema</th>
-                  <th className="p-3">Serviço</th>
-                  <th className="p-3 text-right">Valor Total</th>
-                  <th className="p-3">Status</th>
-                  <th className="p-3 text-right">Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((r) => {
-                  const status = (r.status as ContratoStatus) || "rascunho";
-                  const cli = (r.clientes as { nome?: string } | null)?.nome ?? "—";
-                  return (
-                    <tr key={String(r.id)} className="border-b last:border-0 hover:bg-slate-50">
-                      <td className="p-3 font-mono text-xs">{String(r.numero || "—")}</td>
-                      <td className="p-3">{cli}</td>
-                      <td className="p-3">{String(r.sistema_construtivo || "—")}</td>
-                      <td className="p-3">{String(r.tipo_servico || "—")}</td>
-                      <td className="p-3 text-right">{brl(Number(r.valor_total || 0))}</td>
-                      <td className="p-3">
-                        <span className="inline-block rounded px-2 py-0.5 text-xs font-medium text-white" style={{ background: STATUS_COLORS[status] }}>
-                          {STATUS_LABELS[status]}
-                        </span>
-                      </td>
-                      <td className="p-3">
-                        <div className="flex items-center justify-end gap-1">
-                          <Button asChild size="icon" variant="ghost" title="Ver/Editar">
-                            <Link to="/admin/contratos/$id" params={{ id: String(r.id) }}><Pencil className="h-4 w-4" /></Link>
-                          </Button>
-                          {r.token_cliente ? (
-                            <Button asChild size="icon" variant="ghost" title="Ver link do cliente">
-                              <Link to="/contrato/$token" params={{ token: String(r.token_cliente) }} target="_blank"><Eye className="h-4 w-4" /></Link>
-                            </Button>
-                          ) : null}
-                          <Button size="icon" variant="ghost" title="Excluir" onClick={() => { setDelTarget(r); setDelOpen(true); }}>
-                            <Trash2 className="h-4 w-4 text-rose-600" />
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          )}
-        </div>
+        {loading ? (
+          <div className="flex items-center justify-center rounded-lg border bg-white p-12">
+            <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
+          </div>
+        ) : (
+          <Tabs defaultValue="pendentes">
+            <TabsList>
+              <TabsTrigger value="pendentes">
+                Pendentes
+                {buckets.pendentes.length > 0 && (
+                  <span className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-bold text-slate-900" style={{ backgroundColor: "#F4B941" }}>
+                    {buckets.pendentes.length}
+                  </span>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="andamento">Em Andamento ({buckets.andamento.length})</TabsTrigger>
+              <TabsTrigger value="assinados">Assinados ({buckets.assinados.length})</TabsTrigger>
+            </TabsList>
+            <TabsContent value="pendentes"><Tabela rows={buckets.pendentes} onDelete={(r) => { setDelTarget(r); setDelOpen(true); }} /></TabsContent>
+            <TabsContent value="andamento"><Tabela rows={buckets.andamento} onDelete={(r) => { setDelTarget(r); setDelOpen(true); }} /></TabsContent>
+            <TabsContent value="assinados"><Tabela rows={buckets.assinados} onDelete={(r) => { setDelTarget(r); setDelOpen(true); }} /></TabsContent>
+          </Tabs>
+        )}
       </main>
 
       <AlertDialog open={delOpen} onOpenChange={setDelOpen}>
@@ -158,6 +139,69 @@ function AdminContratosPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+    </div>
+  );
+}
+
+function Tabela({ rows, onDelete }: { rows: Row[]; onDelete: (r: Row) => void }) {
+  if (rows.length === 0) {
+    return <div className="rounded-lg border bg-white p-12 text-center text-sm text-slate-500">Nenhum contrato nesta aba.</div>;
+  }
+  return (
+    <div className="overflow-x-auto rounded-lg border bg-white">
+      <table className="w-full text-sm">
+        <thead className="border-b bg-slate-50 text-left text-xs uppercase text-slate-500">
+          <tr>
+            <th className="p-3">Protocolo</th>
+            <th className="p-3">Nome</th>
+            <th className="p-3">Obra</th>
+            <th className="p-3">Sistema</th>
+            <th className="p-3">Serviço</th>
+            <th className="p-3 text-right">Valor</th>
+            <th className="p-3">Status</th>
+            <th className="p-3">Data</th>
+            <th className="p-3 text-right">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => {
+            const status = (r.status as ContratoStatus) || "rascunho";
+            const cli = (r.clientes as { nome?: string } | null)?.nome ?? String(r.prospect_nome ?? "—");
+            const obra = [r.prospect_obra_cidade, r.prospect_obra_estado].filter(Boolean).join("/") || "—";
+            return (
+              <tr key={String(r.id)} className="border-b last:border-0 hover:bg-slate-50">
+                <td className="p-3 font-mono text-xs">{String(r.numero || "—")}</td>
+                <td className="p-3">{cli}</td>
+                <td className="p-3 text-xs text-slate-600">{obra}</td>
+                <td className="p-3">{String(r.sistema_construtivo || r.prospect_sistema || "—")}</td>
+                <td className="p-3">{String(r.tipo_servico || r.prospect_servico || "—")}</td>
+                <td className="p-3 text-right">{brl(Number(r.valor_total || 0))}</td>
+                <td className="p-3">
+                  <span className="inline-block rounded px-2 py-0.5 text-xs font-medium text-white" style={{ background: STATUS_COLORS[status] }}>
+                    {STATUS_LABELS[status]}
+                  </span>
+                </td>
+                <td className="p-3 text-xs text-slate-500">{fmtData(String(r.criado_em || ""))}</td>
+                <td className="p-3">
+                  <div className="flex items-center justify-end gap-1">
+                    <Button asChild size="icon" variant="ghost" title="Ver/Editar">
+                      <Link to="/admin/contratos/$id" params={{ id: String(r.id) }}><Pencil className="h-4 w-4" /></Link>
+                    </Button>
+                    {r.token_cliente ? (
+                      <Button asChild size="icon" variant="ghost" title="Link do cliente">
+                        <Link to="/contrato/$token" params={{ token: String(r.token_cliente) }} target="_blank"><Eye className="h-4 w-4" /></Link>
+                      </Button>
+                    ) : null}
+                    <Button size="icon" variant="ghost" title="Excluir" onClick={() => onDelete(r)}>
+                      <Trash2 className="h-4 w-4 text-rose-600" />
+                    </Button>
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
 }
