@@ -23,6 +23,7 @@ function PublicContratoPage() {
   const { token } = useParams({ from: "/contrato/$token" });
   const [loading, setLoading] = useState(true);
   const [c, setC] = useState<Row | null>(null);
+  const [loadErr, setLoadErr] = useState<{ message: string; code?: string; details?: string; hint?: string } | null>(null);
   const [empresa, setEmpresa] = useState<EmpresaConfig>(EMPRESA_DEFAULT);
   const [tipo, setTipo] = useState<TipoPessoa>("PF");
   const [aceito, setAceito] = useState(false);
@@ -33,9 +34,23 @@ function PublicContratoPage() {
 
   const load = async () => {
     setLoading(true);
+    setLoadErr(null);
+    console.log("[contrato.$token] token da URL:", token, "tipo:", typeof token);
     void carregarEmpresaConfig().then(setEmpresa);
     const { data, error } = await fmSupabase.rpc("get_contrato_publico", { p_token: token });
-    if (error || !data) { toast.error("Contrato não encontrado"); setLoading(false); return; }
+    console.log("[contrato.$token] RPC get_contrato_publico:", { data, error });
+    if (error) {
+      console.error("[contrato.$token] Erro detalhado:", error);
+      console.error("Código:", error.code, "Mensagem:", error.message, "Detalhes:", error.details, "Hint:", error.hint);
+      setLoadErr({ message: error.message, code: error.code, details: error.details ?? undefined, hint: error.hint ?? undefined });
+      setLoading(false);
+      return;
+    }
+    if (!data) {
+      setLoadErr({ message: "Nenhum contrato retornado pela RPC (data=null)", code: "EMPTY" });
+      setLoading(false);
+      return;
+    }
     setC(data as Row);
     if (((data as Row).cliente_cpf_cnpj as string)?.length > 14) setTipo("PJ");
     setLoading(false);
@@ -74,7 +89,22 @@ function PublicContratoPage() {
   };
 
   if (loading) return <div className="flex min-h-screen items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-slate-400" /></div>;
-  if (!c) return <div className="p-12 text-center text-slate-500">Contrato não encontrado ou link inválido.</div>;
+  if (!c) return (
+    <div className="p-6 mx-auto max-w-2xl space-y-3">
+      <div className="rounded border border-red-300 bg-red-50 p-4 text-sm text-red-900">
+        <p className="font-semibold mb-2">Contrato não carregado</p>
+        <p><strong>Token URL:</strong> {String(token)}</p>
+        {loadErr ? (
+          <>
+            <p><strong>Mensagem:</strong> {loadErr.message}</p>
+            <p><strong>Código:</strong> {loadErr.code ?? "—"}</p>
+            <p><strong>Detalhes:</strong> {loadErr.details ?? "—"}</p>
+            <p><strong>Hint:</strong> {loadErr.hint ?? "—"}</p>
+          </>
+        ) : <p>Sem erro retornado.</p>}
+      </div>
+    </div>
+  );
 
   const jaAssinado = Boolean(c.assinatura_cliente);
 
