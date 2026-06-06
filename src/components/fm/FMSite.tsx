@@ -210,19 +210,23 @@ function Header({ onLogin }: { onLogin: () => void }) {
             <Link to="/parceiro/login" onClick={() => setOpen(false)} className="py-2 text-sm font-medium text-foreground/80">
               Área do Parceiro
             </Link>
-            <Link to="/precos" onClick={() => setOpen(false)} className="py-2 text-sm font-bold text-foreground/80">
+            <div className="pt-2 mt-1 border-t text-[11px] uppercase tracking-wider text-muted-foreground">Cliente</div>
+            <Link to="/vamos-construir" onClick={() => setOpen(false)} className="py-2 text-sm font-medium text-foreground/80">
+              Vamos Construir
+            </Link>
+            <Link to="/precos" onClick={() => setOpen(false)} className="py-2 text-sm font-medium text-foreground/80">
               Preços
             </Link>
             <button onClick={() => { setOpen(false); onLogin(); }} className="mt-2 inline-flex items-center justify-center gap-2 rounded-md border border-primary/30 px-4 py-3 text-sm font-semibold text-primary">
               <User className="h-4 w-4" /> Área do Cliente
             </button>
             <Link
-              to="/iniciar-contrato"
+              to="/vamos-construir"
               onClick={() => setOpen(false)}
               className="mt-2 inline-flex items-center justify-center gap-2 rounded-md px-4 py-3 text-sm font-bold text-slate-900"
               style={{ backgroundColor: "#F4B941" }}
             >
-              Quero Construir <ArrowRight className="h-4 w-4" />
+              Vamos Construir <ArrowRight className="h-4 w-4" />
             </Link>
             <a href="#contato" onClick={() => setOpen(false)} className="mt-2 inline-flex items-center justify-center gap-2 rounded-md bg-accent px-4 py-3 text-sm font-semibold text-accent-foreground">
               Solicitar Diagnóstico Gratuito
