@@ -4,7 +4,10 @@ language plpgsql stable security definer set search_path = public
 as $$
 declare r public.contratos;
 begin
-  select * into r from public.contratos where token_cliente::text = p_token;
+  select * into r
+  from public.contratos
+  where token_cliente::text = p_token
+     or id::text = p_token;
   if not found then return null; end if;
   return to_jsonb(r) - 'token_cliente' - 'cliente_id' - 'parceiro_indicador_id';
 end $$;
@@ -20,7 +23,10 @@ language plpgsql security definer set search_path = public
 as $$
 declare r public.contratos;
 begin
-  select * into r from public.contratos where token_cliente::text = p_token;
+  select * into r
+  from public.contratos
+  where token_cliente::text = p_token
+     or id::text = p_token;
   if not found then raise exception 'contrato_nao_encontrado'; end if;
   if r.assinatura_cliente is not null then raise exception 'ja_assinado'; end if;
   if p_assinatura is null or length(p_assinatura) < 50 then raise exception 'assinatura_invalida'; end if;
@@ -41,7 +47,8 @@ begin
     assinatura_cliente_data = now(),
     status = 'aguardando_fm',
     atualizado_em = now()
-  where token_cliente::text = p_token;
+  where token_cliente::text = p_token
+     or id::text = p_token;
 
   return jsonb_build_object('ok', true);
 end $$;

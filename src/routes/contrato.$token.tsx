@@ -23,6 +23,10 @@ function isRow(value: unknown): value is Row {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+function looksLikeUuid(value: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+}
+
 function PublicContratoPage() {
   const { token } = useParams({ from: "/contrato/$token" });
   const [loading, setLoading] = useState(true);
@@ -54,13 +58,23 @@ function PublicContratoPage() {
       console.error("Código:", error.code, "Mensagem:", error.message, "Detalhes:", error.details, "Hint:", error.hint);
     }
 
-    const fallback = await fmSupabase
+    let fallback = await fmSupabase
       .from("contratos")
       .select("*")
       .eq("token_cliente", token)
       .maybeSingle();
 
     console.log("[contrato.$token] Fallback direto por token_cliente:", fallback);
+
+    if (!isRow(fallback.data) && looksLikeUuid(token)) {
+      fallback = await fmSupabase
+        .from("contratos")
+        .select("*")
+        .eq("id", token)
+        .maybeSingle();
+
+      console.log("[contrato.$token] Fallback direto por id:", fallback);
+    }
 
     if (isRow(fallback.data)) {
       setC(fallback.data);
@@ -116,7 +130,7 @@ function PublicContratoPage() {
 
     if (error && (error.code === "42883" || /text = uuid/i.test(error.message))) {
       console.warn("[contrato.$token] RPC falhou por incompatibilidade de tipo; aplicando fallback direto.", error);
-      const fallbackUpdate = await fmSupabase
+      let fallbackUpdate = await fmSupabase
         .from("contratos")
         .update({
           ...dados,
@@ -127,6 +141,20 @@ function PublicContratoPage() {
         })
         .eq("token_cliente", token)
         .is("assinatura_cliente", null);
+
+      if (fallbackUpdate.error && looksLikeUuid(token)) {
+        fallbackUpdate = await fmSupabase
+          .from("contratos")
+          .update({
+            ...dados,
+            assinatura_cliente: sig,
+            assinatura_cliente_data: new Date().toISOString(),
+            status: "aguardando_fm",
+            atualizado_em: new Date().toISOString(),
+          })
+          .eq("id", token)
+          .is("assinatura_cliente", null);
+      }
 
       error = fallbackUpdate.error;
     }
