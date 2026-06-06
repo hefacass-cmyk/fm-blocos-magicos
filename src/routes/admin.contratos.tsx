@@ -112,18 +112,10 @@ function AdminContratosPage() {
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
-              onClick={async () => {
-                const url = `${window.location.origin}/iniciar-contrato`;
-                try {
-                  await navigator.clipboard.writeText(url);
-                  toast.success("Link copiado! Envie ao cliente: " + url);
-                } catch {
-                  window.prompt("Copie o link de Iniciar Contrato:", url);
-                }
-              }}
-              title="Gera e copia o link público de Iniciar Contrato para enviar ao cliente"
+              onClick={novoLinkCliente}
+              title="Cria um contrato em branco e copia o link para o cliente preencher seus dados"
             >
-              <Link2 className="mr-1 h-4 w-4" /> Link Iniciar Contrato
+              <Link2 className="mr-1 h-4 w-4" /> Novo Link Cliente
             </Button>
             <Button asChild>
               <Link to="/admin/contratos/$id" params={{ id: "novo" }}>
