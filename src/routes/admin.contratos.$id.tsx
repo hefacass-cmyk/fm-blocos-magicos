@@ -91,9 +91,9 @@ function AdminContratoDetalhePage() {
     if (!contrato.cliente_id) { toast.error("Selecione um cliente"); return null; }
     if (!contrato.numero) { toast.error("Número obrigatório"); return null; }
     setSaving(true);
-    const payload = { ...contrato, atualizado_em: new Date().toISOString() };
+    const payload: Row = { ...contrato, atualizado_em: new Date().toISOString() };
     if (statusOverride) payload.status = statusOverride;
-    delete (payload as Row).clientes;
+    delete payload.clientes;
     let res;
     if (isNew) {
       res = await fmSupabase.from("contratos").insert(payload as Row).select().single();
