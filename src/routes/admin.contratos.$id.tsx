@@ -90,15 +90,25 @@ function AdminContratoDetalhePage() {
       console.log("[admin.contratos.$id] Todos contratos (probe):", probe.data, probe.error);
 
       const [{ data: c, error: cErr }, { data: ad }, { data: me }] = await Promise.all([
-        fmSupabase.from("contratos").select("*").eq("id", id).maybeSingle(),
+        fmSupabase.from("contratos").select("*").eq("id", id).single(),
         fmSupabase.from("contratos_aditivos").select("*").eq("contrato_id", id).order("criado_em"),
         fmSupabase.from("obra_financeiro").select("*").eq("contrato_id", id).order("data_vencimento"),
       ]);
       console.log("[admin.contratos.$id] Query por id resultado:", { data: c, error: cErr });
-      if (cErr || !c) {
-        console.error("[admin.contratos] erro/sem retorno id=", id, cErr);
-        toast.error("Contrato não encontrado" + (cErr ? `: ${cErr.message}` : ""));
-        navigate({ to: "/admin/contratos" });
+      if (cErr) {
+        console.error("[admin.contratos] Erro detalhado:", cErr);
+        console.error("[admin.contratos] Código:", cErr.code);
+        console.error("[admin.contratos] Mensagem:", cErr.message);
+        console.error("[admin.contratos] Detalhes:", cErr.details);
+        console.error("[admin.contratos] Hint:", cErr.hint);
+        toast.error(`Erro ${cErr.code ?? ""}: ${cErr.message}`);
+        setContrato({ __error: cErr.message, __code: cErr.code, __details: cErr.details, __hint: cErr.hint } as Row);
+        setLoading(false);
+        return;
+      }
+      if (!c) {
+        setContrato({ __error: "Nenhum registro retornado", __code: "EMPTY" } as Row);
+        setLoading(false);
         return;
       }
       setContrato(c as Row);
@@ -337,6 +347,11 @@ function AdminContratoDetalhePage() {
     <div className="min-h-screen bg-slate-50">
       <div className="bg-yellow-200 px-4 py-2 text-xs font-mono text-slate-900">
         DEBUG — ID da URL: {String(id)} (tipo: {typeof id})
+        {contrato.__error ? (
+          <div className="mt-1 text-red-700">
+            Erro: {String(contrato.__error)} | Código: {String(contrato.__code ?? "")} | Detalhes: {String(contrato.__details ?? "")} | Hint: {String(contrato.__hint ?? "")}
+          </div>
+        ) : null}
       </div>
       <header className="sticky top-0 z-10 border-b bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 p-4">
