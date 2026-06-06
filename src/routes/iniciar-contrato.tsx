@@ -192,7 +192,6 @@ function IniciarContratoPage() {
       prospect_observacoes: f.observacoes,
       prospect_ja_possui_projeto: f.ja_possui_projeto,
       prospect_quer_projeto: f.quer_projeto,
-      parceiro_indicador_id: parceiroIndicadorId,
     };
     const { data, error } = await fmSupabase.rpc("criar_contrato_publico", {
       dados: payload,
@@ -200,6 +199,12 @@ function IniciarContratoPage() {
     setEnviando(false);
     if (error || !data) { toast.error("Erro ao enviar: " + (error?.message || "tente novamente")); return; }
     const d = data as { numero: string; token: string };
+    if (parceiroIndicadorId && d?.token) {
+      await fmSupabase
+        .from("contratos")
+        .update({ parceiro_indicador_id: parceiroIndicadorId })
+        .eq("token_cliente", d.token);
+    }
     toast.success("Solicitação enviada com sucesso!");
     setSucesso({ numero: d.numero, token: d.token });
   };
