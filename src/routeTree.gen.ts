@@ -28,10 +28,13 @@ import { Route as PSlugRouteImport } from './routes/p.$slug'
 import { Route as FornecedorLoginRouteImport } from './routes/fornecedor.login'
 import { Route as FornecedorSlugRouteImport } from './routes/fornecedor.$slug'
 import { Route as FSlugRouteImport } from './routes/f.$slug'
+import { Route as ContratoTokenRouteImport } from './routes/contrato.$token'
 import { Route as AdminSenhasRouteImport } from './routes/admin.senhas'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
+import { Route as AdminContratosRouteImport } from './routes/admin.contratos'
 import { Route as AdminAuditoriaEmailsRouteImport } from './routes/admin.auditoria-emails'
+import { Route as AdminContratosIdRouteImport } from './routes/admin.contratos.$id'
 import { Route as AdminClientesIdRouteImport } from './routes/admin.clientes.$id'
 
 const SejaParceiroRoute = SejaParceiroRouteImport.update({
@@ -129,6 +132,11 @@ const FSlugRoute = FSlugRouteImport.update({
   path: '/f/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ContratoTokenRoute = ContratoTokenRouteImport.update({
+  id: '/contrato/$token',
+  path: '/contrato/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminSenhasRoute = AdminSenhasRouteImport.update({
   id: '/admin/senhas',
   path: '/admin/senhas',
@@ -144,10 +152,20 @@ const AdminDashboardRoute = AdminDashboardRouteImport.update({
   path: '/admin/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminContratosRoute = AdminContratosRouteImport.update({
+  id: '/admin/contratos',
+  path: '/admin/contratos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminAuditoriaEmailsRoute = AdminAuditoriaEmailsRouteImport.update({
   id: '/admin/auditoria-emails',
   path: '/admin/auditoria-emails',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminContratosIdRoute = AdminContratosIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AdminContratosRoute,
 } as any)
 const AdminClientesIdRoute = AdminClientesIdRouteImport.update({
   id: '/admin/clientes/$id',
@@ -168,9 +186,11 @@ export interface FileRoutesByFullPath {
   '/seja-fornecedor': typeof SejaFornecedorRoute
   '/seja-parceiro': typeof SejaParceiroRoute
   '/admin/auditoria-emails': typeof AdminAuditoriaEmailsRoute
+  '/admin/contratos': typeof AdminContratosRouteWithChildren
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/senhas': typeof AdminSenhasRoute
+  '/contrato/$token': typeof ContratoTokenRoute
   '/f/$slug': typeof FSlugRoute
   '/fornecedor/$slug': typeof FornecedorSlugRoute
   '/fornecedor/login': typeof FornecedorLoginRoute
@@ -180,6 +200,7 @@ export interface FileRoutesByFullPath {
   '/parceiro/login': typeof ParceiroLoginRoute
   '/reset-senha/$token': typeof ResetSenhaTokenRoute
   '/admin/clientes/$id': typeof AdminClientesIdRoute
+  '/admin/contratos/$id': typeof AdminContratosIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -194,9 +215,11 @@ export interface FileRoutesByTo {
   '/seja-fornecedor': typeof SejaFornecedorRoute
   '/seja-parceiro': typeof SejaParceiroRoute
   '/admin/auditoria-emails': typeof AdminAuditoriaEmailsRoute
+  '/admin/contratos': typeof AdminContratosRouteWithChildren
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/senhas': typeof AdminSenhasRoute
+  '/contrato/$token': typeof ContratoTokenRoute
   '/f/$slug': typeof FSlugRoute
   '/fornecedor/$slug': typeof FornecedorSlugRoute
   '/fornecedor/login': typeof FornecedorLoginRoute
@@ -206,6 +229,7 @@ export interface FileRoutesByTo {
   '/parceiro/login': typeof ParceiroLoginRoute
   '/reset-senha/$token': typeof ResetSenhaTokenRoute
   '/admin/clientes/$id': typeof AdminClientesIdRoute
+  '/admin/contratos/$id': typeof AdminContratosIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -221,9 +245,11 @@ export interface FileRoutesById {
   '/seja-fornecedor': typeof SejaFornecedorRoute
   '/seja-parceiro': typeof SejaParceiroRoute
   '/admin/auditoria-emails': typeof AdminAuditoriaEmailsRoute
+  '/admin/contratos': typeof AdminContratosRouteWithChildren
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/senhas': typeof AdminSenhasRoute
+  '/contrato/$token': typeof ContratoTokenRoute
   '/f/$slug': typeof FSlugRoute
   '/fornecedor/$slug': typeof FornecedorSlugRoute
   '/fornecedor/login': typeof FornecedorLoginRoute
@@ -233,6 +259,7 @@ export interface FileRoutesById {
   '/parceiro/login': typeof ParceiroLoginRoute
   '/reset-senha/$token': typeof ResetSenhaTokenRoute
   '/admin/clientes/$id': typeof AdminClientesIdRoute
+  '/admin/contratos/$id': typeof AdminContratosIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -249,9 +276,11 @@ export interface FileRouteTypes {
     | '/seja-fornecedor'
     | '/seja-parceiro'
     | '/admin/auditoria-emails'
+    | '/admin/contratos'
     | '/admin/dashboard'
     | '/admin/login'
     | '/admin/senhas'
+    | '/contrato/$token'
     | '/f/$slug'
     | '/fornecedor/$slug'
     | '/fornecedor/login'
@@ -261,6 +290,7 @@ export interface FileRouteTypes {
     | '/parceiro/login'
     | '/reset-senha/$token'
     | '/admin/clientes/$id'
+    | '/admin/contratos/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -275,9 +305,11 @@ export interface FileRouteTypes {
     | '/seja-fornecedor'
     | '/seja-parceiro'
     | '/admin/auditoria-emails'
+    | '/admin/contratos'
     | '/admin/dashboard'
     | '/admin/login'
     | '/admin/senhas'
+    | '/contrato/$token'
     | '/f/$slug'
     | '/fornecedor/$slug'
     | '/fornecedor/login'
@@ -287,6 +319,7 @@ export interface FileRouteTypes {
     | '/parceiro/login'
     | '/reset-senha/$token'
     | '/admin/clientes/$id'
+    | '/admin/contratos/$id'
   id:
     | '__root__'
     | '/'
@@ -301,9 +334,11 @@ export interface FileRouteTypes {
     | '/seja-fornecedor'
     | '/seja-parceiro'
     | '/admin/auditoria-emails'
+    | '/admin/contratos'
     | '/admin/dashboard'
     | '/admin/login'
     | '/admin/senhas'
+    | '/contrato/$token'
     | '/f/$slug'
     | '/fornecedor/$slug'
     | '/fornecedor/login'
@@ -313,6 +348,7 @@ export interface FileRouteTypes {
     | '/parceiro/login'
     | '/reset-senha/$token'
     | '/admin/clientes/$id'
+    | '/admin/contratos/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -328,9 +364,11 @@ export interface RootRouteChildren {
   SejaFornecedorRoute: typeof SejaFornecedorRoute
   SejaParceiroRoute: typeof SejaParceiroRoute
   AdminAuditoriaEmailsRoute: typeof AdminAuditoriaEmailsRoute
+  AdminContratosRoute: typeof AdminContratosRouteWithChildren
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminSenhasRoute: typeof AdminSenhasRoute
+  ContratoTokenRoute: typeof ContratoTokenRoute
   FSlugRoute: typeof FSlugRoute
   FornecedorSlugRoute: typeof FornecedorSlugRoute
   FornecedorLoginRoute: typeof FornecedorLoginRoute
@@ -477,6 +515,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/contrato/$token': {
+      id: '/contrato/$token'
+      path: '/contrato/$token'
+      fullPath: '/contrato/$token'
+      preLoaderRoute: typeof ContratoTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/senhas': {
       id: '/admin/senhas'
       path: '/admin/senhas'
@@ -498,12 +543,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/contratos': {
+      id: '/admin/contratos'
+      path: '/admin/contratos'
+      fullPath: '/admin/contratos'
+      preLoaderRoute: typeof AdminContratosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/auditoria-emails': {
       id: '/admin/auditoria-emails'
       path: '/admin/auditoria-emails'
       fullPath: '/admin/auditoria-emails'
       preLoaderRoute: typeof AdminAuditoriaEmailsRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/contratos/$id': {
+      id: '/admin/contratos/$id'
+      path: '/$id'
+      fullPath: '/admin/contratos/$id'
+      preLoaderRoute: typeof AdminContratosIdRouteImport
+      parentRoute: typeof AdminContratosRoute
     }
     '/admin/clientes/$id': {
       id: '/admin/clientes/$id'
@@ -514,6 +573,18 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AdminContratosRouteChildren {
+  AdminContratosIdRoute: typeof AdminContratosIdRoute
+}
+
+const AdminContratosRouteChildren: AdminContratosRouteChildren = {
+  AdminContratosIdRoute: AdminContratosIdRoute,
+}
+
+const AdminContratosRouteWithChildren = AdminContratosRoute._addFileChildren(
+  AdminContratosRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -528,9 +599,11 @@ const rootRouteChildren: RootRouteChildren = {
   SejaFornecedorRoute: SejaFornecedorRoute,
   SejaParceiroRoute: SejaParceiroRoute,
   AdminAuditoriaEmailsRoute: AdminAuditoriaEmailsRoute,
+  AdminContratosRoute: AdminContratosRouteWithChildren,
   AdminDashboardRoute: AdminDashboardRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminSenhasRoute: AdminSenhasRoute,
+  ContratoTokenRoute: ContratoTokenRoute,
   FSlugRoute: FSlugRoute,
   FornecedorSlugRoute: FornecedorSlugRoute,
   FornecedorLoginRoute: FornecedorLoginRoute,
@@ -544,13 +617,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
