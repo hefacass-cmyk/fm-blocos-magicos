@@ -81,11 +81,16 @@ function AdminContratoDetalhePage() {
       });
     } else {
       const [{ data: c }, { data: ad }, { data: me }] = await Promise.all([
-        fmSupabase.from("contratos").select("*").eq("id", id).maybeSingle(),
+        fmSupabase.from("contratos").select("*, clientes(nome, codigo_cliente)").eq("id", id).maybeSingle(),
         fmSupabase.from("contratos_aditivos").select("*").eq("contrato_id", id).order("criado_em"),
         fmSupabase.from("obra_financeiro").select("*").eq("contrato_id", id).order("data_vencimento"),
       ]);
-      if (!c) { toast.error("Contrato não encontrado"); navigate({ to: "/admin/contratos" }); return; }
+      if (!c) {
+        console.error("[admin.contratos] não encontrado id=", id);
+        toast.error("Contrato não encontrado (id=" + String(id).slice(0, 8) + "…)");
+        navigate({ to: "/admin/contratos" });
+        return;
+      }
       setContrato(c as Row);
       setAditivos((ad as Row[]) ?? []);
       setMedicoes((me as Row[]) ?? []);
@@ -367,17 +372,25 @@ function AdminContratoDetalhePage() {
                   <ProspectLinha k="Estado civil" v={String(contrato.prospect_estado_civil ?? "")} />
                   <ProspectLinha k="Profissão" v={String(contrato.prospect_profissao ?? "")} />
                   <ProspectLinha k="E-mail" v={String(contrato.prospect_email ?? "")} />
-                  <ProspectLinha k="WhatsApp" v={String(contrato.prospect_telefone ?? "")} />
-                  <ProspectLinha k="Endereço residencial" v={`${contrato.prospect_rua ?? ""}, ${contrato.prospect_numero ?? ""} — ${contrato.prospect_bairro ?? ""}, ${contrato.prospect_cidade ?? ""}/${contrato.prospect_estado ?? ""}`} />
-                  <ProspectLinha k="Endereço da obra" v={`${contrato.prospect_obra_rua ?? ""}, ${contrato.prospect_obra_numero ?? ""} — ${contrato.prospect_obra_bairro ?? ""}, ${contrato.prospect_obra_cidade ?? ""}/${contrato.prospect_obra_estado ?? ""}`} />
+                  <ProspectLinha k="WhatsApp" v={String(contrato.prospect_whatsapp ?? contrato.prospect_telefone ?? "")} />
+                  <ProspectLinha k="Endereço residencial" v={`${contrato.prospect_endereco ?? ""} — ${contrato.prospect_cidade ?? ""}/${contrato.prospect_estado ?? ""} CEP ${contrato.prospect_cep ?? ""}`} />
+                  <ProspectLinha k="Endereço da obra" v={String(contrato.prospect_endereco_obra ?? "—")} />
                   <ProspectLinha k="Terreno" v={`${contrato.prospect_tamanho_terreno ?? "—"} m² (${contrato.prospect_tipo_terreno ?? "—"})`} />
                   <ProspectLinha k="Área a construir" v={`${contrato.prospect_area_construir ?? "—"} m²`} />
-                  <ProspectLinha k="Sistema desejado" v={String(contrato.prospect_sistema ?? "")} />
-                  <ProspectLinha k="Serviço desejado" v={String(contrato.prospect_servico ?? "")} />
-                  <ProspectLinha k="Plano câmera" v={String(contrato.prospect_plano_camera ?? "")} />
+                  <ProspectLinha k="Pavimentos" v={String(contrato.prospect_pavimentos ?? "—")} />
+                  <ProspectLinha k="Sistema desejado" v={String(contrato.prospect_sistema_preferido ?? "")} />
+                  <ProspectLinha k="Serviço desejado" v={String(contrato.prospect_servico_preferido ?? "")} />
+                  <ProspectLinha k="Plano câmera" v={String(contrato.prospect_camera_preferida ?? "")} />
                   <ProspectLinha k="Prazo desejado" v={String(contrato.prospect_prazo_desejado ?? "")} />
+                  <ProspectLinha k="Já possui projeto?" v={contrato.prospect_ja_possui_projeto ? "Sim" : "Não"} />
+                  <ProspectLinha k="Quer projeto pela F&M?" v={contrato.prospect_quer_projeto ? "Sim" : "Não"} />
                   {contrato.prospect_conjuge_nome ? (
-                    <ProspectLinha k="Cônjuge" v={`${contrato.prospect_conjuge_nome} (CPF ${contrato.prospect_conjuge_cpf ?? "—"})`} />
+                    <>
+                      <ProspectLinha k="Cônjuge — Nome" v={String(contrato.prospect_conjuge_nome)} />
+                      <ProspectLinha k="Cônjuge — CPF" v={String(contrato.prospect_conjuge_cpf ?? "—")} />
+                      <ProspectLinha k="Cônjuge — RG" v={String(contrato.prospect_conjuge_rg ?? "—")} />
+                      <ProspectLinha k="Cônjuge — Profissão" v={String(contrato.prospect_conjuge_profissao ?? "—")} />
+                    </>
                   ) : null}
                   {contrato.prospect_observacoes ? (
                     <ProspectLinha k="Observações" v={String(contrato.prospect_observacoes)} />
