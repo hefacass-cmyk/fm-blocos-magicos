@@ -147,7 +147,10 @@ function IniciarContratoPage() {
   const enviar = async () => {
     if (!confirmou) { toast.error("Confirme a veracidade das informações"); return; }
     setEnviando(true);
-    // MAPEAMENTO CANÔNICO: somente colunas que existem em public.contratos
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const ref = parceiroSlug?.trim() || "";
+    const parceiroIndicadorId = ref && UUID_RE.test(ref) ? ref : null;
+
     const payload = {
       prospect_tipo_pessoa: f.tipo_pessoa,
       prospect_nome: f.nome,
@@ -189,15 +192,10 @@ function IniciarContratoPage() {
       prospect_observacoes: f.observacoes,
       prospect_ja_possui_projeto: f.ja_possui_projeto,
       prospect_quer_projeto: f.quer_projeto,
+      parceiro_indicador_id: parceiroIndicadorId,
     };
-    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    const slug = parceiroSlug?.trim() || "";
-    const parceiroIndicadorId = slug && UUID_RE.test(slug) ? slug : null;
-    const parceiroSlugLimpo = slug && !UUID_RE.test(slug) ? slug : null;
-    const dados = { ...payload, parceiro_indicador_id: parceiroIndicadorId };
     const { data, error } = await fmSupabase.rpc("criar_contrato_publico", {
-      p_dados: dados,
-      p_parceiro_slug: parceiroSlugLimpo,
+      dados: payload,
     });
     setEnviando(false);
     if (error || !data) { toast.error("Erro ao enviar: " + (error?.message || "tente novamente")); return; }
