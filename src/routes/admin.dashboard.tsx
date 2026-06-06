@@ -5,6 +5,7 @@ import { fmSupabase } from "@/lib/fm-supabase";
 import { logAdmin } from "@/lib/fm-tracking";
 import { toast } from "sonner";
 import ClientesSection from "@/components/admin/ClientesSection";
+import { signOutAdmin } from "@/lib/fm-admin-auth";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -178,7 +179,7 @@ function AdminDashboardPage() {
     } catch (e) { console.error(e); }
   };
 
-  const sair = () => { sessionStorage.removeItem(ADMIN_KEY); navigate({ to: "/admin/login" }); };
+  const sair = async () => { await signOutAdmin(); navigate({ to: "/admin/login" }); };
 
   const aprovarParceiro = async (p: Row) => {
     const { error } = await fmSupabase.from("parceiros").update({ ativo: true }).eq("id", p.id);

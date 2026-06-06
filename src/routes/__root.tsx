@@ -10,6 +10,8 @@ import {
 
 import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
+import { useEffect } from "react";
+import { restoreAdminSession } from "@/lib/fm-admin-auth";
 
 function NotFoundComponent() {
   return (
@@ -121,6 +123,8 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  useEffect(() => { void restoreAdminSession(); }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

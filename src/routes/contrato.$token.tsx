@@ -31,7 +31,7 @@ function PublicContratoPage() {
 
   const load = async () => {
     setLoading(true);
-    const { data, error } = await fmSupabase.from("contratos").select("*").eq("token_cliente", token).maybeSingle();
+    const { data, error } = await fmSupabase.rpc("get_contrato_publico", { p_token: token });
     if (error || !data) { toast.error("Contrato não encontrado"); setLoading(false); return; }
     setC(data as Row);
     if (((data as Row).cliente_cpf_cnpj as string)?.length > 14) setTipo("PJ");
@@ -53,14 +53,15 @@ function PublicContratoPage() {
     const sig = padRef.current?.toDataURL();
     if (!sig) { toast.error("Desenhe sua assinatura"); return; }
     setSaving(true);
-    const { error } = await fmSupabase.from("contratos").update({
+    const dados = {
       cliente_nome: c.cliente_nome, cliente_cpf_cnpj: c.cliente_cpf_cnpj, cliente_rg: c.cliente_rg,
       cliente_email: c.cliente_email, cliente_telefone: c.cliente_telefone,
       cliente_cep: c.cliente_cep, cliente_rua: c.cliente_rua, cliente_numero: c.cliente_numero,
       cliente_bairro: c.cliente_bairro, cliente_cidade: c.cliente_cidade, cliente_estado: c.cliente_estado,
-      assinatura_cliente: sig, assinatura_cliente_data: new Date().toISOString(),
-      status: "aguardando_fm",
-    }).eq("token_cliente", token);
+    };
+    const { error } = await fmSupabase.rpc("assinar_contrato_publico", {
+      p_token: token, p_dados: dados, p_assinatura: sig,
+    });
     setSaving(false);
     if (error) { toast.error("Erro: " + error.message); return; }
     toast.success("Contrato assinado com sucesso!");
