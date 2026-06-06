@@ -27,19 +27,24 @@ const TIPOS_OBRA = ["Casa", "Galpão", "Prédio", "Vilage / Condomínio", "Refor
 const TIPOS_IMOVEL = ["Residencial", "Comercial", "Industrial", "Misto", "Rural"] as const;
 const SISTEMAS = ["Steel Frame", "Wood Frame", "Alvenaria Convencional", "Pré-moldado / Concreto", "Container", "Ainda não sei"] as const;
 
+const phoneRegex = /^(\(?\d{2}\)?\s?)?(\d{4,5}-\d{4}|\d{8,9})$/;
+const whatsappRegex = /^(\+?55\s?)?(\(?\d{2}\)?\s?)?9?\d{8,9}$/;
+
 const schema = z.object({
-  nome: z.string().trim().min(2, "Informe seu nome").max(120),
+  nome: z.string().trim().min(2, "Informe seu nome completo").max(120),
   email: z.string().trim().email("E-mail inválido").max(200),
-  telefone: z.string().trim().min(8, "Telefone inválido").max(30),
-  whatsapp: z.string().trim().min(8, "WhatsApp inválido").max(30),
-  rua: z.string().trim().min(3, "Informe a rua").max(200),
+  telefone: z.string().trim().min(8, "Telefone é obrigatório").max(30)
+    .refine((v) => phoneRegex.test(v), { message: "Formato inválido. Ex: (71) 99999-9999" }),
+  whatsapp: z.string().trim().min(8, "WhatsApp é obrigatório").max(30)
+    .refine((v) => whatsappRegex.test(v), { message: "Formato inválido. Ex: (71) 99999-9999" }),
+  rua: z.string().trim().min(3, "Informe a rua / logradouro").max(200),
   cidade: z.string().trim().min(2, "Informe a cidade").max(120),
-  estado: z.string().trim().min(2, "UF").max(2),
+  estado: z.string().trim().length(2, "Informe a UF com 2 letras"),
   tipo_imovel: z.string().min(1, "Selecione o tipo de imóvel"),
   tipo_obra: z.array(z.string()).min(1, "Selecione ao menos um tipo de obra"),
-  area_m2: z.string().trim().min(1, "Informe a área").max(20),
+  area_m2: z.string().trim().min(1, "Informe a área a ser construída").max(20),
   projeto_arquitetonico: z.boolean(),
-  sistema_interesse: z.string().min(1, "Selecione um sistema"),
+  sistema_interesse: z.string().min(1, "Selecione um sistema construtivo"),
   observacoes: z.string().max(800).optional(),
 });
 
