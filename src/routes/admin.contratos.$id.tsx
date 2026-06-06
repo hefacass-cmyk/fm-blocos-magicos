@@ -155,12 +155,12 @@ function AdminContratoDetalhePage() {
   };
 
   const enviarParaCliente = async () => {
-    const saved = await save("aguardando_cliente");
+    const saved = await save("aguardando_revisao");
     if (!saved) return;
     const token = saved.token_cliente as string;
-    const url = `https://www.fmsmartbuild.com.br/contrato/${token}`;
+    const url = `https://www.fmsmartbuild.com.br/contrato/revisar/${token}`;
     try { await navigator.clipboard.writeText(url); } catch { /* noop */ }
-    toast.success("Contrato gerado! Envie o link ao cliente pelo WhatsApp.");
+    toast.success("Link copiado! Envie ao cliente para revisão.");
   };
 
   const assinarFM = async () => {
@@ -369,7 +369,12 @@ function AdminContratoDetalhePage() {
             </Button>
             {!isNew && (status === "rascunho" || status === "aguardando_cliente") && (
               <Button variant="outline" onClick={enviarParaCliente}>
-                <Send className="mr-1 h-4 w-4" /> Gerar Contrato e Enviar
+                <Send className="mr-1 h-4 w-4" /> Gerar Contrato p/ Revisão
+              </Button>
+            )}
+            {!isNew && (status === "dados_cliente_enviados" || status === "em_revisao" || status === "aguardando_revisao") && (
+              <Button variant="outline" onClick={enviarParaCliente}>
+                <Send className="mr-1 h-4 w-4" /> Reenviar p/ Revisão
               </Button>
             )}
             {!isNew && <Button variant="outline" onClick={baixarPDF}><FileDown className="mr-1 h-4 w-4" /> PDF</Button>}
