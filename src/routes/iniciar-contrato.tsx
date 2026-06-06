@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, CheckCircle2, Copy, Loader2, Send } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -295,7 +295,8 @@ function Etapa1({
         </Field>
         <Field label="Profissão"><Input value={f.profissao} onChange={(e) => set({ profissao: e.target.value })} /></Field>
         <Field label="E-mail *"><Input type="email" value={f.email} onChange={(e) => set({ email: e.target.value })} /></Field>
-        <Field label="WhatsApp *"><Input value={f.telefone} onChange={(e) => set({ telefone: maskPhone(e.target.value) })} /></Field>
+        <Field label="Telefone *"><Input value={f.telefone} onChange={(e) => set({ telefone: maskPhone(e.target.value) })} /></Field>
+        <Field label="WhatsApp"><Input value={f.whatsapp} onChange={(e) => set({ whatsapp: maskPhone(e.target.value) })} placeholder="Se diferente do telefone" /></Field>
       </Grid>
 
       <h3 className="mt-4 text-sm font-semibold text-slate-700">Endereço residencial</h3>
