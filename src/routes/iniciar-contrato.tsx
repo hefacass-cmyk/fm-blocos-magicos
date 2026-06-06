@@ -431,7 +431,7 @@ function Etapa2({
 
       <Field label="Tipo de obra *">
         <div className="flex flex-wrap gap-4">
-          {["Construção", "Reforma", "Ampliação", "Casa", "Galpão", "Prédio", "Vilage", "Outro"].map((t) => (
+          {["Construção", "Reforma", "Ampliação", "Casa", "Galpão", "Prédio", "Village", "Outro"].map((t) => (
             <label key={t} className="flex items-center gap-2 text-sm">
               <Checkbox checked={f.tipo_obra.includes(t)} onCheckedChange={() => toggleTipo(t)} />
               {t}
@@ -476,6 +476,16 @@ function Etapa2({
       <Grid>
         <Field label="Prazo desejado para início"><Input value={f.prazo_desejado} onChange={(e) => set({ prazo_desejado: e.target.value })} placeholder="Ex: em 30 dias" /></Field>
       </Grid>
+      <div className="grid gap-2 md:grid-cols-2">
+        <label className="flex items-center gap-2 text-sm">
+          <Checkbox checked={f.ja_possui_projeto} onCheckedChange={(v) => set({ ja_possui_projeto: Boolean(v) })} />
+          Já possui projeto arquitetônico
+        </label>
+        <label className="flex items-center gap-2 text-sm">
+          <Checkbox checked={f.quer_projeto} onCheckedChange={(v) => set({ quer_projeto: Boolean(v) })} />
+          Quero que a F&M elabore o projeto
+        </label>
+      </div>
       <Field label="Observações adicionais">
         <Textarea value={f.observacoes} onChange={(e) => set({ observacoes: e.target.value })} rows={3} />
       </Field>
