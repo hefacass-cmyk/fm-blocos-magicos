@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, Send, MessageCircle, Loader2, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -8,9 +8,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { fmSupabase } from "@/lib/fm-supabase";
-import { FM_WHATSAPP } from "@/lib/fm-parceiro";
+
+const FM_WHATSAPP_NOTIFY = "5571999454343";
 
 export const Route = createFileRoute("/vamos-construir")({
   head: () => ({
@@ -23,17 +24,22 @@ export const Route = createFileRoute("/vamos-construir")({
 });
 
 const TIPOS_OBRA = ["Casa", "Galpão", "Prédio", "Vilage / Condomínio", "Reforma / Ampliação", "Outro"] as const;
+const TIPOS_IMOVEL = ["Residencial", "Comercial", "Industrial", "Misto", "Rural"] as const;
+const SISTEMAS = ["Steel Frame", "Wood Frame", "Alvenaria Convencional", "Pré-moldado / Concreto", "Container", "Ainda não sei"] as const;
 
 const schema = z.object({
   nome: z.string().trim().min(2, "Informe seu nome").max(120),
   email: z.string().trim().email("E-mail inválido").max(200),
   telefone: z.string().trim().min(8, "Telefone inválido").max(30),
   whatsapp: z.string().trim().min(8, "WhatsApp inválido").max(30),
-  endereco: z.string().trim().min(3, "Informe o endereço da obra").max(300),
-  tipos_obra: z.array(z.string()).min(1, "Selecione ao menos um tipo de obra"),
-  area: z.string().trim().min(1, "Informe a área a construir").max(20),
-  possui_projeto: z.enum(["sim", "nao"]),
-  quer_projeto: z.boolean().optional(),
+  rua: z.string().trim().min(3, "Informe a rua").max(200),
+  cidade: z.string().trim().min(2, "Informe a cidade").max(120),
+  estado: z.string().trim().min(2, "UF").max(2),
+  tipo_imovel: z.string().min(1, "Selecione o tipo de imóvel"),
+  tipo_obra: z.array(z.string()).min(1, "Selecione ao menos um tipo de obra"),
+  area_m2: z.string().trim().min(1, "Informe a área").max(20),
+  projeto_arquitetonico: z.boolean(),
+  sistema_interesse: z.string().min(1, "Selecione um sistema"),
   observacoes: z.string().max(800).optional(),
 });
 
@@ -42,15 +48,29 @@ function VamosConstruirPage() {
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
-  const [endereco, setEndereco] = useState("");
+  const [rua, setRua] = useState("");
+  const [cidade, setCidade] = useState("");
+  const [estado, setEstado] = useState("");
+  const [tipoImovel, setTipoImovel] = useState("");
   const [tipos, setTipos] = useState<string[]>([]);
   const [area, setArea] = useState("");
-  const [possuiProjeto, setPossuiProjeto] = useState<"sim" | "nao">("nao");
-  const [querProjeto, setQuerProjeto] = useState(false);
+  const [projetoArq, setProjetoArq] = useState(false);
   const [arquivo, setArquivo] = useState<File | null>(null);
+  const [sistema, setSistema] = useState("");
   const [obs, setObs] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [ok, setOk] = useState(false);
+  const [parceiroId, setParceiroId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("ref");
+    if (!ref) return;
+    (async () => {
+      const { data } = await fmSupabase.from("parceiros").select("id").eq("slug", ref).maybeSingle();
+      if (data?.id) setParceiroId(String(data.id));
+    })();
+  }, []);
 
   const toggleTipo = (t: string) =>
     setTipos((arr) => (arr.includes(t) ? arr.filter((x) => x !== t) : [...arr, t]));
@@ -58,9 +78,11 @@ function VamosConstruirPage() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const parsed = schema.safeParse({
-      nome, email, telefone, whatsapp, endereco,
-      tipos_obra: tipos, area, possui_projeto: possuiProjeto,
-      quer_projeto: possuiProjeto === "nao" ? querProjeto : undefined,
+      nome, email, telefone, whatsapp,
+      rua, cidade, estado: estado.toUpperCase(),
+      tipo_imovel: tipoImovel, tipo_obra: tipos, area_m2: area,
+      projeto_arquitetonico: projetoArq,
+      sistema_interesse: sistema,
       observacoes: obs,
     });
     if (!parsed.success) {
@@ -70,7 +92,7 @@ function VamosConstruirPage() {
     setEnviando(true);
     try {
       let projeto_url: string | null = null;
-      if (possuiProjeto === "sim" && arquivo) {
+      if (projetoArq && arquivo) {
         const path = `vamos-construir/${Date.now()}-${arquivo.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
         const up = await fmSupabase.storage.from("documentos").upload(path, arquivo, { upsert: false });
         if (!up.error) {
@@ -78,25 +100,40 @@ function VamosConstruirPage() {
           projeto_url = pub.data.publicUrl;
         }
       }
-      const mensagem = JSON.stringify({
-        origem: "vamos-construir",
-        endereco, tipos_obra: tipos, area_m2: area,
-        possui_projeto: possuiProjeto,
-        quer_orcar_projeto: possuiProjeto === "nao" ? querProjeto : null,
-        projeto_url,
-        whatsapp,
-        observacoes: obs,
-      });
-      const { error } = await fmSupabase.from("leads_indicacao").insert({
-        origem: "parceiro",
+      const areaNum = Number(String(area).replace(",", ".").replace(/[^\d.]/g, "")) || null;
+      const payload: Record<string, unknown> = {
+        origem: "site",
+        convertido: false,
+        nome, email, telefone, whatsapp,
+        rua, cidade, estado: estado.toUpperCase(),
+        tipo_imovel: tipoImovel,
+        tipo_obra: tipos,
+        area_m2: areaNum,
+        projeto_arquitetonico: projetoArq,
+        sistema_interesse: sistema,
+        observacoes: [obs, projeto_url ? `Projeto: ${projeto_url}` : null].filter(Boolean).join("\n"),
+        // compat com colunas antigas
         nome_cliente: nome,
         email_cliente: email,
         telefone_cliente: telefone,
-        mensagem,
-      });
+        mensagem: obs || null,
+      };
+      if (parceiroId) payload.parceiro_id = parceiroId;
+      const { error } = await fmSupabase.from("leads_indicacao").insert(payload);
       if (error) throw error;
+
+      const waText = encodeURIComponent(
+        `📋 *Novo pedido de construção!*\n\n` +
+        `👤 ${nome}\n` +
+        `📱 ${whatsapp}\n` +
+        `🏠 ${tipoImovel} — ${area}m²\n` +
+        `⚙️ Sistema: ${sistema}\n` +
+        `📍 ${cidade}/${estado.toUpperCase()}`
+      );
+      window.open(`https://wa.me/${FM_WHATSAPP_NOTIFY}?text=${waText}`, "_blank");
+
       setOk(true);
-      toast.success("Recebemos seu pedido! Entraremos em contato.");
+      toast.success("✅ Pedido enviado! Em até 24h entraremos em contato.");
     } catch (err) {
       toast.error("Erro ao enviar: " + (err as Error).message);
     } finally {
@@ -105,7 +142,7 @@ function VamosConstruirPage() {
   };
 
   const waMsg = encodeURIComponent(
-    `Olá F&M! Sou ${nome || "[seu nome]"} e quero falar sobre construir ${tipos.join(", ") || "[tipo de obra]"} em ${endereco || "[endereço]"}.`,
+    `Olá F&M! Sou ${nome || "[seu nome]"} e quero falar sobre construir ${tipos.join(", ") || "[tipo de obra]"} em ${cidade || "[cidade]"}.`,
   );
 
   if (ok) {
@@ -113,13 +150,13 @@ function VamosConstruirPage() {
       <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
         <div className="max-w-md w-full bg-white border rounded-2xl p-8 text-center shadow-sm">
           <CheckCircle2 className="mx-auto h-14 w-14 text-emerald-500" />
-          <h1 className="mt-4 text-2xl font-extrabold text-slate-900">Pedido enviado!</h1>
+          <h1 className="mt-4 text-2xl font-extrabold text-slate-900">✅ Pedido enviado!</h1>
           <p className="mt-2 text-sm text-slate-600">
-            Nossa equipe vai analisar e entrar em contato em breve.
+            Em até 24h entraremos em contato.
           </p>
           <div className="mt-6 flex flex-col gap-2">
             <a
-              href={`https://wa.me/${FM_WHATSAPP}?text=${waMsg}`}
+              href={`https://wa.me/${FM_WHATSAPP_NOTIFY}?text=${waMsg}`}
               target="_blank" rel="noreferrer"
               className="inline-flex items-center justify-center gap-2 rounded-md bg-emerald-500 px-4 py-3 text-sm font-bold text-white hover:bg-emerald-600 transition"
             >
@@ -140,7 +177,7 @@ function VamosConstruirPage() {
             <ArrowLeft className="h-4 w-4" /> Voltar
           </Link>
           <a
-            href={`https://wa.me/${FM_WHATSAPP}`}
+            href={`https://wa.me/${FM_WHATSAPP_NOTIFY}`}
             target="_blank" rel="noreferrer"
             className="inline-flex items-center gap-1.5 rounded-md bg-emerald-500 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-600 transition"
           >
@@ -173,9 +210,36 @@ function VamosConstruirPage() {
             </Field>
           </div>
 
-          <Field label="Endereço da obra *">
-            <Input value={endereco} onChange={(e) => setEndereco(e.target.value)} required maxLength={300} placeholder="Rua, número, bairro, cidade/UF" />
+          <Field label="Rua / Logradouro *">
+            <Input value={rua} onChange={(e) => setRua(e.target.value)} required maxLength={200} placeholder="Rua, número, bairro" />
           </Field>
+          <div className="grid sm:grid-cols-[1fr_120px] gap-4">
+            <Field label="Cidade *">
+              <Input value={cidade} onChange={(e) => setCidade(e.target.value)} required maxLength={120} />
+            </Field>
+            <Field label="Estado (UF) *">
+              <Input value={estado} onChange={(e) => setEstado(e.target.value.toUpperCase().slice(0, 2))} required maxLength={2} placeholder="BA" />
+            </Field>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-4">
+            <Field label="Tipo de imóvel *">
+              <Select value={tipoImovel} onValueChange={setTipoImovel}>
+                <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+                <SelectContent>
+                  {TIPOS_IMOVEL.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </Field>
+            <Field label="Sistema construtivo de interesse *">
+              <Select value={sistema} onValueChange={setSistema}>
+                <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+                <SelectContent>
+                  {SISTEMAS.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </Field>
+          </div>
 
           <div>
             <Label className="text-sm font-semibold">Tipo de obra * (selecione um ou mais)</Label>
@@ -194,36 +258,20 @@ function VamosConstruirPage() {
           </Field>
 
           <div>
-            <Label className="text-sm font-semibold">Já possui projeto arquitetônico? *</Label>
-            <RadioGroup value={possuiProjeto} onValueChange={(v) => setPossuiProjeto(v as "sim" | "nao")} className="mt-2 flex gap-6">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <RadioGroupItem value="sim" id="proj-sim" /> <span className="text-sm">Sim</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <RadioGroupItem value="nao" id="proj-nao" /> <span className="text-sm">Não</span>
-              </label>
-            </RadioGroup>
-
-            {possuiProjeto === "sim" && (
+            <label className="flex items-start gap-2 rounded-md border bg-slate-50 p-3 cursor-pointer">
+              <Checkbox checked={projetoArq} onCheckedChange={(v) => setProjetoArq(Boolean(v))} className="mt-0.5" />
+              <span className="text-sm text-slate-700">Já possuo projeto arquitetônico</span>
+            </label>
+            {projetoArq && (
               <div className="mt-3 rounded-md border border-dashed border-slate-300 bg-slate-50 p-4">
-                <Label className="text-sm">Envie o projeto (PDF, DWG, imagem)</Label>
+                <Label className="text-sm">Envie o projeto (PDF, DWG, imagem) — opcional</Label>
                 <Input
                   type="file"
                   accept=".pdf,.dwg,.png,.jpg,.jpeg,.zip"
                   onChange={(e) => setArquivo(e.target.files?.[0] ?? null)}
                   className="mt-2"
                 />
-                <p className="mt-1 text-xs text-slate-500">Opcional — você também pode enviar depois pelo WhatsApp.</p>
               </div>
-            )}
-
-            {possuiProjeto === "nao" && (
-              <label className="mt-3 flex items-start gap-2 rounded-md border bg-amber-50 border-amber-200 p-3 cursor-pointer">
-                <Checkbox checked={querProjeto} onCheckedChange={(v) => setQuerProjeto(Boolean(v))} className="mt-0.5" />
-                <span className="text-sm text-slate-700">
-                  Quero também orçar a <strong>elaboração do projeto</strong> com a F&M.
-                </span>
-              </label>
             )}
           </div>
 
@@ -233,7 +281,7 @@ function VamosConstruirPage() {
 
           <div className="flex flex-col-reverse sm:flex-row gap-3 pt-2">
             <a
-              href={`https://wa.me/${FM_WHATSAPP}?text=${waMsg}`}
+              href={`https://wa.me/${FM_WHATSAPP_NOTIFY}?text=${waMsg}`}
               target="_blank" rel="noreferrer"
               className="inline-flex items-center justify-center gap-2 rounded-md border border-emerald-500 px-4 py-3 text-sm font-bold text-emerald-600 hover:bg-emerald-50 transition"
             >
