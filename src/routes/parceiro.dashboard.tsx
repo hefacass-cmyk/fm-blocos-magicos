@@ -33,6 +33,7 @@ import {
 } from "@/lib/fm-parceiro";
 import { SolicitarAmpliacaoModal } from "@/components/fm/SolicitarAmpliacaoModal";
 import { logAdmin } from "@/lib/fm-tracking";
+import { FotoPerfilUpload } from "@/components/admin/FotoPerfilUpload";
 
 const BRAND_BLUE = "#1A4D7A";
 const BRAND_YELLOW = "#F4B941";
@@ -333,6 +334,40 @@ function ParceiroDashboardPage() {
         </section>
 
         {shareUrl && <ShareCardSection shareUrl={shareUrl} nome={nomeExibido} />}
+
+        <section className="rounded-2xl bg-white p-6 shadow-sm border">
+          <h2 className="text-lg font-bold mb-4" style={{ color: BRAND_DARK }}>Minha Foto de Perfil</h2>
+          <FotoPerfilUpload
+            bucket="perfil-parceiros"
+            path={`parceiros/${parceiro.id}`}
+            value={(parceiro.foto_perfil as string) || null}
+            nome={nomeExibido}
+            onChange={async (url) => {
+              await fmSupabase.from("parceiros").update({ foto_perfil: url }).eq("id", parceiro!.id as string | number);
+              const merged = { ...(parceiro as Row), foto_perfil: url };
+              setParceiro(merged);
+              saveParceiro(merged as never);
+            }}
+          />
+        </section>
+
+        {(() => {
+          const convertidos = leads.filter((l) => String((l as Row).status || "").toLowerCase() === "convertido").length;
+          const totalLeads = leads.length;
+          if (totalLeads === 0) return null;
+          return (
+            <section className="rounded-2xl p-6 shadow-sm border text-white" style={{ background: `linear-gradient(135deg, ${BRAND_GREEN}, #0a8e6a)` }}>
+              <div className="flex items-center gap-3">
+                <Users className="h-8 w-8" />
+                <div>
+                  <p className="text-sm opacity-90">Indicações para a F&amp;M</p>
+                  <p className="text-2xl font-extrabold">Você já indicou {convertidos} cliente(s) para a F&amp;M! 🎉</p>
+                  <p className="text-xs opacity-80 mt-1">{totalLeads} lead(s) registrados no total · {totalLeads - convertidos} pendente(s)</p>
+                </div>
+              </div>
+            </section>
+          );
+        })()}
 
         {shareUrl && <LeadsSection leads={leads} />}
 
