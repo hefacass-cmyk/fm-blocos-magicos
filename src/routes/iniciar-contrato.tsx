@@ -191,7 +191,8 @@ function IniciarContratoPage() {
       prospect_quer_projeto: f.quer_projeto,
     };
     const { data, error } = await fmSupabase.rpc("criar_contrato_publico", {
-      p_dados: payload, p_parceiro_slug: parceiroSlug,
+      p_dados: payload,
+      p_parceiro_slug: parceiroSlug && parceiroSlug.trim() !== "" ? parceiroSlug : null,
     });
     setEnviando(false);
     if (error || !data) { toast.error("Erro ao enviar: " + (error?.message || "tente novamente")); return; }
