@@ -350,11 +350,10 @@ function Etapa2({
 }: {
   f: Form; set: (p: Partial<Form>) => void; buscarCep: (cep: string) => void; preencherDoResid: () => void;
 }) {
-  const precoPreview = useMemo(() => {
-    const p = precoM2(f.sistema, f.servico);
-    return p > 0 ? `${brl(p)}/m²` : null;
-  }, [f.sistema, f.servico]);
-
+  const toggleTipo = (t: string) => {
+    const arr = f.tipo_obra.includes(t) ? f.tipo_obra.filter((x) => x !== t) : [...f.tipo_obra, t];
+    set({ tipo_obra: arr });
+  };
   return (
     <Card titulo="Etapa 2 — Dados da Obra">
       <label className="flex items-center gap-2 text-sm">
@@ -395,14 +394,10 @@ function Etapa2({
 
       <Field label="Tipo de obra *">
         <div className="flex flex-wrap gap-4">
-          {[
-            ["tipo_obra_construcao", "Construção"],
-            ["tipo_obra_reforma", "Reforma"],
-            ["tipo_obra_ampliacao", "Ampliação"],
-          ].map(([k, l]) => (
-            <label key={k} className="flex items-center gap-2 text-sm">
-              <Checkbox checked={Boolean(f[k as keyof Form])} onCheckedChange={(v) => set({ [k]: Boolean(v) } as Partial<Form>)} />
-              {l}
+          {["Construção", "Reforma", "Ampliação", "Casa", "Galpão", "Prédio", "Vilage", "Outro"].map((t) => (
+            <label key={t} className="flex items-center gap-2 text-sm">
+              <Checkbox checked={f.tipo_obra.includes(t)} onCheckedChange={() => toggleTipo(t)} />
+              {t}
             </label>
           ))}
         </div>
@@ -421,23 +416,16 @@ function Etapa2({
 
       <Field label="Tipo de serviço *">
         <div className="grid gap-2 md:grid-cols-2">
-          {SERVICOS.map((s) => {
-            const preco = precoM2(f.sistema, s.v);
-            return (
-              <label key={s.v} className={`flex cursor-pointer items-start gap-2 rounded-md border p-3 text-sm ${f.servico === s.v ? "border-blue-500 bg-blue-50" : "border-slate-200"}`}>
-                <input type="radio" checked={f.servico === s.v} onChange={() => set({ servico: s.v })} />
-                <div>
-                  <div className="font-semibold">{s.t}</div>
-                  <div className="text-xs text-slate-500">{s.d}</div>
-                  {preco > 0 && <div className="mt-1 text-xs font-semibold" style={{ color: COR_AZUL }}>{brl(preco)}/m²</div>}
-                </div>
-              </label>
-            );
-          })}
+          {SERVICOS.map((s) => (
+            <label key={s.v} className={`flex cursor-pointer items-start gap-2 rounded-md border p-3 text-sm ${f.servico === s.v ? "border-blue-500 bg-blue-50" : "border-slate-200"}`}>
+              <input type="radio" checked={f.servico === s.v} onChange={() => set({ servico: s.v })} />
+              <div>
+                <div className="font-semibold">{s.t}</div>
+                <div className="text-xs text-slate-500">{s.d}</div>
+              </div>
+            </label>
+          ))}
         </div>
-        {precoPreview && (
-          <p className="mt-2 text-xs text-slate-600">Valor estimado: <strong>{precoPreview}</strong></p>
-        )}
       </Field>
 
       <Field label="Câmera ao vivo">
@@ -461,14 +449,7 @@ function Etapa2({
 function Etapa3({
   f, confirmou, setConfirmou,
 }: { f: Form; confirmou: boolean; setConfirmou: (v: boolean) => void }) {
-  const tipos = [
-    f.tipo_obra_construcao && "Construção",
-    f.tipo_obra_reforma && "Reforma",
-    f.tipo_obra_ampliacao && "Ampliação",
-  ].filter(Boolean).join(", ") || "—";
-  const preco = precoM2(f.sistema, f.servico);
-  const area = Number(f.area_construir || 0);
-  const estimado = preco * area;
+  const tipos = f.tipo_obra.join(", ") || "—";
 
   return (
     <Card titulo="Etapa 3 — Confirmação">
@@ -477,7 +458,8 @@ function Etapa3({
         <Linha k={f.tipo_pessoa === "PF" ? "Nome" : "Razão Social"} v={f.nome} />
         <Linha k={f.tipo_pessoa === "PF" ? "CPF" : "CNPJ"} v={f.cpf_cnpj} />
         <Linha k="E-mail" v={f.email} />
-        <Linha k="WhatsApp" v={f.telefone} />
+        <Linha k="Telefone" v={f.telefone} />
+        <Linha k="WhatsApp" v={f.whatsapp || f.telefone} />
         <Linha k="Estado civil" v={f.estado_civil} />
         <Linha k="Endereço" v={`${f.rua}, ${f.numero} — ${f.bairro}, ${f.cidade}/${f.estado}`} />
       </Resumo>
@@ -496,7 +478,6 @@ function Etapa3({
         <Linha k="Sistema" v={f.sistema} />
         <Linha k="Serviço" v={f.servico} />
         <Linha k="Câmera" v={PLANOS_CAMERA[f.plano_camera as keyof typeof PLANOS_CAMERA]?.label || "—"} />
-        {estimado > 0 && <Linha k="Estimativa" v={`${brl(estimado)} (${brl(preco)}/m² × ${area} m²)`} />}
         {f.prazo_desejado && <Linha k="Prazo desejado" v={f.prazo_desejado} />}
         {f.observacoes && <Linha k="Observações" v={f.observacoes} />}
       </Resumo>
