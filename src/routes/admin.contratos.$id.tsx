@@ -266,6 +266,36 @@ function AdminContratoDetalhePage() {
 
           {/* DADOS */}
           <TabsContent value="dados" className="space-y-6">
+            {(contrato.prospect_nome || contrato.prospect_email) ? (
+              <section className="rounded-lg border-2 border-blue-300 bg-blue-50/60 p-5 space-y-2">
+                <h3 className="text-sm font-bold text-blue-900">📋 Dados recebidos do solicitante (apenas leitura)</h3>
+                <div className="grid gap-x-6 gap-y-1 text-sm md:grid-cols-2">
+                  <ProspectLinha k="Tipo" v={String(contrato.prospect_tipo_pessoa ?? "")} />
+                  <ProspectLinha k="Nome" v={String(contrato.prospect_nome ?? "")} />
+                  <ProspectLinha k="CPF/CNPJ" v={String(contrato.prospect_cpf_cnpj ?? "")} />
+                  <ProspectLinha k="RG" v={String(contrato.prospect_rg ?? "")} />
+                  <ProspectLinha k="Estado civil" v={String(contrato.prospect_estado_civil ?? "")} />
+                  <ProspectLinha k="Profissão" v={String(contrato.prospect_profissao ?? "")} />
+                  <ProspectLinha k="E-mail" v={String(contrato.prospect_email ?? "")} />
+                  <ProspectLinha k="WhatsApp" v={String(contrato.prospect_telefone ?? "")} />
+                  <ProspectLinha k="Endereço residencial" v={`${contrato.prospect_rua ?? ""}, ${contrato.prospect_numero ?? ""} — ${contrato.prospect_bairro ?? ""}, ${contrato.prospect_cidade ?? ""}/${contrato.prospect_estado ?? ""}`} />
+                  <ProspectLinha k="Endereço da obra" v={`${contrato.prospect_obra_rua ?? ""}, ${contrato.prospect_obra_numero ?? ""} — ${contrato.prospect_obra_bairro ?? ""}, ${contrato.prospect_obra_cidade ?? ""}/${contrato.prospect_obra_estado ?? ""}`} />
+                  <ProspectLinha k="Terreno" v={`${contrato.prospect_tamanho_terreno ?? "—"} m² (${contrato.prospect_tipo_terreno ?? "—"})`} />
+                  <ProspectLinha k="Área a construir" v={`${contrato.prospect_area_construir ?? "—"} m²`} />
+                  <ProspectLinha k="Sistema desejado" v={String(contrato.prospect_sistema ?? "")} />
+                  <ProspectLinha k="Serviço desejado" v={String(contrato.prospect_servico ?? "")} />
+                  <ProspectLinha k="Plano câmera" v={String(contrato.prospect_plano_camera ?? "")} />
+                  <ProspectLinha k="Prazo desejado" v={String(contrato.prospect_prazo_desejado ?? "")} />
+                  {contrato.prospect_conjuge_nome ? (
+                    <ProspectLinha k="Cônjuge" v={`${contrato.prospect_conjuge_nome} (CPF ${contrato.prospect_conjuge_cpf ?? "—"})`} />
+                  ) : null}
+                  {contrato.prospect_observacoes ? (
+                    <ProspectLinha k="Observações" v={String(contrato.prospect_observacoes)} />
+                  ) : null}
+                </div>
+              </section>
+            ) : null}
+
             <Section title="Cliente e Numeração">
               <div className="grid gap-4 md:grid-cols-2">
                 <Field label="Cliente">
@@ -519,6 +549,14 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 function Card({ label, value, color = "" }: { label: string; value: string; color?: string }) {
   return <div className="rounded-md border bg-white p-3"><div className="text-xs text-slate-500">{label}</div><div className={`text-lg font-bold ${color}`}>{value}</div></div>;
+}
+function ProspectLinha({ k, v }: { k: string; v: string }) {
+  return (
+    <div className="flex flex-wrap justify-between gap-2 border-b border-blue-100 py-1 last:border-0">
+      <span className="text-blue-900/70">{k}</span>
+      <span className="font-medium text-blue-950">{v || "—"}</span>
+    </div>
+  );
 }
 function Timeline({ status }: { status: ContratoStatus }) {
   const steps: ContratoStatus[] = ["rascunho", "aguardando_cliente", "aguardando_fm", "assinado"];

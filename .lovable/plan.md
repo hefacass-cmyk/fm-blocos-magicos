@@ -1,50 +1,43 @@
-## Plano: Seção Clientes no Painel Admin
+## Escopo
 
-Vou construir a seção completa em etapas. Antes de codar, preciso confirmar pontos críticos para não retrabalhar.
+Boa parte do fluxo já existe: `/contrato/$token` (assinatura), `/admin/contratos` (listagem) e `/admin/contratos/$id` (form F&M + financeiro + aditivos + assinatura F&M + PDF). Faltam três peças:
 
-### Etapas previstas
+### 1. Página pública `/iniciar-contrato` (NOVA)
 
-1. **Verificar/criar schema no banco** (Lovable Cloud)
-   - Confirmar colunas existentes em `clientes`, `obra_atualizacoes`, `obra_etapas`, `obra_fotos`, `obra_documentos`
-   - Criar migration adicionando colunas faltantes (endereço, área, datas, status, progresso, parceiro_id, camera_url, gerente_*, etc.)
-   - Criar bucket `obra-arquivos` no Storage (fotos + documentos) com RLS
-   - Garantir GRANTs e RLS apropriadas (apenas admin escreve; cliente lê só sua obra)
+Stepper 3 etapas com cores F&M (#1A4D7A, #F4B941):
 
-2. **Listagem `/admin/dashboard` → aba Clientes**
-   - Nova aba/tab no dashboard existente
-   - Tabela com busca, badge de status, ações editar/excluir
-   - Modal de confirmação de exclusão (padrão já usado)
+- **Etapa 1 — Dados Pessoais**: tipo (PF/PJ), nome, CPF/CNPJ, RG, nacionalidade, estado civil, profissão, email, telefone, endereço com ViaCEP. Bloco de cônjuge aparece se estado civil = Casado/União Estável (nome, CPF, RG, email, telefone, profissão, nacionalidade).
+- **Etapa 2 — Dados da Obra**: endereço (com checkbox "mesmo endereço"), tamanho terreno, tipo terreno, área a construir, tipo obra (checkboxes), sistema construtivo (IBPP / Alvenaria / ICF / Não sei), tipo serviço (TOTAL / GESTÃO / ESSENCIAL / Só Gestão) com preços da `tabela_precos`, plano câmera, prazo desejado, observações.
+- **Etapa 3 — Confirmação**: resumo em cards + checkbox de veracidade + botão "ENVIAR SOLICITAÇÃO".
 
-3. **Modal Novo/Editar Cliente**
-   - Form único reaproveitando seções (Dados pessoais, Endereço, Obra, Gerente, Código)
-   - PF/PJ com máscara CPF/CNPJ (reusar utils existentes)
-   - Busca ViaCEP via fetch
-   - Geração automática `FM-{PRIMEIRONOME}-{DDMMYYYY}` editável
-   - Após salvar: card destacado com código + botão copiar + botão WhatsApp
+Captura `?ref=SLUG` para `parceiro_indicador_id`. Ao enviar:
+- INSERT em `contratos` com `status='rascunho'`, campos `prospect_*`, `token_cliente` (auto), `numero` gerado (protocolo `FM-XXX-2026`).
+- INSERT em `referral_leads` se veio de parceiro.
+- Tela de sucesso com nº de protocolo.
 
-4. **Página detalhe `/admin/clientes/$id`**
-   - 4 abas: Atualizações, Etapas, Fotos, Documentos
-   - CRUD em cada aba com toasts
-   - Upload no Storage para fotos/documentos
+### 2. Menu "Quero Construir"
 
-5. **Validação**
-   - Smoke test: criar cliente → editar → adicionar atualização/etapa/foto/documento → excluir
+Botão amarelo `#F4B941` no header de `FMSite.tsx` (desktop + mobile) linkando para `/iniciar-contrato`.
 
-### Detalhes técnicos
+### 3. Admin `/admin/contratos` — 3 abas
 
-- Frontend puro com `fmSupabase` (mesmo padrão do projeto)
-- Upload via `fmSupabase.storage.from('obra-arquivos').upload(...)`
-- Drag-and-drop de etapas: usar ordenação numérica simples (campo `ordem`) com botões ↑↓ para evitar dependência nova
-- Status como **radio** (única seleção) — o pedido diz "checkboxes" mas semanticamente é exclusivo; vou perguntar
+Reorganizar listagem em Tabs: **Pendentes** (rascunho, badge amarelo com contagem), **Em Andamento** (aguardando_cliente | aguardando_fm), **Assinados** (assinado). Adicionar coluna Protocolo (numero) e Obra. Badges com `STATUS_COLORS`/`STATUS_LABELS` já existentes.
 
-### Perguntas antes de começar
+### 4. Ajustes de detalhe (`admin.contratos.$id`)
 
-1. **Schema atual**: as 5 tabelas (`clientes`, `obra_atualizacoes`, `obra_etapas`, `obra_fotos`, `obra_documentos`) já existem com todas as colunas necessárias, ou preciso criar/alterar via migration? Se já existem, posso inspecionar o schema para confirmar.
+- Ao abrir um contrato rascunho (vindo do prospect), exibir bloco de "Dados do Prospect" em leitura (fundo azul claro) com todos os campos `prospect_*`.
+- O F&M usa o form já existente para confirmar sistema/serviço/valores; auto-preenche `valor_m2` da `tabela_precos` (já existe via `precoM2`).
+- Botão "GERAR CONTRATO E ENVIAR" reaproveita `enviarParaCliente()` (já implementado).
 
-2. **Status da obra**: o briefing diz "checkboxes" mas as 4 opções (Orçamento / Iniciando / Andamento / Finalizando) são fases sequenciais. Confirma que é **seleção única (radio)** ou realmente múltipla?
+### 5. Cláusula extra F&M ESSENCIAL
 
-3. **Storage**: posso criar bucket `obra-arquivos` (privado, só admin escreve, cliente lê via signed URL) para fotos+documentos, ou prefere buckets separados (`obra-fotos`, `obra-documentos`)?
+Adicionar em `ContratoTexto.tsx` parágrafo automático quando `tipo_servico = 'F&M ESSENCIAL'` (multa diária R$500 por atraso de material).
 
-4. **Drag-and-drop nas etapas**: posso usar botões de reordenar (↑↓) para evitar adicionar lib nova (`dnd-kit`), ou prefere drag real?
+## Notas técnicas
 
-Responda essas 4 e eu sigo direto na implementação.
+- Toda escrita pública via RPC `criar_contrato_publico` (nova, SECURITY DEFINER, GRANT a anon) para evitar abrir INSERT em `contratos` para anon.
+- Migration nova: função `criar_contrato_publico(p_dados jsonb, p_parceiro_slug text)` que insere o rascunho, gera `numero` e `token_cliente`, e cria `referral_leads`.
+- ViaCEP, máscaras CPF/CNPJ/CEP/telefone já existem em `@/lib/fm-clientes`.
+- `gerarNumeroContrato`, `precoM2`, `PLANOS_CAMERA` já em `@/lib/fm-contratos`.
+
+Confirma que sigo com essa abordagem? (Tudo na mesma entrega, em uma migration + as páginas novas.)
