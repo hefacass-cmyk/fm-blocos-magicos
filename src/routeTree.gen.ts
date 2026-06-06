@@ -31,6 +31,7 @@ import { Route as FSlugRouteImport } from './routes/f.$slug'
 import { Route as AdminSenhasRouteImport } from './routes/admin.senhas'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
+import { Route as AdminContratosRouteImport } from './routes/admin.contratos'
 import { Route as AdminAuditoriaEmailsRouteImport } from './routes/admin.auditoria-emails'
 import { Route as AdminClientesIdRouteImport } from './routes/admin.clientes.$id'
 
@@ -144,6 +145,11 @@ const AdminDashboardRoute = AdminDashboardRouteImport.update({
   path: '/admin/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminContratosRoute = AdminContratosRouteImport.update({
+  id: '/admin/contratos',
+  path: '/admin/contratos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminAuditoriaEmailsRoute = AdminAuditoriaEmailsRouteImport.update({
   id: '/admin/auditoria-emails',
   path: '/admin/auditoria-emails',
@@ -168,6 +174,7 @@ export interface FileRoutesByFullPath {
   '/seja-fornecedor': typeof SejaFornecedorRoute
   '/seja-parceiro': typeof SejaParceiroRoute
   '/admin/auditoria-emails': typeof AdminAuditoriaEmailsRoute
+  '/admin/contratos': typeof AdminContratosRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/senhas': typeof AdminSenhasRoute
@@ -194,6 +201,7 @@ export interface FileRoutesByTo {
   '/seja-fornecedor': typeof SejaFornecedorRoute
   '/seja-parceiro': typeof SejaParceiroRoute
   '/admin/auditoria-emails': typeof AdminAuditoriaEmailsRoute
+  '/admin/contratos': typeof AdminContratosRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/senhas': typeof AdminSenhasRoute
@@ -221,6 +229,7 @@ export interface FileRoutesById {
   '/seja-fornecedor': typeof SejaFornecedorRoute
   '/seja-parceiro': typeof SejaParceiroRoute
   '/admin/auditoria-emails': typeof AdminAuditoriaEmailsRoute
+  '/admin/contratos': typeof AdminContratosRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/senhas': typeof AdminSenhasRoute
@@ -249,6 +258,7 @@ export interface FileRouteTypes {
     | '/seja-fornecedor'
     | '/seja-parceiro'
     | '/admin/auditoria-emails'
+    | '/admin/contratos'
     | '/admin/dashboard'
     | '/admin/login'
     | '/admin/senhas'
@@ -275,6 +285,7 @@ export interface FileRouteTypes {
     | '/seja-fornecedor'
     | '/seja-parceiro'
     | '/admin/auditoria-emails'
+    | '/admin/contratos'
     | '/admin/dashboard'
     | '/admin/login'
     | '/admin/senhas'
@@ -301,6 +312,7 @@ export interface FileRouteTypes {
     | '/seja-fornecedor'
     | '/seja-parceiro'
     | '/admin/auditoria-emails'
+    | '/admin/contratos'
     | '/admin/dashboard'
     | '/admin/login'
     | '/admin/senhas'
@@ -328,6 +340,7 @@ export interface RootRouteChildren {
   SejaFornecedorRoute: typeof SejaFornecedorRoute
   SejaParceiroRoute: typeof SejaParceiroRoute
   AdminAuditoriaEmailsRoute: typeof AdminAuditoriaEmailsRoute
+  AdminContratosRoute: typeof AdminContratosRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminSenhasRoute: typeof AdminSenhasRoute
@@ -498,6 +511,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/contratos': {
+      id: '/admin/contratos'
+      path: '/admin/contratos'
+      fullPath: '/admin/contratos'
+      preLoaderRoute: typeof AdminContratosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/auditoria-emails': {
       id: '/admin/auditoria-emails'
       path: '/admin/auditoria-emails'
@@ -528,6 +548,7 @@ const rootRouteChildren: RootRouteChildren = {
   SejaFornecedorRoute: SejaFornecedorRoute,
   SejaParceiroRoute: SejaParceiroRoute,
   AdminAuditoriaEmailsRoute: AdminAuditoriaEmailsRoute,
+  AdminContratosRoute: AdminContratosRoute,
   AdminDashboardRoute: AdminDashboardRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminSenhasRoute: AdminSenhasRoute,
@@ -544,3 +565,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
