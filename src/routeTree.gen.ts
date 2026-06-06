@@ -28,6 +28,7 @@ import { Route as PSlugRouteImport } from './routes/p.$slug'
 import { Route as FornecedorLoginRouteImport } from './routes/fornecedor.login'
 import { Route as FornecedorSlugRouteImport } from './routes/fornecedor.$slug'
 import { Route as FSlugRouteImport } from './routes/f.$slug'
+import { Route as ContratoTokenRouteImport } from './routes/contrato.$token'
 import { Route as AdminSenhasRouteImport } from './routes/admin.senhas'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
@@ -131,6 +132,11 @@ const FSlugRoute = FSlugRouteImport.update({
   path: '/f/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ContratoTokenRoute = ContratoTokenRouteImport.update({
+  id: '/contrato/$token',
+  path: '/contrato/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminSenhasRoute = AdminSenhasRouteImport.update({
   id: '/admin/senhas',
   path: '/admin/senhas',
@@ -184,6 +190,7 @@ export interface FileRoutesByFullPath {
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/senhas': typeof AdminSenhasRoute
+  '/contrato/$token': typeof ContratoTokenRoute
   '/f/$slug': typeof FSlugRoute
   '/fornecedor/$slug': typeof FornecedorSlugRoute
   '/fornecedor/login': typeof FornecedorLoginRoute
@@ -212,6 +219,7 @@ export interface FileRoutesByTo {
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/senhas': typeof AdminSenhasRoute
+  '/contrato/$token': typeof ContratoTokenRoute
   '/f/$slug': typeof FSlugRoute
   '/fornecedor/$slug': typeof FornecedorSlugRoute
   '/fornecedor/login': typeof FornecedorLoginRoute
@@ -241,6 +249,7 @@ export interface FileRoutesById {
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/senhas': typeof AdminSenhasRoute
+  '/contrato/$token': typeof ContratoTokenRoute
   '/f/$slug': typeof FSlugRoute
   '/fornecedor/$slug': typeof FornecedorSlugRoute
   '/fornecedor/login': typeof FornecedorLoginRoute
@@ -271,6 +280,7 @@ export interface FileRouteTypes {
     | '/admin/dashboard'
     | '/admin/login'
     | '/admin/senhas'
+    | '/contrato/$token'
     | '/f/$slug'
     | '/fornecedor/$slug'
     | '/fornecedor/login'
@@ -299,6 +309,7 @@ export interface FileRouteTypes {
     | '/admin/dashboard'
     | '/admin/login'
     | '/admin/senhas'
+    | '/contrato/$token'
     | '/f/$slug'
     | '/fornecedor/$slug'
     | '/fornecedor/login'
@@ -327,6 +338,7 @@ export interface FileRouteTypes {
     | '/admin/dashboard'
     | '/admin/login'
     | '/admin/senhas'
+    | '/contrato/$token'
     | '/f/$slug'
     | '/fornecedor/$slug'
     | '/fornecedor/login'
@@ -356,6 +368,7 @@ export interface RootRouteChildren {
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminSenhasRoute: typeof AdminSenhasRoute
+  ContratoTokenRoute: typeof ContratoTokenRoute
   FSlugRoute: typeof FSlugRoute
   FornecedorSlugRoute: typeof FornecedorSlugRoute
   FornecedorLoginRoute: typeof FornecedorLoginRoute
@@ -502,6 +515,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/contrato/$token': {
+      id: '/contrato/$token'
+      path: '/contrato/$token'
+      fullPath: '/contrato/$token'
+      preLoaderRoute: typeof ContratoTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/senhas': {
       id: '/admin/senhas'
       path: '/admin/senhas'
@@ -583,6 +603,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminDashboardRoute: AdminDashboardRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminSenhasRoute: AdminSenhasRoute,
+  ContratoTokenRoute: ContratoTokenRoute,
   FSlugRoute: FSlugRoute,
   FornecedorSlugRoute: FornecedorSlugRoute,
   FornecedorLoginRoute: FornecedorLoginRoute,
@@ -596,3 +617,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
