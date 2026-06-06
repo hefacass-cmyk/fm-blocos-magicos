@@ -151,6 +151,13 @@ function Header({ onLogin }: { onLogin: () => void }) {
           >
             <User className="h-3.5 w-3.5" /> Área do Cliente
           </button>
+          <Link
+            to="/iniciar-contrato"
+            className="inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-[11px] font-bold text-slate-900 hover:brightness-95 transition whitespace-nowrap"
+            style={{ backgroundColor: "#F4B941" }}
+          >
+            Quero Construir <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
           <a href="#contato" className="inline-flex items-center gap-1 rounded-md bg-accent px-2.5 py-1.5 text-[11px] font-semibold text-accent-foreground hover:brightness-95 transition whitespace-nowrap">
             Diagnóstico <ArrowRight className="h-3.5 w-3.5" />
           </a>
@@ -194,6 +201,14 @@ function Header({ onLogin }: { onLogin: () => void }) {
             <button onClick={() => { setOpen(false); onLogin(); }} className="mt-2 inline-flex items-center justify-center gap-2 rounded-md border border-primary/30 px-4 py-3 text-sm font-semibold text-primary">
               <User className="h-4 w-4" /> Área do Cliente
             </button>
+            <Link
+              to="/iniciar-contrato"
+              onClick={() => setOpen(false)}
+              className="mt-2 inline-flex items-center justify-center gap-2 rounded-md px-4 py-3 text-sm font-bold text-slate-900"
+              style={{ backgroundColor: "#F4B941" }}
+            >
+              Quero Construir <ArrowRight className="h-4 w-4" />
+            </Link>
             <a href="#contato" onClick={() => setOpen(false)} className="mt-2 inline-flex items-center justify-center gap-2 rounded-md bg-accent px-4 py-3 text-sm font-semibold text-accent-foreground">
               Solicitar Diagnóstico Gratuito
             </a>
