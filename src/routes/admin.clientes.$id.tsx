@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { RelatoriosSemanaisTab } from "@/components/admin/RelatoriosSemanaisTab";
 
 const ADMIN_KEY = "fm_admin_auth";
 const BRAND_BLUE = "#1A4D7A";
@@ -24,7 +25,7 @@ function DetalhePage() {
   const navigate = useNavigate();
   const [cliente, setCliente] = useState<Row | null>(null);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"atualizacoes" | "etapas" | "fotos" | "documentos">("atualizacoes");
+  const [tab, setTab] = useState<"atualizacoes" | "etapas" | "fotos" | "documentos" | "relatorios">("atualizacoes");
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -92,13 +93,14 @@ function DetalhePage() {
 
         {/* Tabs */}
         <div className="flex flex-wrap gap-2 border-b bg-white px-2 pt-2">
-          {(["atualizacoes","etapas","fotos","documentos"] as const).map((t) => (
+          {(["atualizacoes","etapas","fotos","documentos","relatorios"] as const).map((t) => (
             <button key={t} onClick={() => setTab(t)}
               className={`rounded-t-md border-b-2 px-3 py-2 text-sm font-semibold ${tab===t ? "border-blue-600 text-blue-700" : "border-transparent text-slate-500 hover:text-slate-700"}`}>
               {t === "atualizacoes" ? "Atualizações do Dia"
                : t === "etapas" ? "Etapas / Cronograma"
                : t === "fotos" ? "Fotos da Semana"
-               : "Documentos"}
+               : t === "documentos" ? "Documentos"
+               : "Relatórios Semanais"}
             </button>
           ))}
         </div>
@@ -108,6 +110,7 @@ function DetalhePage() {
           {tab === "etapas" && <EtapasTab clienteId={id} />}
           {tab === "fotos" && <FotosTab clienteId={id} />}
           {tab === "documentos" && <DocumentosTab clienteId={id} />}
+          {tab === "relatorios" && <RelatoriosSemanaisTab clienteId={id} cliente={cliente} />}
         </div>
       </main>
     </div>
