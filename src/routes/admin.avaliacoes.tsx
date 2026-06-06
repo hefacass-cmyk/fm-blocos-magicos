@@ -114,7 +114,7 @@ function AdminAvaliacoesPage() {
                       <p className="font-bold" style={{ color: BRAND_BLUE }}>{parceirosMap[pid] ?? "(parceiro)"}</p>
                       <p className="text-sm">por <strong>{String(r.nome_avaliador ?? "—")}</strong> {servico && <span>· <em>{servico}</em></span>}</p>
                       <div className="mt-1"><Stars n={Number(r.nota ?? 0)} /></div>
-                      {r.comentario && <p className="mt-2 text-sm italic text-slate-700">"{String(r.comentario)}"</p>}
+                      {r.comentario ? <p className="mt-2 text-sm italic text-slate-700">"{String(r.comentario)}"</p> : null}
                     </div>
                     {pendente && (
                       <div className="flex gap-2">
