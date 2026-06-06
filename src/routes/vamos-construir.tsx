@@ -66,6 +66,7 @@ function VamosConstruirPage() {
   const [enviando, setEnviando] = useState(false);
   const [ok, setOk] = useState(false);
   const [parceiroId, setParceiroId] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -80,7 +81,12 @@ function VamosConstruirPage() {
   const toggleTipo = (t: string) =>
     setTipos((arr) => (arr.includes(t) ? arr.filter((x) => x !== t) : [...arr, t]));
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const clearError = (key: string) =>
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -184,6 +190,9 @@ function VamosConstruirPage() {
     );
   }
 
+  const inputError = (field: string) =>
+    errors[field] ? "border-red-500 focus-visible:ring-red-500" : "";
+
   return (
     <div className="min-h-screen bg-slate-50">
       <header className="border-b bg-white">
@@ -211,44 +220,44 @@ function VamosConstruirPage() {
 
         <form onSubmit={onSubmit} className="space-y-5 bg-white border rounded-2xl p-6 shadow-sm">
           <div className="grid sm:grid-cols-2 gap-4">
-            <Field label="Nome completo *">
-              <Input value={nome} onChange={(e) => setNome(e.target.value)} required maxLength={120} />
+            <Field label="Nome completo *" error={errors.nome}>
+              <Input value={nome} onChange={(e) => { setNome(e.target.value); clearError("nome"); }} required maxLength={120} className={inputError("nome")} />
             </Field>
-            <Field label="E-mail *">
-              <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required maxLength={200} />
+            <Field label="E-mail *" error={errors.email}>
+              <Input type="email" value={email} onChange={(e) => { setEmail(e.target.value); clearError("email"); }} required maxLength={200} className={inputError("email")} />
             </Field>
-            <Field label="Telefone *">
-              <Input value={telefone} onChange={(e) => setTelefone(e.target.value)} required maxLength={30} placeholder="(00) 0000-0000" />
+            <Field label="Telefone *" error={errors.telefone}>
+              <Input value={telefone} onChange={(e) => { setTelefone(e.target.value); clearError("telefone"); }} required maxLength={30} placeholder="(00) 0000-0000" className={inputError("telefone")} />
             </Field>
-            <Field label="WhatsApp *">
-              <Input value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} required maxLength={30} placeholder="(00) 00000-0000" />
+            <Field label="WhatsApp *" error={errors.whatsapp}>
+              <Input value={whatsapp} onChange={(e) => { setWhatsapp(e.target.value); clearError("whatsapp"); }} required maxLength={30} placeholder="(00) 00000-0000" className={inputError("whatsapp")} />
             </Field>
           </div>
 
-          <Field label="Rua / Logradouro *">
-            <Input value={rua} onChange={(e) => setRua(e.target.value)} required maxLength={200} placeholder="Rua, número, bairro" />
+          <Field label="Rua / Logradouro *" error={errors.rua}>
+            <Input value={rua} onChange={(e) => { setRua(e.target.value); clearError("rua"); }} required maxLength={200} placeholder="Rua, número, bairro" className={inputError("rua")} />
           </Field>
           <div className="grid sm:grid-cols-[1fr_120px] gap-4">
-            <Field label="Cidade *">
-              <Input value={cidade} onChange={(e) => setCidade(e.target.value)} required maxLength={120} />
+            <Field label="Cidade *" error={errors.cidade}>
+              <Input value={cidade} onChange={(e) => { setCidade(e.target.value); clearError("cidade"); }} required maxLength={120} className={inputError("cidade")} />
             </Field>
-            <Field label="Estado (UF) *">
-              <Input value={estado} onChange={(e) => setEstado(e.target.value.toUpperCase().slice(0, 2))} required maxLength={2} placeholder="BA" />
+            <Field label="Estado (UF) *" error={errors.estado}>
+              <Input value={estado} onChange={(e) => { setEstado(e.target.value.toUpperCase().slice(0, 2)); clearError("estado"); }} required maxLength={2} placeholder="BA" className={inputError("estado")} />
             </Field>
           </div>
 
           <div className="grid sm:grid-cols-2 gap-4">
-            <Field label="Tipo de imóvel *">
-              <Select value={tipoImovel} onValueChange={setTipoImovel}>
-                <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+            <Field label="Tipo de imóvel *" error={errors.tipo_imovel}>
+              <Select value={tipoImovel} onValueChange={(v) => { setTipoImovel(v); clearError("tipo_imovel"); }}>
+                <SelectTrigger className={inputError("tipo_imovel")}><SelectValue placeholder="Selecione" /></SelectTrigger>
                 <SelectContent>
                   {TIPOS_IMOVEL.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
                 </SelectContent>
               </Select>
             </Field>
-            <Field label="Sistema construtivo de interesse *">
-              <Select value={sistema} onValueChange={setSistema}>
-                <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+            <Field label="Sistema construtivo de interesse *" error={errors.sistema_interesse}>
+              <Select value={sistema} onValueChange={(v) => { setSistema(v); clearError("sistema_interesse"); }}>
+                <SelectTrigger className={inputError("sistema_interesse")}><SelectValue placeholder="Selecione" /></SelectTrigger>
                 <SelectContent>
                   {SISTEMAS.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
                 </SelectContent>
@@ -258,18 +267,19 @@ function VamosConstruirPage() {
 
           <div>
             <Label className="text-sm font-semibold">Tipo de obra * (selecione um ou mais)</Label>
-            <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-2">
+            <div className={`mt-2 grid grid-cols-2 sm:grid-cols-3 gap-2 ${errors.tipo_obra ? "border border-red-500 rounded-md p-1" : ""}`}>
               {TIPOS_OBRA.map((t) => (
                 <label key={t} className="flex items-center gap-2 rounded-md border bg-slate-50 px-3 py-2 cursor-pointer hover:bg-slate-100">
-                  <Checkbox checked={tipos.includes(t)} onCheckedChange={() => toggleTipo(t)} />
+                  <Checkbox checked={tipos.includes(t)} onCheckedChange={() => { toggleTipo(t); clearError("tipo_obra"); }} />
                   <span className="text-sm">{t}</span>
                 </label>
               ))}
             </div>
+            {errors.tipo_obra && <p className="mt-1 text-xs text-red-600">{errors.tipo_obra}</p>}
           </div>
 
-          <Field label="Área a ser construída (m²) *">
-            <Input value={area} onChange={(e) => setArea(e.target.value)} required maxLength={20} placeholder="Ex: 180" />
+          <Field label="Área a ser construída (m²) *" error={errors.area_m2}>
+            <Input value={area} onChange={(e) => { setArea(e.target.value); clearError("area_m2"); }} required maxLength={20} placeholder="Ex: 180" className={inputError("area_m2")} />
           </Field>
 
           <div>
@@ -312,11 +322,12 @@ function VamosConstruirPage() {
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
       <Label className="text-sm font-semibold">{label}</Label>
       {children}
+      {error && <p className="text-xs text-red-600">{error}</p>}
     </div>
   );
 }
