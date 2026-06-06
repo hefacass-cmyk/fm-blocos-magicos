@@ -74,6 +74,25 @@ function IniciarContratoPage() {
     const sp = new URLSearchParams(window.location.search);
     const ref = sp.get("ref");
     if (ref) setParceiroSlug(ref);
+    const leadId = sp.get("lead");
+    if (leadId) {
+      fmSupabase
+        .from("referral_leads")
+        .select("nome_cliente, telefone_cliente, email_cliente, parceiro_id")
+        .eq("id", leadId)
+        .maybeSingle()
+        .then(({ data }) => {
+          if (!data) return;
+          setF((c) => ({
+            ...c,
+            nome: (data.nome_cliente as string) || c.nome,
+            telefone: (data.telefone_cliente as string) || c.telefone,
+            email: (data.email_cliente as string) || c.email,
+          }));
+          if (data.parceiro_id && !ref) setParceiroSlug(String(data.parceiro_id));
+          toast.success("Dados do lead pré-preenchidos");
+        });
+    }
   }, []);
 
   const set = (patch: Partial<Form>) => setF((c) => ({ ...c, ...patch }));
