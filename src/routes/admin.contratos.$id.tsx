@@ -65,6 +65,8 @@ function AdminContratoDetalhePage() {
 
   const init = async () => {
     setLoading(true);
+    console.log("[admin.contratos.$id] ID recebido na URL:", id);
+    console.log("[admin.contratos.$id] Tipo do ID:", typeof id);
     void carregarEmpresaConfig().then(setEmpresa);
     const { data: cs } = await fmSupabase.from("clientes").select("id, nome, codigo_cliente, codigo").order("nome");
     setClientes(((cs as Row[]) ?? []).map((c) => ({
@@ -80,11 +82,19 @@ function AdminContratoDetalhePage() {
         responsavel_tecnico: "Eng. Francisco A. P. Jr.", crea: "38.135-D/BA",
       });
     } else {
+      // DEBUG: listar primeiros contratos para conferir ids reais
+      const probe = await fmSupabase
+        .from("contratos")
+        .select("id, prospect_nome, status")
+        .limit(5);
+      console.log("[admin.contratos.$id] Todos contratos (probe):", probe.data, probe.error);
+
       const [{ data: c, error: cErr }, { data: ad }, { data: me }] = await Promise.all([
         fmSupabase.from("contratos").select("*").eq("id", id).maybeSingle(),
         fmSupabase.from("contratos_aditivos").select("*").eq("contrato_id", id).order("criado_em"),
         fmSupabase.from("obra_financeiro").select("*").eq("contrato_id", id).order("data_vencimento"),
       ]);
+      console.log("[admin.contratos.$id] Query por id resultado:", { data: c, error: cErr });
       if (cErr || !c) {
         console.error("[admin.contratos] erro/sem retorno id=", id, cErr);
         toast.error("Contrato não encontrado" + (cErr ? `: ${cErr.message}` : ""));
