@@ -24,7 +24,6 @@ import p5 from "@/assets/portfolio-5.jpg";
 import p6 from "@/assets/portfolio-6.jpg";
 
 const NAV = [
-  { id: "home", label: "Início" },
   { id: "solucao", label: "Solução" },
   { id: "tecnologias", label: "Tecnologias" },
   { id: "portfolio", label: "Portfólio" },
@@ -115,19 +114,6 @@ function Header({ onLogin }: { onLogin: () => void }) {
           ))}
           <DropdownMenu>
             <DropdownMenuTrigger className="text-[12px] font-medium text-foreground/80 hover:text-primary transition-colors whitespace-nowrap px-1.5 py-1 inline-flex items-center gap-0.5 outline-none">
-              Parceiros <ChevronDown className="h-3 w-3" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="min-w-[10rem]">
-              <DropdownMenuItem asChild>
-                <Link to="/parceiros" className="cursor-pointer text-sm">Ver Parceiros</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/seja-parceiro" className="cursor-pointer text-sm">Seja Parceiro</Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <DropdownMenu>
-            <DropdownMenuTrigger className="text-[12px] font-medium text-foreground/80 hover:text-primary transition-colors whitespace-nowrap px-1.5 py-1 inline-flex items-center gap-0.5 outline-none">
               Fornecedores <ChevronDown className="h-3 w-3" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="min-w-[10rem]">
@@ -139,30 +125,37 @@ function Header({ onLogin }: { onLogin: () => void }) {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Link to="/parceiro/login" className="text-[12px] font-medium text-foreground/80 hover:text-primary transition-colors whitespace-nowrap px-1.5 py-1">
-            Área do Parceiro
-          </Link>
           <DropdownMenu>
             <DropdownMenuTrigger className="text-[12px] font-medium text-foreground/80 hover:text-primary transition-colors whitespace-nowrap px-1.5 py-1 inline-flex items-center gap-0.5 outline-none">
-              Cliente <ChevronDown className="h-3 w-3" />
+              Área do Parceiro <ChevronDown className="h-3 w-3" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="min-w-[10rem]">
               <DropdownMenuItem asChild>
-                <Link to="/vamos-construir" className="cursor-pointer text-sm">Vamos Construir</Link>
+                <Link to="/parceiro/login" className="cursor-pointer text-sm">Entrar / Área do Parceiro</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/parceiros" className="cursor-pointer text-sm">Ver Parceiros</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/seja-parceiro" className="cursor-pointer text-sm">Seja Parceiro</Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </nav>
+        <div className="hidden xl:flex items-center gap-2 shrink-0">
+          <DropdownMenu>
+            <DropdownMenuTrigger className="inline-flex items-center gap-1.5 rounded-md border border-primary/30 px-2.5 py-1.5 text-[11px] font-semibold text-primary hover:bg-primary/5 transition whitespace-nowrap outline-none">
+              <User className="h-3.5 w-3.5" /> Área do Cliente <ChevronDown className="h-3 w-3" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="min-w-[10rem]">
+              <DropdownMenuItem onSelect={onLogin} className="cursor-pointer text-sm">
+                Entrar / Área do Cliente
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link to="/precos" className="cursor-pointer text-sm">Preços</Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        </nav>
-        <div className="hidden xl:flex items-center gap-2 shrink-0">
-          <button
-            onClick={onLogin}
-            className="inline-flex items-center gap-1.5 rounded-md border border-primary/30 px-2.5 py-1.5 text-[11px] font-semibold text-primary hover:bg-primary/5 transition whitespace-nowrap"
-          >
-            <User className="h-3.5 w-3.5" /> Área do Cliente
-          </button>
           <Link
             to="/vamos-construir"
             className="inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-[11px] font-bold text-slate-900 hover:brightness-95 transition whitespace-nowrap"
@@ -195,31 +188,29 @@ function Header({ onLogin }: { onLogin: () => void }) {
                 {n.label}
               </a>
             ))}
-            <Link to="/parceiros" onClick={() => setOpen(false)} className="py-2 text-sm font-medium text-foreground/80">
-              Ver Parceiros
-            </Link>
-            <Link to="/seja-parceiro" onClick={() => setOpen(false)} className="py-2 text-sm font-semibold text-accent">
-              Seja Parceiro
-            </Link>
             <Link to="/fornecedores" onClick={() => setOpen(false)} className="py-2 text-sm font-medium text-foreground/80">
               Ver Fornecedores
             </Link>
             <Link to="/seja-fornecedor" onClick={() => setOpen(false)} className="py-2 text-sm font-semibold text-accent">
               Seja Fornecedor
             </Link>
+            <div className="pt-2 mt-1 border-t text-[11px] uppercase tracking-wider text-muted-foreground">Área do Parceiro</div>
             <Link to="/parceiro/login" onClick={() => setOpen(false)} className="py-2 text-sm font-medium text-foreground/80">
-              Área do Parceiro
+              Entrar / Área do Parceiro
             </Link>
-            <div className="pt-2 mt-1 border-t text-[11px] uppercase tracking-wider text-muted-foreground">Cliente</div>
-            <Link to="/vamos-construir" onClick={() => setOpen(false)} className="py-2 text-sm font-medium text-foreground/80">
-              Vamos Construir
+            <Link to="/parceiros" onClick={() => setOpen(false)} className="py-2 text-sm font-medium text-foreground/80">
+              Ver Parceiros
             </Link>
+            <Link to="/seja-parceiro" onClick={() => setOpen(false)} className="py-2 text-sm font-semibold text-accent">
+              Seja Parceiro
+            </Link>
+            <div className="pt-2 mt-1 border-t text-[11px] uppercase tracking-wider text-muted-foreground">Área do Cliente</div>
+            <button onClick={() => { setOpen(false); onLogin(); }} className="text-left py-2 text-sm font-medium text-foreground/80">
+              Entrar / Área do Cliente
+            </button>
             <Link to="/precos" onClick={() => setOpen(false)} className="py-2 text-sm font-medium text-foreground/80">
               Preços
             </Link>
-            <button onClick={() => { setOpen(false); onLogin(); }} className="mt-2 inline-flex items-center justify-center gap-2 rounded-md border border-primary/30 px-4 py-3 text-sm font-semibold text-primary">
-              <User className="h-4 w-4" /> Área do Cliente
-            </button>
             <Link
               to="/vamos-construir"
               onClick={() => setOpen(false)}
