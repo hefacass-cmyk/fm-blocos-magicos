@@ -151,6 +151,22 @@ function AdminContratoDetalhePage() {
     setContrato((c) => ({ ...c, assinatura_fm: dataUrl, status: "assinado" }));
   };
 
+  const usarAssinaturaPadrao = async () => {
+    const dataUrl = empresa.assinatura_fm_default;
+    if (!dataUrl) {
+      toast.error("Nenhuma assinatura padrão cadastrada. Cadastre em /admin/configuracoes.");
+      return;
+    }
+    setSaving(true);
+    const { error } = await fmSupabase.from("contratos").update({
+      assinatura_fm: dataUrl, assinatura_fm_data: new Date().toISOString(), status: "assinado",
+    }).eq("id", id);
+    setSaving(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Contrato assinado com a assinatura padrão");
+    setContrato((c) => ({ ...c, assinatura_fm: dataUrl, status: "assinado" }));
+  };
+
   const baixarPDF = async () => {
     const { jsPDF } = await import("jspdf");
     const html2canvas = (await import("html2canvas")).default;
