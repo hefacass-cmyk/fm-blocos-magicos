@@ -13,6 +13,7 @@ import { Route as SejaParceiroRouteImport } from './routes/seja-parceiro'
 import { Route as SejaFornecedorRouteImport } from './routes/seja-fornecedor'
 import { Route as ParceirosRouteImport } from './routes/parceiros'
 import { Route as ParceiroInviteRouteImport } from './routes/parceiro-invite'
+import { Route as IniciarContratoRouteImport } from './routes/iniciar-contrato'
 import { Route as FornecedoresRouteImport } from './routes/fornecedores'
 import { Route as EsqueciSenhaRouteImport } from './routes/esqueci-senha'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -55,6 +56,11 @@ const ParceirosRoute = ParceirosRouteImport.update({
 const ParceiroInviteRoute = ParceiroInviteRouteImport.update({
   id: '/parceiro-invite',
   path: '/parceiro-invite',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IniciarContratoRoute = IniciarContratoRouteImport.update({
+  id: '/iniciar-contrato',
+  path: '/iniciar-contrato',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FornecedoresRoute = FornecedoresRouteImport.update({
@@ -181,6 +187,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/esqueci-senha': typeof EsqueciSenhaRoute
   '/fornecedores': typeof FornecedoresRoute
+  '/iniciar-contrato': typeof IniciarContratoRoute
   '/parceiro-invite': typeof ParceiroInviteRoute
   '/parceiros': typeof ParceirosRoute
   '/seja-fornecedor': typeof SejaFornecedorRoute
@@ -210,6 +217,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/esqueci-senha': typeof EsqueciSenhaRoute
   '/fornecedores': typeof FornecedoresRoute
+  '/iniciar-contrato': typeof IniciarContratoRoute
   '/parceiro-invite': typeof ParceiroInviteRoute
   '/parceiros': typeof ParceirosRoute
   '/seja-fornecedor': typeof SejaFornecedorRoute
@@ -240,6 +248,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/esqueci-senha': typeof EsqueciSenhaRoute
   '/fornecedores': typeof FornecedoresRoute
+  '/iniciar-contrato': typeof IniciarContratoRoute
   '/parceiro-invite': typeof ParceiroInviteRoute
   '/parceiros': typeof ParceirosRoute
   '/seja-fornecedor': typeof SejaFornecedorRoute
@@ -271,6 +280,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/esqueci-senha'
     | '/fornecedores'
+    | '/iniciar-contrato'
     | '/parceiro-invite'
     | '/parceiros'
     | '/seja-fornecedor'
@@ -300,6 +310,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/esqueci-senha'
     | '/fornecedores'
+    | '/iniciar-contrato'
     | '/parceiro-invite'
     | '/parceiros'
     | '/seja-fornecedor'
@@ -329,6 +340,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/esqueci-senha'
     | '/fornecedores'
+    | '/iniciar-contrato'
     | '/parceiro-invite'
     | '/parceiros'
     | '/seja-fornecedor'
@@ -359,6 +371,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   EsqueciSenhaRoute: typeof EsqueciSenhaRoute
   FornecedoresRoute: typeof FornecedoresRoute
+  IniciarContratoRoute: typeof IniciarContratoRoute
   ParceiroInviteRoute: typeof ParceiroInviteRoute
   ParceirosRoute: typeof ParceirosRoute
   SejaFornecedorRoute: typeof SejaFornecedorRoute
@@ -408,6 +421,13 @@ declare module '@tanstack/react-router' {
       path: '/parceiro-invite'
       fullPath: '/parceiro-invite'
       preLoaderRoute: typeof ParceiroInviteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/iniciar-contrato': {
+      id: '/iniciar-contrato'
+      path: '/iniciar-contrato'
+      fullPath: '/iniciar-contrato'
+      preLoaderRoute: typeof IniciarContratoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/fornecedores': {
@@ -594,6 +614,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   EsqueciSenhaRoute: EsqueciSenhaRoute,
   FornecedoresRoute: FornecedoresRoute,
+  IniciarContratoRoute: IniciarContratoRoute,
   ParceiroInviteRoute: ParceiroInviteRoute,
   ParceirosRoute: ParceirosRoute,
   SejaFornecedorRoute: SejaFornecedorRoute,
