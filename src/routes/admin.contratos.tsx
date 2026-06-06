@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Search, Pencil, Trash2, Eye, Loader2, ArrowLeft } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Eye, Loader2, ArrowLeft, Link2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -86,11 +86,28 @@ function AdminContratosPage() {
             </Link>
             <h1 className="text-xl font-bold text-slate-900">Contratos</h1>
           </div>
-          <Button asChild>
-            <Link to="/admin/contratos/$id" params={{ id: "novo" }}>
-              <Plus className="mr-1 h-4 w-4" /> Novo Contrato
-            </Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={async () => {
+                const url = `${window.location.origin}/iniciar-contrato`;
+                try {
+                  await navigator.clipboard.writeText(url);
+                  toast.success("Link copiado! Envie ao cliente: " + url);
+                } catch {
+                  window.prompt("Copie o link de Iniciar Contrato:", url);
+                }
+              }}
+              title="Gera e copia o link público de Iniciar Contrato para enviar ao cliente"
+            >
+              <Link2 className="mr-1 h-4 w-4" /> Link Iniciar Contrato
+            </Button>
+            <Button asChild>
+              <Link to="/admin/contratos/$id" params={{ id: "novo" }}>
+                <Plus className="mr-1 h-4 w-4" /> Novo Contrato
+              </Link>
+            </Button>
+          </div>
         </div>
       </header>
 
