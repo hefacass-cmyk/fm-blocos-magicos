@@ -49,7 +49,7 @@ function AdminContratosPage() {
     const base = t ? rows.filter((r) => {
       const cli = (r.clientes as { nome?: string } | null)?.nome ?? "";
       const prosp = String(r.prospect_nome ?? "");
-      return [r.numero, cli, prosp, r.sistema_construtivo, r.tipo_servico, r.prospect_obra_cidade]
+      return [r.numero, cli, prosp, r.sistema_construtivo, r.tipo_servico, r.prospect_cidade, r.prospect_whatsapp]
         .map((v) => String(v ?? "").toLowerCase()).some((s) => s.includes(t));
     }) : rows;
     return base;
@@ -171,9 +171,11 @@ function Tabela({ rows, onDelete }: { rows: Row[]; onDelete: (r: Row) => void })
           <tr>
             <th className="p-3">Protocolo</th>
             <th className="p-3">Nome</th>
-            <th className="p-3">Obra</th>
+            <th className="p-3">WhatsApp</th>
+            <th className="p-3">Cidade</th>
             <th className="p-3">Sistema</th>
             <th className="p-3">Serviço</th>
+            <th className="p-3 text-right">Área</th>
             <th className="p-3 text-right">Valor</th>
             <th className="p-3">Status</th>
             <th className="p-3">Data</th>
@@ -184,15 +186,20 @@ function Tabela({ rows, onDelete }: { rows: Row[]; onDelete: (r: Row) => void })
           {rows.map((r) => {
             const status = (r.status as ContratoStatus) || "rascunho";
             const cli = (r.clientes as { nome?: string } | null)?.nome ?? String(r.prospect_nome ?? "—");
-            const obra = [r.prospect_obra_cidade, r.prospect_obra_estado].filter(Boolean).join("/") || "—";
+            const cidade = [r.prospect_cidade, r.prospect_estado].filter(Boolean).join("/") || "—";
+            const whatsapp = String(r.prospect_whatsapp ?? "—");
+            const area = r.prospect_area_construir ? `${r.prospect_area_construir} m²` : "—";
+            const valor = Number(r.valor_total || 0);
             return (
               <tr key={String(r.id)} className="border-b last:border-0 hover:bg-slate-50">
                 <td className="p-3 font-mono text-xs">{String(r.numero || "—")}</td>
                 <td className="p-3">{cli}</td>
-                <td className="p-3 text-xs text-slate-600">{obra}</td>
-                <td className="p-3">{String(r.sistema_construtivo || r.prospect_sistema || "—")}</td>
-                <td className="p-3">{String(r.tipo_servico || r.prospect_servico || "—")}</td>
-                <td className="p-3 text-right">{brl(Number(r.valor_total || 0))}</td>
+                <td className="p-3 text-xs text-slate-600">{whatsapp}</td>
+                <td className="p-3 text-xs text-slate-600">{cidade}</td>
+                <td className="p-3">{String(r.sistema_construtivo || r.prospect_sistema_preferido || "—")}</td>
+                <td className="p-3">{String(r.tipo_servico || r.prospect_servico_preferido || "—")}</td>
+                <td className="p-3 text-right text-xs">{area}</td>
+                <td className="p-3 text-right">{valor > 0 ? brl(valor) : <span className="text-xs text-slate-400">A definir</span>}</td>
                 <td className="p-3">
                   <span className="inline-block rounded px-2 py-0.5 text-xs font-medium text-white" style={{ background: STATUS_COLORS[status] }}>
                     {STATUS_LABELS[status]}
