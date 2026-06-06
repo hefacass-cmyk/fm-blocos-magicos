@@ -545,6 +545,15 @@ function AdminContratoDetalhePage() {
           </TabsContent>
         </Tabs>
       </main>
+      {pagModal && (
+        <MarcarPagoModal
+          open={!!pagModal}
+          onClose={() => setPagModal(null)}
+          lancamentoId={pagModal}
+          contratoId={id}
+          onSaved={(patch) => setMedicoes((arr) => arr.map((m) => m.id === pagModal ? { ...m, ...patch } : m))}
+        />
+      )}
     </div>
   );
 }
