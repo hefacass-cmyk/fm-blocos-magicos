@@ -335,6 +335,9 @@ function AdminContratoDetalhePage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
+      <div className="bg-yellow-200 px-4 py-2 text-xs font-mono text-slate-900">
+        DEBUG — ID da URL: {String(id)} (tipo: {typeof id})
+      </div>
       <header className="sticky top-0 z-10 border-b bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 p-4">
           <div className="flex items-center gap-3">
