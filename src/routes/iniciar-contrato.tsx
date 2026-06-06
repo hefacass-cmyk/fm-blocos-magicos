@@ -191,18 +191,11 @@ function IniciarContratoPage() {
       prospect_quer_projeto: f.quer_projeto,
     };
     const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    const parceiroIndicadorId =
-      parceiroSlug && UUID_RE.test(parceiroSlug.trim()) ? parceiroSlug.trim() : null;
-    const parceiroSlugLimpo =
-      parceiroSlug && parceiroSlug.trim() !== "" && !UUID_RE.test(parceiroSlug.trim())
-        ? parceiroSlug.trim()
-        : null;
-    const dados = {
-      ...payload,
-      parceiro_indicador_id: parceiroIndicadorId,
-    };
+    const slug = parceiroSlug?.trim() || "";
+    const parceiroIndicadorId = slug && UUID_RE.test(slug) ? slug : null;
+    const parceiroSlugLimpo = slug && !UUID_RE.test(slug) ? slug : null;
+    const dados = { ...payload, parceiro_indicador_id: parceiroIndicadorId };
     const { data, error } = await fmSupabase.rpc("criar_contrato_publico", {
-      dados,
       p_dados: dados,
       p_parceiro_slug: parceiroSlugLimpo,
     });
