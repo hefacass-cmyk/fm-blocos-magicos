@@ -39,6 +39,7 @@ import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminLeadsRouteImport } from './routes/admin.leads'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AdminContratosRouteImport } from './routes/admin.contratos'
+import { Route as AdminConfiguracoesRouteImport } from './routes/admin.configuracoes'
 import { Route as AdminAvaliacoesRouteImport } from './routes/admin.avaliacoes'
 import { Route as AdminAuditoriaEmailsRouteImport } from './routes/admin.auditoria-emails'
 import { Route as AdminContratosIdRouteImport } from './routes/admin.contratos.$id'
@@ -194,6 +195,11 @@ const AdminContratosRoute = AdminContratosRouteImport.update({
   path: '/admin/contratos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminConfiguracoesRoute = AdminConfiguracoesRouteImport.update({
+  id: '/admin/configuracoes',
+  path: '/admin/configuracoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminAvaliacoesRoute = AdminAvaliacoesRouteImport.update({
   id: '/admin/avaliacoes',
   path: '/admin/avaliacoes',
@@ -232,6 +238,7 @@ export interface FileRoutesByFullPath {
   '/vamos-construir': typeof VamosConstruirRoute
   '/admin/auditoria-emails': typeof AdminAuditoriaEmailsRoute
   '/admin/avaliacoes': typeof AdminAvaliacoesRoute
+  '/admin/configuracoes': typeof AdminConfiguracoesRoute
   '/admin/contratos': typeof AdminContratosRouteWithChildren
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/leads': typeof AdminLeadsRoute
@@ -268,6 +275,7 @@ export interface FileRoutesByTo {
   '/vamos-construir': typeof VamosConstruirRoute
   '/admin/auditoria-emails': typeof AdminAuditoriaEmailsRoute
   '/admin/avaliacoes': typeof AdminAvaliacoesRoute
+  '/admin/configuracoes': typeof AdminConfiguracoesRoute
   '/admin/contratos': typeof AdminContratosRouteWithChildren
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/leads': typeof AdminLeadsRoute
@@ -305,6 +313,7 @@ export interface FileRoutesById {
   '/vamos-construir': typeof VamosConstruirRoute
   '/admin/auditoria-emails': typeof AdminAuditoriaEmailsRoute
   '/admin/avaliacoes': typeof AdminAvaliacoesRoute
+  '/admin/configuracoes': typeof AdminConfiguracoesRoute
   '/admin/contratos': typeof AdminContratosRouteWithChildren
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/leads': typeof AdminLeadsRoute
@@ -343,6 +352,7 @@ export interface FileRouteTypes {
     | '/vamos-construir'
     | '/admin/auditoria-emails'
     | '/admin/avaliacoes'
+    | '/admin/configuracoes'
     | '/admin/contratos'
     | '/admin/dashboard'
     | '/admin/leads'
@@ -379,6 +389,7 @@ export interface FileRouteTypes {
     | '/vamos-construir'
     | '/admin/auditoria-emails'
     | '/admin/avaliacoes'
+    | '/admin/configuracoes'
     | '/admin/contratos'
     | '/admin/dashboard'
     | '/admin/leads'
@@ -415,6 +426,7 @@ export interface FileRouteTypes {
     | '/vamos-construir'
     | '/admin/auditoria-emails'
     | '/admin/avaliacoes'
+    | '/admin/configuracoes'
     | '/admin/contratos'
     | '/admin/dashboard'
     | '/admin/leads'
@@ -452,6 +464,7 @@ export interface RootRouteChildren {
   VamosConstruirRoute: typeof VamosConstruirRoute
   AdminAuditoriaEmailsRoute: typeof AdminAuditoriaEmailsRoute
   AdminAvaliacoesRoute: typeof AdminAvaliacoesRoute
+  AdminConfiguracoesRoute: typeof AdminConfiguracoesRoute
   AdminContratosRoute: typeof AdminContratosRouteWithChildren
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminLeadsRoute: typeof AdminLeadsRoute
@@ -683,6 +696,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminContratosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/configuracoes': {
+      id: '/admin/configuracoes'
+      path: '/admin/configuracoes'
+      fullPath: '/admin/configuracoes'
+      preLoaderRoute: typeof AdminConfiguracoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/avaliacoes': {
       id: '/admin/avaliacoes'
       path: '/admin/avaliacoes'
@@ -743,6 +763,7 @@ const rootRouteChildren: RootRouteChildren = {
   VamosConstruirRoute: VamosConstruirRoute,
   AdminAuditoriaEmailsRoute: AdminAuditoriaEmailsRoute,
   AdminAvaliacoesRoute: AdminAvaliacoesRoute,
+  AdminConfiguracoesRoute: AdminConfiguracoesRoute,
   AdminContratosRoute: AdminContratosRouteWithChildren,
   AdminDashboardRoute: AdminDashboardRoute,
   AdminLeadsRoute: AdminLeadsRoute,
@@ -764,13 +785,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

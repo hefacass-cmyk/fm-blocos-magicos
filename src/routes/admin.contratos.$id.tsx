@@ -20,6 +20,20 @@ import SignaturePad, { type SignaturePadHandle } from "@/components/admin/Signat
 import ContratoTexto from "@/components/admin/ContratoTexto";
 import { MarcarPagoModal } from "@/components/admin/MarcarPagoModal";
 import { carregarEmpresaConfig, EMPRESA_DEFAULT, type EmpresaConfig } from "@/lib/fm-empresa";
+import fmLogoUrl from "@/assets/fm-logo.png";
+
+async function loadImageAsDataURL(url: string): Promise<string | null> {
+  try {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    return await new Promise<string>((resolve, reject) => {
+      const fr = new FileReader();
+      fr.onload = () => resolve(String(fr.result));
+      fr.onerror = reject;
+      fr.readAsDataURL(blob);
+    });
+  } catch { return null; }
+}
 
 export const Route = createFileRoute("/admin/contratos/$id")({
   head: () => ({ meta: [{ title: "Contrato · F&M" }] }),
