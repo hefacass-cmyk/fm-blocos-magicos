@@ -1,21 +1,36 @@
-import { createFileRoute, useParams } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
-import { Loader2, Check } from "lucide-react";
-import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { fmSupabase } from "@/lib/fm-contratos";
-import { maskCep, maskCpfCnpj, maskPhone, onlyDigits, viaCep, type TipoPessoa } from "@/lib/fm-clientes";
-import SignaturePad, { type SignaturePadHandle } from "@/components/admin/SignaturePad";
-import ContratoTexto from "@/components/admin/ContratoTexto";
-import { carregarEmpresaConfig, EMPRESA_DEFAULT, type EmpresaConfig } from "@/lib/fm-empresa";
+import { createFileRoute, useNavigate, useParams } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
+import { fmSupabase, linkPublicoEtapa } from "@/lib/fm-contratos";
 
 export const Route = createFileRoute("/contrato/$token")({
-  head: () => ({ meta: [{ title: "Assinar Contrato · F&M" }] }),
-  component: PublicContratoPage,
+  head: () => ({ meta: [{ title: "Contrato · F&M" }] }),
+  component: ContratoRedirectPage,
 });
+
+function ContratoRedirectPage() {
+  const { token } = useParams({ from: "/contrato/$token" });
+  const navigate = useNavigate();
+  const [erro, setErro] = useState<string | null>(null);
+
+  useEffect(() => {
+    void (async () => {
+      const { data, error } = await fmSupabase
+        .from("contratos")
+        .select("status")
+        .eq("token_cliente", token)
+        .maybeSingle();
+      if (error || !data) { setErro(error?.message ?? "Contrato não encontrado."); return; }
+      const path = linkPublicoEtapa((data as { status?: string }).status, token);
+      window.location.replace(path);
+    })();
+  }, [token, navigate]);
+
+  if (erro) {
+    return <div className="mx-auto max-w-xl p-6"><div className="rounded border border-red-300 bg-red-50 p-4 text-sm text-red-900">{erro}</div></div>;
+  }
+  return <div className="flex min-h-screen items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-slate-400" /></div>;
+}
 
 type Row = Record<string, unknown>;
 
