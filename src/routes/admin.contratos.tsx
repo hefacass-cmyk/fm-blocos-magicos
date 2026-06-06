@@ -209,11 +209,24 @@ function Tabela({ rows, onDelete }: { rows: Row[]; onDelete: (r: Row) => void })
                 <td className="p-3">
                   <div className="flex items-center justify-end gap-1">
                     <Button asChild size="icon" variant="ghost" title="Ver/Editar">
-                      <Link to="/admin/contratos/$id" params={{ id: String(r.id) }}><Pencil className="h-4 w-4" /></Link>
+                      <Link
+                        to="/admin/contratos/$id"
+                        params={{ id: String(r.id) }}
+                        onClick={() => console.log("[admin.contratos] Navegando para contrato id:", r.id, "tipo:", typeof r.id)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Link>
                     </Button>
                     {r.token_cliente ? (
                       <Button asChild size="icon" variant="ghost" title="Link do cliente">
-                        <Link to="/contrato/$token" params={{ token: String(r.token_cliente) }} target="_blank"><Eye className="h-4 w-4" /></Link>
+                        <Link
+                          to="/contrato/$token"
+                          params={{ token: String(r.token_cliente) }}
+                          target="_blank"
+                          onClick={() => console.log("[admin.contratos] Abrindo link cliente token:", r.token_cliente, "contrato id:", r.id)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Link>
                       </Button>
                     ) : null}
                     <Button size="icon" variant="ghost" title="Excluir" onClick={() => onDelete(r)}>
