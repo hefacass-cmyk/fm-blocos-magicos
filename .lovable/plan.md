@@ -1,139 +1,98 @@
-## Visão geral
+## Plano: Fluxo de contrato F&M em 5 etapas
 
-Reformatar todo o fluxo de contratos em 5 frentes:
-
-1. Formulário público `/iniciar-contrato` sem qualquer preço/cálculo
-2. Schema do banco: novas colunas `prospect_*` e tabela `empresa_config`
-3. Painel admin `/admin/contratos/[id]` — cards de leitura do prospect + seção "Proposta F&M" + botão "Gerar contrato e enviar"
-4. Página `/contrato/[token]` — contrato formatado com **14 cláusulas completas**, dados da F&M (de `empresa_config`), cônjuge como interveniente, assinaturas
-5. Geração de PDF formatado com cabeçalho, cláusulas, assinaturas e rodapé
+Vou redesenhar todo o ciclo de vida do contrato, criando 3 páginas públicas novas, refatorando o admin e adicionando os novos status no banco.
 
 ---
 
-## 1. Schema do banco (nova migration)
+### 1. Banco de dados — `db/2026_06_08_contrato_fluxo_5_etapas.sql`
 
-**Arquivo:** `db/2026_06_07_contratos_v2.sql`
+- Adicionar novos valores ao enum/check de `contratos.status`:
+  - `dados_cliente_enviados`, `aguardando_revisao`, `em_revisao`, `assinado_cliente`
+  - (mantém `rascunho`, `aguardando_cliente`, `aguardando_fm`, `assinado`, `cancelado` para compat)
+- Adicionar coluna `observacoes_cliente text` em `contratos` (idempotente)
+- RPC `salvar_dados_cliente_publico(p_token, p_payload jsonb)` — preenche todos os `prospect_*` e seta status para `dados_cliente_enviados`
+- RPC `solicitar_alteracao_contrato(p_token, p_observacao)` — grava `observacoes_cliente` e seta status `em_revisao`
+- RPC `assinar_contrato_cliente(p_token, p_assinatura)` — grava assinatura cliente + status `assinado_cliente`
+- RPC `assinar_fm_automatico(p_contrato_id)` — busca `empresa_config.assinatura_fm_default`, grava em `assinatura_fm`, status `assinado`
+- GRANTs apropriados (anon para RPCs públicas via token; service_role para tudo)
 
-**Tabela `empresa_config`** (singleton, 1 linha):
-```
-razao_social, cnpj, endereco, representante_nome,
-representante_cpf, representante_rg, representante_estado_civil,
-representante_profissao, representante_nascimento,
-representante_endereco, responsavel_tecnico, crea, pix_chave,
-logo_url, assinatura_fm_default (base64)
-```
-Seed com os dados fornecidos (Hélder, CNPJ 21.560.948/0001-71, etc).
+### 2. Rotas públicas novas (todas sem login)
 
-**Novas colunas em `contratos`** (idempotente, `add column if not exists`):
-- `prospect_whatsapp` text
-- `prospect_tipo_obra` text[]  (array de checkboxes)
-- `prospect_sistema_preferido`, `prospect_servico_preferido`, `prospect_camera_preferida` text  (apelidos novos; manter antigos para compat)
-- `prospect_conjuge_assinatura` text + `prospect_conjuge_assinatura_data` timestamptz
+**a) `src/routes/contrato.dados.$token.tsx`** — Etapa 1
+- Formulário completo (PF/PJ, dados pessoais, cônjuge condicional, endereço com ViaCEP, dados da obra)
+- Reaproveita máscaras de `src/lib/fm-clientes.ts`
+- Submit chama RPC `salvar_dados_cliente_publico`
+- Após sucesso: tela "✅ Dados enviados! A F&M vai elaborar sua proposta."
+- Notificação WhatsApp à F&M via link `wa.me/5571999454343` (abre nova aba) ou função server-side se já houver integração
 
-**Atualizar RPC `criar_contrato_publico`** para gravar nas novas colunas (incluindo `prospect_tipo_obra` como array em vez dos 3 booleans antigos).
+**b) `src/routes/contrato.revisar.$token.tsx`** — Etapa 3
+- Carrega contrato + `empresa_config`
+- Renderiza `<ContratoTexto />` completo com as 14 cláusulas já preenchidas
+- 2 botões: "✅ Concordo — Assinar" (→ navega para `/contrato/assinar/$token`) e "✏️ Solicitar alteração" (abre textarea modal → RPC `solicitar_alteracao_contrato`)
 
-GRANT/RLS conforme padrão do projeto.
+**c) `src/routes/contrato.assinar.$token.tsx`** — Etapa 4
+- Resumo enxuto do contrato
+- `<SignaturePad />` largura total altura 200px
+- Botão Limpar + checkbox "Li e concordo com todos os termos"
+- Submit: RPC `assinar_contrato_cliente` → em seguida chama RPC `assinar_fm_automatico` (Etapa 5)
+- Após sucesso: tela final com link para `/dashboard` e código do cliente
 
----
+A rota antiga `src/routes/contrato.$token.tsx` permanece como fallback (redireciona para a etapa apropriada conforme `status`).
 
-## 2. Formulário público `/iniciar-contrato` (src/routes/iniciar-contrato.tsx)
+### 3. Admin — `src/routes/admin.contratos.$id.tsx` (Etapa 2)
 
-**Remover:**
-- `precoPreview` (linhas 346-349) e badge de `R$/m²` no Etapa 2
-- Qualquer exibição de preço no Etapa 3 (resumo) — substituir por resumo textual
-- Import de `precoM2`, `brl`, `PLANOS_CAMERA`
+- Cards de leitura (azul claro) com os dados recebidos do cliente
+- Seção "Proposta F&M" editável:
+  sistema, serviço, modalidades, valor total (livre), adiantamento (auto 15% editável), data início, prazo, data fim (auto), plano câmera, databook, observações
+- Botão "GERAR CONTRATO PARA REVISÃO DO CLIENTE":
+  - Salva, status → `aguardando_revisao`
+  - Copia link `https://www.fmsmartbuild.com.br/contrato/revisar/[token]` para clipboard
+  - Toast confirmando
+- Mostrar `observacoes_cliente` em destaque (amarelo) quando status = `em_revisao`
 
-**Estrutura nova:**
-- **Etapa 1** (Dados Pessoais): adicionar **WhatsApp** separado de Telefone. Mantém cônjuge condicional (já existe).
-- **Etapa 2** (Dados da Obra): substituir os 3 booleans `tipo_obra_*` por **array de checkboxes** `tipo_obra[]`. Sistema/Serviço/Câmera continuam como Radio mas **sem preço** ao lado.
-- **Etapa 3** (Confirmação): apenas listar campos preenchidos (sem qualquer valor financeiro), checkbox de confirmação, botão ENVIAR.
+Também atualizar `src/routes/admin.contratos.tsx` (lista) com novos labels/cores de status.
 
-Payload enviado à RPC inclui as novas chaves (`whatsapp`, `tipo_obra` array, `sistema_preferido`, etc).
+### 4. Admin — `src/routes/admin.configuracoes.tsx`
 
----
+Já existe a seção "Assinatura padrão da F&M" com SignaturePad. Verificar e ajustar se necessário (parece já implementado conforme contexto).
 
-## 3. Admin — `/admin/contratos/$id` (src/routes/admin.contratos.$id.tsx)
+### 5. Geração do link inicial (Etapa 1)
 
-**Já existe** o card azul "Dados recebidos do solicitante". Expandir com:
-- WhatsApp, tipo_obra (array), cônjuge completo
-- Bloco "Endereço da obra" formatado
+No admin existe `/admin/contratos` (lista). Adicionar botão "Novo contrato" que:
+- Cria um registro mínimo em `contratos` (apenas token gerado, status `rascunho`)
+- Copia link `https://www.fmsmartbuild.com.br/contrato/dados/[token]` para clipboard
+- F&M envia manualmente ao cliente via WhatsApp
 
-**Seção "Proposta F&M"** (editável, novo agrupamento dos campos já existentes):
-- Sistema construtivo, Tipo de serviço (selects)
-- Valor m² (input livre — manter `precoM2()` como sugestão mas não impor)
-- Área m² (pré-carregada de `prospect_area_construir`, editável)
-- Valor serviço, plano câmera, databook, valor total, adiantamento 15%
-- Data início, prazo dias, data fim automática
-- Modalidades (checkboxes)
-- Observações
+### 6. Helpers atualizados em `src/lib/fm-contratos.ts`
 
-**Botão "GERAR CONTRATO E ENVIAR PARA ASSINATURA"** (substitui "Enviar para Cliente"):
-- Valida campos mínimos da proposta
-- Salva com `status='aguardando_cliente'`
-- Copia link `https://www.fmsmartbuild.com.br/contrato/[token]` para clipboard
-- Toast: "Contrato gerado! Envie o link ao cliente pelo WhatsApp."
-- Não abre wa.me automaticamente (admin envia manual)
-
-**Assinar como F&M** (aba já existente): pré-carregar `empresa_config.assinatura_fm_default` se existir.
+- Adicionar novos status nos `STATUS_LABELS` e `STATUS_COLORS`
+- Helper `linkPublicoEtapa(status, token)` que retorna a URL correta da etapa atual
 
 ---
 
-## 4. `/contrato/[token]` — Contrato com 14 cláusulas
+### Arquivos a criar
+- `db/2026_06_08_contrato_fluxo_5_etapas.sql`
+- `src/routes/contrato.dados.$token.tsx`
+- `src/routes/contrato.revisar.$token.tsx`
+- `src/routes/contrato.assinar.$token.tsx`
 
-**Reescrever `src/components/admin/ContratoTexto.tsx`** (usado em ambos preview admin e página pública):
-- Buscar `empresa_config` (passado por prop ou hook)
-- Renderizar **as 14 cláusulas exatamente como especificado** no pedido:
-  1. Qualificação das Partes (com cônjuge interveniente se aplicável)
-  2. Objeto (com modalidade, tipo obra, endereço, áreas, sistema, serviço)
-  3. Prazo de Execução (com condições de prorrogação)
-  4. Serviços Adicionais e Aditivos (15% adiantamento)
-  5. Valor e Forma de Pagamento (com valor por extenso; PIX CNPJ; câmera/databook condicionais)
-  6. Obrigações da Contratada
-  7. Obrigações do Contratante (extra item se F&M ESSENCIAL)
-  8. Responsabilidade Técnica (CREA, ART)
-  9. Especificações Técnicas IBPP (somente se sistema=IBPP)
-  10. Rescisão Contratual
-  11. Penalidades ao Contratante (com cláusula extra F&M ESSENCIAL)
-  12. Garantia Legal (Art. 618 CC, 5 anos)
-  13. Alterações Contratuais
-  14. Disposições Gerais (Foro Camaçari/BA)
-- Local e data: "Camaçari/BA, [DIA] de [MÊS] de [ANO]"
-- Bloco de assinaturas: CONTRATADA (imagem + nome + CPF + data) + CONTRATANTE + CÔNJUGE (se houver) + 2 linhas em branco para testemunhas
+### Arquivos a editar
+- `src/lib/fm-contratos.ts` (novos status + helper de link)
+- `src/routes/admin.contratos.$id.tsx` (botão "Gerar para revisão", exibir observações)
+- `src/routes/admin.contratos.tsx` (labels novos status)
+- `src/routes/contrato.$token.tsx` (redirect para etapa correta conforme status)
 
-**Helper `valor por extenso`** em `src/lib/fm-extenso.ts` (escrever do zero — função pura, converte número → "vinte mil reais").
+### PDF e WhatsApp automático
 
-**Página `/contrato/$token`:**
-- Carregar `empresa_config` junto com o contrato
-- Se prospect tem cônjuge, exibir campo extra de assinatura do cônjuge
-- Ao assinar: salva `assinatura_cliente` + `assinatura_cliente_data`, status `aguardando_fm`, toast "✅ Assinatura registrada!"
+O envio automático via WhatsApp (etapa 5 final) exige integração com API (uazapi/outro). Hoje o projeto não tem essa integração configurada — vou deixar o fluxo gerando o link, mas o **envio automático ao WhatsApp** vai exigir confirmação adicional do provedor (uazapi token? outra API?). Por ora, mostro botão "Abrir WhatsApp" que o admin clica para enviar manualmente. Da mesma forma, a notificação automática à F&M em cada etapa será um botão `wa.me` que abre o WhatsApp do Hélder — confirmar se prefere assim ou integrar API externa.
+
+A geração do PDF reaproveita o fluxo `html2canvas` já existente em `admin.contratos.$id.tsx`. O link do PDF gerado pelo cliente fica disponível no dashboard dele.
 
 ---
 
-## 5. PDF (já existe `baixarPDF` mas precisa melhorar)
+### Pontos a confirmar antes de implementar
 
-**Em `src/routes/admin.contratos.$id.tsx`:**
-- Renderizar o `ContratoTexto` em um container fora-da-tela com largura A4 (210mm = ~794px @ 96dpi)
-- Cabeçalho: logo F&M + dados empresa
-- Rodapé fixo: "F&M Construções Inteligentes | CNPJ: 21.560.948/0001-71"
-- Nome do arquivo: `Contrato_FM_${numero}_${nome_cliente_slug}.pdf`
-- Paginação correta via html2canvas (já tem rudimentar, melhorar com slicing por altura útil)
-
----
-
-## Arquivos a criar
-- `db/2026_06_07_contratos_v2.sql`
-- `src/lib/fm-extenso.ts`
-- `src/lib/fm-empresa.ts` (loader de empresa_config + tipos)
-
-## Arquivos a editar
-- `src/routes/iniciar-contrato.tsx` — remover preços, adicionar WhatsApp, tipo_obra array
-- `src/routes/admin.contratos.$id.tsx` — botão "Gerar e enviar", PDF melhorado
-- `src/routes/contrato.$token.tsx` — carregar empresa_config, assinatura cônjuge
-- `src/components/admin/ContratoTexto.tsx` — reescrever com 14 cláusulas
-
-## Pontos a confirmar antes de implementar
-
-1. **Logo da F&M**: tem URL/asset já no projeto ou devo deixar placeholder no cabeçalho do PDF?
-2. **Assinatura padrão do Hélder**: você quer carregar uma imagem pré-cadastrada de `empresa_config.assinatura_fm_default` (admin só clica "confirmar"), ou continua desenhando manualmente toda vez?
-3. **Campos do prospect já gravados**: o banco hoje tem `prospect_tipo_obra_construcao/reforma/ampliacao` (3 booleans) — devo migrar para o array `prospect_tipo_obra[]` e dropar os booleans, ou manter ambos por compat?
-4. **Telefone vs WhatsApp**: você quer **dois campos separados** no formulário, ou um único campo "Telefone/WhatsApp" (como hoje)?
+1. **Notificação WhatsApp automática**: usar API externa (qual? uazapi com token?) ou apenas botões `wa.me` que abrem o app manualmente?
+2. **PDF final**: gerado on-demand quando cliente acessa o dashboard, ou salvo em storage (Supabase Storage) no momento da assinatura?
+3. **Confirmar que a tabela `contratos` já tem o campo `token_cliente`** (parece sim pelo contexto) e que ele é gerado quando o contrato é criado.
+4. **Status legado**: posso deprecar `aguardando_cliente` / `aguardando_fm` (substituídos por `dados_cliente_enviados` / `aguardando_revisao`) ou preciso manter ambos por compat com contratos antigos?
