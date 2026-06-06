@@ -6,7 +6,11 @@ const SUPABASE_URL = "https://hdjlwidfnikbahfhrkil.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_a5Nuz82MbLRzOZ-Bc3Xuhg_UFSKrdka";
 
 export const fmSupabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  auth: { persistSession: false },
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    storageKey: "fm-supabase-auth",
+  },
 });
 
 const STORAGE_KEY = "fm_cliente_logado";
