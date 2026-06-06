@@ -9,7 +9,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { fmSupabase, STATUS_COLORS, STATUS_LABELS, brl, fmtData, type ContratoStatus } from "@/lib/fm-contratos";
+import { fmSupabase, STATUS_COLORS, STATUS_LABELS, brl, fmtData, gerarNumeroContrato, type ContratoStatus } from "@/lib/fm-contratos";
 
 export const Route = createFileRoute("/admin/contratos")({
   head: () => ({ meta: [{ title: "Contratos · F&M" }] }),
@@ -60,7 +60,11 @@ function AdminContratosPage() {
     for (const r of filtered) {
       const s = (r.status as ContratoStatus) || "rascunho";
       if (s === "rascunho") pendentes.push(r);
-      else if (s === "aguardando_cliente" || s === "aguardando_fm") andamento.push(r);
+      else if (
+        s === "aguardando_cliente" || s === "aguardando_fm" ||
+        s === "dados_cliente_enviados" || s === "aguardando_revisao" ||
+        s === "em_revisao" || s === "assinado_cliente"
+      ) andamento.push(r);
       else if (s === "assinado") assinados.push(r);
       else outros.push(r);
     }
@@ -74,6 +78,25 @@ function AdminContratosPage() {
     toast.success("Contrato excluído");
     setRows((arr) => arr.filter((x) => x.id !== delTarget.id));
     setDelOpen(false); setDelTarget(null);
+  };
+
+  const novoLinkCliente = async () => {
+    const numero = await gerarNumeroContrato();
+    const { data, error } = await fmSupabase
+      .from("contratos")
+      .insert({ numero, status: "rascunho" })
+      .select("token_cliente, numero")
+      .single();
+    if (error || !data) { toast.error("Erro: " + (error?.message ?? "")); return; }
+    const token = (data as { token_cliente: string }).token_cliente;
+    const url = `https://www.fmsmartbuild.com.br/contrato/dados/${token}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success(`Link copiado (${(data as { numero: string }).numero}). Envie ao cliente pelo WhatsApp.`);
+    } catch {
+      window.prompt("Copie e envie ao cliente:", url);
+    }
+    load();
   };
 
   return (
