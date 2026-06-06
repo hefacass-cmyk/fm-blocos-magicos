@@ -1,11 +1,12 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Users, Building2, MessageSquare, Star, Activity, Eye, LogOut, Check, X, Loader2, KeyRound, Mail, Trash2, FileText } from "lucide-react";
+import { Users, Building2, MessageSquare, Star, Activity, Eye, LogOut, Check, X, Loader2, KeyRound, Mail, Trash2, FileText, UserPlus, Bell } from "lucide-react";
 import { fmSupabase } from "@/lib/fm-supabase";
 import { logAdmin } from "@/lib/fm-tracking";
 import { toast } from "sonner";
 import ClientesSection from "@/components/admin/ClientesSection";
 import { signOutAdmin } from "@/lib/fm-admin-auth";
+import { DashboardResumo, AlertasAdmin } from "@/components/admin/DashboardResumo";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -293,6 +294,18 @@ function AdminDashboardPage() {
               <FileText className="h-4 w-4" /> Contratos
             </Link>
             <Link
+              to="/admin/leads"
+              className="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium hover:bg-slate-50"
+            >
+              <UserPlus className="h-4 w-4" /> Leads
+            </Link>
+            <Link
+              to="/admin/notificacoes"
+              className="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium hover:bg-slate-50"
+            >
+              <Bell className="h-4 w-4" /> Notificações
+            </Link>
+            <Link
               to="/admin/auditoria-emails"
               className="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium hover:bg-slate-50"
             >
@@ -306,6 +319,10 @@ function AdminDashboardPage() {
       </header>
 
       <main className="container mx-auto max-w-6xl space-y-6 px-4 py-8">
+        {/* Alertas e Resumo Geral F&M */}
+        <AlertasAdmin />
+        <DashboardResumo />
+
         {/* KPIs */}
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           <Kpi icon={Eye} label="Acessos (total)" value={stats.acessosTotal} sub={`Hoje: ${stats.acessosHoje} · 7d: ${stats.acessosSemana}`} />
