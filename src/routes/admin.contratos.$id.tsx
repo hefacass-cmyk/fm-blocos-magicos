@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate, useParams } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, Copy, Loader2, Send, Plus, Trash2, Check, FileDown, Save } from "lucide-react";
+import { ArrowLeft, Copy, Loader2, Send, Plus, Trash2, Check, FileDown, Save, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,7 @@ import {
 } from "@/lib/fm-contratos";
 import SignaturePad, { type SignaturePadHandle } from "@/components/admin/SignaturePad";
 import ContratoTexto from "@/components/admin/ContratoTexto";
+import { MarcarPagoModal } from "@/components/admin/MarcarPagoModal";
 
 export const Route = createFileRoute("/admin/contratos/$id")({
   head: () => ({ meta: [{ title: "Contrato · F&M" }] }),
@@ -206,6 +207,17 @@ function AdminContratoDetalhePage() {
   const marcarPago = async (idM: string) => {
     await updMedicao(idM, { status: "pago", data_pagamento: new Date().toISOString().slice(0, 10) });
     toast.success("Marcado como pago");
+  };
+  const [pagModal, setPagModal] = useState<string | null>(null);
+  const verComprovante = async (url: string) => {
+    try {
+      if (url.startsWith("http")) { window.open(url, "_blank"); return; }
+      const { data, error } = await fmSupabase.storage.from("comprovantes-pagamento").createSignedUrl(url, 600);
+      if (error) throw error;
+      window.open(data.signedUrl, "_blank");
+    } catch (e: any) {
+      toast.error(e?.message || "Falha ao abrir comprovante");
+    }
   };
   const delMedicao = async (idM: string) => {
     if (!confirm("Excluir medição?")) return;
@@ -439,7 +451,8 @@ function AdminContratoDetalhePage() {
                           <td className="p-2"><Input type="date" value={(m.data_vencimento as string) || ""} onChange={(e) => updMedicao(String(m.id), { data_vencimento: e.target.value })} className="h-8" /></td>
                           <td className="p-2"><span className="rounded px-2 py-0.5 text-xs text-white" style={{ background: FIN_COLORS[st] }}>{FIN_LABELS[st]}</span></td>
                           <td className="p-2 text-right">
-                            {m.status !== "pago" && <Button size="sm" variant="outline" onClick={() => marcarPago(String(m.id))}><Check className="h-3 w-3 mr-1" />Pago</Button>}
+                            {m.status !== "pago" && <Button size="sm" variant="outline" onClick={() => setPagModal(String(m.id))}><Check className="h-3 w-3 mr-1" />Marcar Pago</Button>}
+                            {m.comprovante_url ? <Button size="icon" variant="ghost" onClick={() => verComprovante(String(m.comprovante_url))}><Eye className="h-4 w-4 text-slate-600" /></Button> : null}
                             <Button size="icon" variant="ghost" onClick={() => delMedicao(String(m.id))}><Trash2 className="h-4 w-4 text-rose-600" /></Button>
                           </td>
                         </tr>
