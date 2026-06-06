@@ -105,13 +105,14 @@ function AdminAvaliacoesPage() {
             {filtered.map((r) => {
               const pid = String(r.parceiro_id ?? "");
               const pendente = !r.aprovado && !r.rejeitado;
+              const servico = r.servico ? String(r.servico) : "";
               return (
                 <li key={String(r.id)} className="rounded-lg border bg-white p-4 shadow-sm">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
                       <p className="text-xs text-slate-500">{String(r.criado_em ?? "").slice(0, 10)}</p>
                       <p className="font-bold" style={{ color: BRAND_BLUE }}>{parceirosMap[pid] ?? "(parceiro)"}</p>
-                      <p className="text-sm">por <strong>{String(r.nome_avaliador ?? "—")}</strong> {r.servico ? (<>· <em>{String(r.servico)}</em></>) : null}</p>
+                      <p className="text-sm">por <strong>{String(r.nome_avaliador ?? "—")}</strong> {servico && <span>· <em>{servico}</em></span>}</p>
                       <div className="mt-1"><Stars n={Number(r.nota ?? 0)} /></div>
                       {r.comentario && <p className="mt-2 text-sm italic text-slate-700">"{String(r.comentario)}"</p>}
                     </div>
