@@ -41,6 +41,7 @@ type Form = {
   tipo_obra: string[];
   sistema: string; servico: string; plano_camera: string;
   prazo_desejado: string; observacoes: string;
+  ja_possui_projeto: boolean; quer_projeto: boolean;
 };
 
 const VAZIO: Form = {
@@ -59,6 +60,7 @@ const VAZIO: Form = {
   tipo_obra: [],
   sistema: "", servico: "", plano_camera: "sem_camera",
   prazo_desejado: "", observacoes: "",
+  ja_possui_projeto: false, quer_projeto: false,
 };
 
 function IniciarContratoPage() {
@@ -145,14 +147,48 @@ function IniciarContratoPage() {
   const enviar = async () => {
     if (!confirmou) { toast.error("Confirme a veracidade das informações"); return; }
     setEnviando(true);
+    // MAPEAMENTO CANÔNICO: somente colunas que existem em public.contratos
     const payload = {
-      ...f,
-      whatsapp: f.whatsapp || f.telefone,
-      tamanho_terreno: f.tamanho_terreno || null,
-      area_construir: f.area_construir || null,
-      sistema_preferido: f.sistema,
-      servico_preferido: f.servico,
-      camera_preferida: f.plano_camera,
+      prospect_tipo_pessoa: f.tipo_pessoa,
+      prospect_nome: f.nome,
+      prospect_cpf_cnpj: f.cpf_cnpj,
+      prospect_rg: f.rg,
+      prospect_nacionalidade: f.nacionalidade,
+      prospect_estado_civil: f.estado_civil,
+      prospect_profissao: f.profissao,
+      prospect_email: f.email,
+      prospect_telefone: f.telefone,
+      prospect_whatsapp: f.whatsapp || f.telefone,
+      prospect_cep: f.cep,
+      prospect_rua: f.rua,
+      prospect_numero: f.numero,
+      prospect_bairro: f.bairro,
+      prospect_cidade: f.cidade,
+      prospect_estado: f.estado,
+      prospect_conjuge_nome: f.conjuge_nome,
+      prospect_conjuge_cpf: f.conjuge_cpf,
+      prospect_conjuge_rg: f.conjuge_rg,
+      prospect_conjuge_email: f.conjuge_email,
+      prospect_conjuge_telefone: f.conjuge_telefone,
+      prospect_conjuge_profissao: f.conjuge_profissao,
+      prospect_conjuge_nacionalidade: f.conjuge_nacionalidade,
+      prospect_obra_cep: f.obra_cep,
+      prospect_obra_rua: f.obra_rua,
+      prospect_obra_numero: f.obra_numero,
+      prospect_obra_bairro: f.obra_bairro,
+      prospect_obra_cidade: f.obra_cidade,
+      prospect_obra_estado: f.obra_estado,
+      prospect_tamanho_terreno: f.tamanho_terreno || null,
+      prospect_tipo_terreno: f.tipo_terreno,
+      prospect_area_construir: f.area_construir || null,
+      prospect_tipo_obra: f.tipo_obra,
+      prospect_sistema_preferido: f.sistema,
+      prospect_servico_preferido: f.servico,
+      prospect_camera_preferida: f.plano_camera,
+      prospect_prazo_desejado: f.prazo_desejado,
+      prospect_observacoes: f.observacoes,
+      prospect_ja_possui_projeto: f.ja_possui_projeto,
+      prospect_quer_projeto: f.quer_projeto,
     };
     const { data, error } = await fmSupabase.rpc("criar_contrato_publico", {
       p_dados: payload, p_parceiro_slug: parceiroSlug,
@@ -395,7 +431,7 @@ function Etapa2({
 
       <Field label="Tipo de obra *">
         <div className="flex flex-wrap gap-4">
-          {["Construção", "Reforma", "Ampliação", "Casa", "Galpão", "Prédio", "Vilage", "Outro"].map((t) => (
+          {["Construção", "Reforma", "Ampliação", "Casa", "Galpão", "Prédio", "Village", "Outro"].map((t) => (
             <label key={t} className="flex items-center gap-2 text-sm">
               <Checkbox checked={f.tipo_obra.includes(t)} onCheckedChange={() => toggleTipo(t)} />
               {t}
@@ -440,6 +476,16 @@ function Etapa2({
       <Grid>
         <Field label="Prazo desejado para início"><Input value={f.prazo_desejado} onChange={(e) => set({ prazo_desejado: e.target.value })} placeholder="Ex: em 30 dias" /></Field>
       </Grid>
+      <div className="grid gap-2 md:grid-cols-2">
+        <label className="flex items-center gap-2 text-sm">
+          <Checkbox checked={f.ja_possui_projeto} onCheckedChange={(v) => set({ ja_possui_projeto: Boolean(v) })} />
+          Já possui projeto arquitetônico
+        </label>
+        <label className="flex items-center gap-2 text-sm">
+          <Checkbox checked={f.quer_projeto} onCheckedChange={(v) => set({ quer_projeto: Boolean(v) })} />
+          Quero que a F&M elabore o projeto
+        </label>
+      </div>
       <Field label="Observações adicionais">
         <Textarea value={f.observacoes} onChange={(e) => set({ observacoes: e.target.value })} rows={3} />
       </Field>
