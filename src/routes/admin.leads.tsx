@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { ArrowLeft, ChevronRight, MapPin, MessageSquare, UserPlus, Loader2 } from "lucide-react";
 import { fmSupabase } from "@/lib/fm-supabase";
 import { toast } from "sonner";
@@ -109,7 +109,7 @@ function AdminLeadsPage() {
               </thead>
               <tbody>
                 {parceiros.map((p) => (
-                  <>
+                  <Fragment key={p.parceiro_id}>
                     <tr key={p.parceiro_id} onClick={() => toggle(p.parceiro_id)} className="border-b cursor-pointer hover:bg-slate-50">
                       <td className="p-3 font-semibold text-slate-900">{p.nome}</td>
                       <td className="p-3 text-slate-600"><MapPin className="inline h-3 w-3 mr-1" />{p.cidade || "—"}/{p.estado || "—"}</td>
@@ -150,7 +150,7 @@ function AdminLeadsPage() {
                         </td>
                       </tr>
                     )}
-                  </>
+                  </Fragment>
                 ))}
               </tbody>
             </table>
