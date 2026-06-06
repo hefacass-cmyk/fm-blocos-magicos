@@ -19,6 +19,10 @@ export const Route = createFileRoute("/contrato/$token")({
 
 type Row = Record<string, unknown>;
 
+function isRow(value: unknown): value is Row {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
 const PUBLIC_CONTRATO_COLUMNS = [
   "id",
   "numero",
@@ -80,9 +84,9 @@ function PublicContratoPage() {
     void carregarEmpresaConfig().then(setEmpresa);
     const { data, error } = await fmSupabase.rpc("get_contrato_publico", { p_token: token });
     console.log("[contrato.$token] RPC get_contrato_publico:", { data, error });
-    if (data) {
-      setC(data as Row);
-      if (((data as Row).cliente_cpf_cnpj as string)?.length > 14) setTipo("PJ");
+    if (isRow(data)) {
+      setC(data);
+      if ((data.cliente_cpf_cnpj as string)?.length > 14) setTipo("PJ");
       setLoading(false);
       return;
     }
@@ -99,9 +103,9 @@ function PublicContratoPage() {
 
     console.log("[contrato.$token] Fallback direto por token_cliente:", fallback);
 
-    if (fallback.data) {
-      setC(fallback.data as Row);
-      if (((fallback.data as Row).cliente_cpf_cnpj as string)?.length > 14) setTipo("PJ");
+    if (isRow(fallback.data)) {
+      setC(fallback.data);
+      if ((fallback.data.cliente_cpf_cnpj as string)?.length > 14) setTipo("PJ");
       setLoading(false);
       return;
     }
