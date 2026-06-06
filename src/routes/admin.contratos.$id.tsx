@@ -595,9 +595,19 @@ function AdminContratoDetalhePage() {
                 <div className="space-y-2">
                   <Label>Assinar como F&M</Label>
                   <SignaturePad ref={fmPadRef} />
-                  <Button onClick={assinarFM} disabled={saving} className="bg-emerald-600 hover:bg-emerald-700">
-                    {saving ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Check className="mr-1 h-4 w-4" />} Assinar Contrato
-                  </Button>
+                  <div className="flex flex-wrap gap-2">
+                    <Button onClick={assinarFM} disabled={saving} className="bg-emerald-600 hover:bg-emerald-700">
+                      {saving ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Check className="mr-1 h-4 w-4" />} Assinar Contrato
+                    </Button>
+                    {empresa.assinatura_fm_default && (
+                      <Button variant="outline" onClick={usarAssinaturaPadrao} disabled={saving}>
+                        <Check className="mr-1 h-4 w-4" /> Usar assinatura padrão
+                      </Button>
+                    )}
+                  </div>
+                  {!empresa.assinatura_fm_default && (
+                    <p className="text-xs text-slate-500">Dica: cadastre sua assinatura padrão em <Link to="/admin/configuracoes" className="text-blue-600 underline">/admin/configuracoes</Link> para reutilizar com um clique.</p>
+                  )}
                 </div>
               ) : (
                 <p className="text-sm text-slate-500">Aguardando o cliente assinar para liberar a assinatura F&M.</p>
