@@ -80,14 +80,14 @@ function AdminContratoDetalhePage() {
         responsavel_tecnico: "Eng. Francisco A. P. Jr.", crea: "38.135-D/BA",
       });
     } else {
-      const [{ data: c }, { data: ad }, { data: me }] = await Promise.all([
-        fmSupabase.from("contratos").select("*, clientes(nome, codigo_cliente)").eq("id", id).maybeSingle(),
+      const [{ data: c, error: cErr }, { data: ad }, { data: me }] = await Promise.all([
+        fmSupabase.from("contratos").select("*").eq("id", id).maybeSingle(),
         fmSupabase.from("contratos_aditivos").select("*").eq("contrato_id", id).order("criado_em"),
         fmSupabase.from("obra_financeiro").select("*").eq("contrato_id", id).order("data_vencimento"),
       ]);
-      if (!c) {
-        console.error("[admin.contratos] não encontrado id=", id);
-        toast.error("Contrato não encontrado (id=" + String(id).slice(0, 8) + "…)");
+      if (cErr || !c) {
+        console.error("[admin.contratos] erro/sem retorno id=", id, cErr);
+        toast.error("Contrato não encontrado" + (cErr ? `: ${cErr.message}` : ""));
         navigate({ to: "/admin/contratos" });
         return;
       }
