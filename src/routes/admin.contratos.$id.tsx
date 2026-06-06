@@ -550,6 +550,14 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 function Card({ label, value, color = "" }: { label: string; value: string; color?: string }) {
   return <div className="rounded-md border bg-white p-3"><div className="text-xs text-slate-500">{label}</div><div className={`text-lg font-bold ${color}`}>{value}</div></div>;
 }
+function ProspectLinha({ k, v }: { k: string; v: string }) {
+  return (
+    <div className="flex flex-wrap justify-between gap-2 border-b border-blue-100 py-1 last:border-0">
+      <span className="text-blue-900/70">{k}</span>
+      <span className="font-medium text-blue-950">{v || "—"}</span>
+    </div>
+  );
+}
 function Timeline({ status }: { status: ContratoStatus }) {
   const steps: ContratoStatus[] = ["rascunho", "aguardando_cliente", "aguardando_fm", "assinado"];
   const idx = steps.indexOf(status);
