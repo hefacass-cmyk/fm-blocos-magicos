@@ -1,12 +1,13 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Users, Building2, MessageSquare, Star, Activity, Eye, LogOut, Check, X, Loader2, KeyRound, Mail, Trash2, FileText, UserPlus, Bell } from "lucide-react";
+import { Users, Building2, MessageSquare, Star, Activity, Eye, LogOut, Check, X, Loader2, KeyRound, Mail, Trash2, FileText, UserPlus, Bell, Search } from "lucide-react";
 import { fmSupabase } from "@/lib/fm-supabase";
 import { logAdmin } from "@/lib/fm-tracking";
 import { toast } from "sonner";
 import ClientesSection from "@/components/admin/ClientesSection";
 import { signOutAdmin } from "@/lib/fm-admin-auth";
 import { DashboardResumo, AlertasAdmin } from "@/components/admin/DashboardResumo";
+import { BannerBackupGithub } from "@/components/admin/BannerBackupGithub";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -306,6 +307,18 @@ function AdminDashboardPage() {
               <Bell className="h-4 w-4" /> Notificações
             </Link>
             <Link
+              to="/admin/avaliacoes"
+              className="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium hover:bg-slate-50"
+            >
+              <Star className="h-4 w-4" /> Avaliações
+            </Link>
+            <Link
+              to="/admin/seo"
+              className="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium hover:bg-slate-50"
+            >
+              <Search className="h-4 w-4" /> SEO
+            </Link>
+            <Link
               to="/admin/auditoria-emails"
               className="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium hover:bg-slate-50"
             >
@@ -319,6 +332,7 @@ function AdminDashboardPage() {
       </header>
 
       <main className="container mx-auto max-w-6xl space-y-6 px-4 py-8">
+        <BannerBackupGithub />
         {/* Alertas e Resumo Geral F&M */}
         <AlertasAdmin />
         <DashboardResumo />

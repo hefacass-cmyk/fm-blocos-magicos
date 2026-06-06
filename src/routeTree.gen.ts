@@ -31,12 +31,14 @@ import { Route as FornecedorLoginRouteImport } from './routes/fornecedor.login'
 import { Route as FornecedorSlugRouteImport } from './routes/fornecedor.$slug'
 import { Route as FSlugRouteImport } from './routes/f.$slug'
 import { Route as ContratoTokenRouteImport } from './routes/contrato.$token'
+import { Route as AdminSeoRouteImport } from './routes/admin.seo'
 import { Route as AdminSenhasRouteImport } from './routes/admin.senhas'
 import { Route as AdminNotificacoesRouteImport } from './routes/admin.notificacoes'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminLeadsRouteImport } from './routes/admin.leads'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AdminContratosRouteImport } from './routes/admin.contratos'
+import { Route as AdminAvaliacoesRouteImport } from './routes/admin.avaliacoes'
 import { Route as AdminAuditoriaEmailsRouteImport } from './routes/admin.auditoria-emails'
 import { Route as AdminContratosIdRouteImport } from './routes/admin.contratos.$id'
 import { Route as AdminClientesIdRouteImport } from './routes/admin.clientes.$id'
@@ -151,6 +153,11 @@ const ContratoTokenRoute = ContratoTokenRouteImport.update({
   path: '/contrato/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminSeoRoute = AdminSeoRouteImport.update({
+  id: '/admin/seo',
+  path: '/admin/seo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminSenhasRoute = AdminSenhasRouteImport.update({
   id: '/admin/senhas',
   path: '/admin/senhas',
@@ -179,6 +186,11 @@ const AdminDashboardRoute = AdminDashboardRouteImport.update({
 const AdminContratosRoute = AdminContratosRouteImport.update({
   id: '/admin/contratos',
   path: '/admin/contratos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminAvaliacoesRoute = AdminAvaliacoesRouteImport.update({
+  id: '/admin/avaliacoes',
+  path: '/admin/avaliacoes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminAuditoriaEmailsRoute = AdminAuditoriaEmailsRouteImport.update({
@@ -212,12 +224,14 @@ export interface FileRoutesByFullPath {
   '/seja-fornecedor': typeof SejaFornecedorRoute
   '/seja-parceiro': typeof SejaParceiroRoute
   '/admin/auditoria-emails': typeof AdminAuditoriaEmailsRoute
+  '/admin/avaliacoes': typeof AdminAvaliacoesRoute
   '/admin/contratos': typeof AdminContratosRouteWithChildren
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/leads': typeof AdminLeadsRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/notificacoes': typeof AdminNotificacoesRoute
   '/admin/senhas': typeof AdminSenhasRoute
+  '/admin/seo': typeof AdminSeoRoute
   '/contrato/$token': typeof ContratoTokenRoute
   '/f/$slug': typeof FSlugRoute
   '/fornecedor/$slug': typeof FornecedorSlugRoute
@@ -245,12 +259,14 @@ export interface FileRoutesByTo {
   '/seja-fornecedor': typeof SejaFornecedorRoute
   '/seja-parceiro': typeof SejaParceiroRoute
   '/admin/auditoria-emails': typeof AdminAuditoriaEmailsRoute
+  '/admin/avaliacoes': typeof AdminAvaliacoesRoute
   '/admin/contratos': typeof AdminContratosRouteWithChildren
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/leads': typeof AdminLeadsRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/notificacoes': typeof AdminNotificacoesRoute
   '/admin/senhas': typeof AdminSenhasRoute
+  '/admin/seo': typeof AdminSeoRoute
   '/contrato/$token': typeof ContratoTokenRoute
   '/f/$slug': typeof FSlugRoute
   '/fornecedor/$slug': typeof FornecedorSlugRoute
@@ -279,12 +295,14 @@ export interface FileRoutesById {
   '/seja-fornecedor': typeof SejaFornecedorRoute
   '/seja-parceiro': typeof SejaParceiroRoute
   '/admin/auditoria-emails': typeof AdminAuditoriaEmailsRoute
+  '/admin/avaliacoes': typeof AdminAvaliacoesRoute
   '/admin/contratos': typeof AdminContratosRouteWithChildren
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/leads': typeof AdminLeadsRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/notificacoes': typeof AdminNotificacoesRoute
   '/admin/senhas': typeof AdminSenhasRoute
+  '/admin/seo': typeof AdminSeoRoute
   '/contrato/$token': typeof ContratoTokenRoute
   '/f/$slug': typeof FSlugRoute
   '/fornecedor/$slug': typeof FornecedorSlugRoute
@@ -314,12 +332,14 @@ export interface FileRouteTypes {
     | '/seja-fornecedor'
     | '/seja-parceiro'
     | '/admin/auditoria-emails'
+    | '/admin/avaliacoes'
     | '/admin/contratos'
     | '/admin/dashboard'
     | '/admin/leads'
     | '/admin/login'
     | '/admin/notificacoes'
     | '/admin/senhas'
+    | '/admin/seo'
     | '/contrato/$token'
     | '/f/$slug'
     | '/fornecedor/$slug'
@@ -347,12 +367,14 @@ export interface FileRouteTypes {
     | '/seja-fornecedor'
     | '/seja-parceiro'
     | '/admin/auditoria-emails'
+    | '/admin/avaliacoes'
     | '/admin/contratos'
     | '/admin/dashboard'
     | '/admin/leads'
     | '/admin/login'
     | '/admin/notificacoes'
     | '/admin/senhas'
+    | '/admin/seo'
     | '/contrato/$token'
     | '/f/$slug'
     | '/fornecedor/$slug'
@@ -380,12 +402,14 @@ export interface FileRouteTypes {
     | '/seja-fornecedor'
     | '/seja-parceiro'
     | '/admin/auditoria-emails'
+    | '/admin/avaliacoes'
     | '/admin/contratos'
     | '/admin/dashboard'
     | '/admin/leads'
     | '/admin/login'
     | '/admin/notificacoes'
     | '/admin/senhas'
+    | '/admin/seo'
     | '/contrato/$token'
     | '/f/$slug'
     | '/fornecedor/$slug'
@@ -414,12 +438,14 @@ export interface RootRouteChildren {
   SejaFornecedorRoute: typeof SejaFornecedorRoute
   SejaParceiroRoute: typeof SejaParceiroRoute
   AdminAuditoriaEmailsRoute: typeof AdminAuditoriaEmailsRoute
+  AdminAvaliacoesRoute: typeof AdminAvaliacoesRoute
   AdminContratosRoute: typeof AdminContratosRouteWithChildren
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminLeadsRoute: typeof AdminLeadsRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminNotificacoesRoute: typeof AdminNotificacoesRoute
   AdminSenhasRoute: typeof AdminSenhasRoute
+  AdminSeoRoute: typeof AdminSeoRoute
   ContratoTokenRoute: typeof ContratoTokenRoute
   FSlugRoute: typeof FSlugRoute
   FornecedorSlugRoute: typeof FornecedorSlugRoute
@@ -588,6 +614,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContratoTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/seo': {
+      id: '/admin/seo'
+      path: '/admin/seo'
+      fullPath: '/admin/seo'
+      preLoaderRoute: typeof AdminSeoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/senhas': {
       id: '/admin/senhas'
       path: '/admin/senhas'
@@ -628,6 +661,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/contratos'
       fullPath: '/admin/contratos'
       preLoaderRoute: typeof AdminContratosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/avaliacoes': {
+      id: '/admin/avaliacoes'
+      path: '/admin/avaliacoes'
+      fullPath: '/admin/avaliacoes'
+      preLoaderRoute: typeof AdminAvaliacoesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/auditoria-emails': {
@@ -681,12 +721,14 @@ const rootRouteChildren: RootRouteChildren = {
   SejaFornecedorRoute: SejaFornecedorRoute,
   SejaParceiroRoute: SejaParceiroRoute,
   AdminAuditoriaEmailsRoute: AdminAuditoriaEmailsRoute,
+  AdminAvaliacoesRoute: AdminAvaliacoesRoute,
   AdminContratosRoute: AdminContratosRouteWithChildren,
   AdminDashboardRoute: AdminDashboardRoute,
   AdminLeadsRoute: AdminLeadsRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminNotificacoesRoute: AdminNotificacoesRoute,
   AdminSenhasRoute: AdminSenhasRoute,
+  AdminSeoRoute: AdminSeoRoute,
   ContratoTokenRoute: ContratoTokenRoute,
   FSlugRoute: FSlugRoute,
   FornecedorSlugRoute: FornecedorSlugRoute,

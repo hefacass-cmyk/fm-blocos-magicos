@@ -2,11 +2,12 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import {
   Star, Phone, Mail, MapPin, ArrowLeft, Search, X, CheckCircle2,
-  MessageCircle,
+  MessageCircle, ThumbsUp,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { fmSupabase } from "@/lib/fm-supabase";
 import { ESPECIALIDADES, parseEspecialidades } from "@/lib/fm-parceiro";
+import { AvaliarParceiroModal } from "@/components/fm/AvaliarParceiroModal";
 
 const BRAND_BLUE = "#1A4D7A";
 const BRAND_YELLOW = "#F4B941";
@@ -72,6 +73,7 @@ function ParceiroModal({
   onClose: () => void;
 }) {
   const id = parceiro.id ?? parceiro.Id;
+  const [avaliarOpen, setAvaliarOpen] = useState(false);
   const tipo = (parceiro.Tipo as string) ?? (parceiro.CNPJ ? "PJ" : "PF");
   const isPJ = tipo === "PJ";
 
@@ -202,6 +204,13 @@ function ParceiroModal({
 
           {/* Contato */}
           <div className="space-y-2">
+            <button
+              onClick={() => setAvaliarOpen(true)}
+              className="flex items-center justify-center gap-2 w-full rounded-xl border-2 py-2.5 text-sm font-bold transition hover:bg-muted/40"
+              style={{ borderColor: BRAND_YELLOW, color: BRAND_BLUE }}
+            >
+              <ThumbsUp className="h-4 w-4" /> Avaliar este parceiro
+            </button>
             {whatsapp && (
               <a
                 href={waLink(whatsapp)}
@@ -233,6 +242,13 @@ function ParceiroModal({
           Profissional cadastrado na rede F&M
         </div>
       </DialogContent>
+      {avaliarOpen && (
+        <AvaliarParceiroModal
+          parceiroId={id as string | number}
+          parceiroNome={nome}
+          onClose={() => setAvaliarOpen(false)}
+        />
+      )}
     </Dialog>
   );
 }

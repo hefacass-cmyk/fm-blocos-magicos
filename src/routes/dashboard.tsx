@@ -15,6 +15,7 @@ import {
   Phone,
 } from "lucide-react";
 import { fmSupabase, getCliente, clearCliente } from "@/lib/fm-supabase";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 const BRAND_BLUE = "#1A4D7A";
 const BRAND_GREEN = "#06A77D";
@@ -38,6 +39,8 @@ function DashboardPage() {
   const [erro, setErro] = useState<string | null>(null);
   const [clienteData, setClienteData] = useState<Row | null>(null);
   const [atualizacaoHoje, setAtualizacaoHoje] = useState<Row | null>(null);
+  const [relatorios, setRelatorios] = useState<Row[]>([]);
+  const [relatorioOpen, setRelatorioOpen] = useState<Row | null>(null);
   const cliente = typeof window !== "undefined" ? getCliente() : null;
 
   useEffect(() => {
@@ -49,7 +52,7 @@ function DashboardPage() {
         return;
       }
       try {
-        const [{ data: clienteRow, error: clienteError }, { data: updateRow, error: updateError }] = await Promise.all([
+        const [{ data: clienteRow, error: clienteError }, { data: updateRow, error: updateError }, relRes] = await Promise.all([
           fmSupabase
             .from("clientes")
             .select("*")
@@ -62,6 +65,12 @@ function DashboardPage() {
             .order("data", { ascending: false })
             .limit(1)
             .maybeSingle(),
+          fmSupabase
+            .from("relatorios_semanais")
+            .select("*")
+            .eq("cliente_id", cliente.id as string | number)
+            .neq("status", "rascunho")
+            .order("semana_inicio", { ascending: false }),
         ]);
 
         console.log("[dashboard] clientes:", { cliente_id: cliente.id, data: clienteRow, error: clienteError });
@@ -79,6 +88,7 @@ function DashboardPage() {
           }
           setClienteData(clienteRow as Row);
           setAtualizacaoHoje((updateRow as Row | null) ?? null);
+          setRelatorios((relRes.data as Row[]) ?? []);
           setErro(null);
         }
       } catch (e) {
@@ -363,10 +373,98 @@ function DashboardPage() {
           </div>
         </section>
 
+        {/* SEÇÃO 7 — RELATÓRIOS SEMANAIS */}
+        <section className="rounded-2xl bg-white p-6 shadow-sm border">
+          <div className="flex items-center gap-3">
+            <div className="grid h-10 w-10 place-items-center rounded-lg text-white" style={{ backgroundColor: BRAND_BLUE }}>
+              <FileText className="h-5 w-5" />
+            </div>
+            <h2 className="text-lg font-bold text-foreground">Relatórios semanais</h2>
+          </div>
+          {relatorios.length === 0 ? (
+            <p className="mt-4 text-sm text-muted-foreground">Nenhum relatório enviado ainda.</p>
+          ) : (
+            <ul className="mt-4 space-y-2">
+              {relatorios.map((r) => (
+                <li key={String(r.id)}>
+                  <button
+                    onClick={async () => {
+                      setRelatorioOpen(r);
+                      if (r.status !== "visualizado") {
+                        await fmSupabase
+                          .from("relatorios_semanais")
+                          .update({ visualizado_em: new Date().toISOString(), status: "visualizado" })
+                          .eq("id", r.id);
+                      }
+                    }}
+                    className="flex w-full items-center justify-between gap-3 rounded-lg border p-3 text-left hover:bg-muted/40"
+                  >
+                    <div>
+                      <p className="text-xs text-muted-foreground">{String(r.semana_inicio ?? "")} → {String(r.semana_fim ?? "")}</p>
+                      <p className="font-semibold text-foreground">{String(r.titulo ?? "—")}</p>
+                    </div>
+                    <span className="text-sm font-bold" style={{ color: BRAND_GREEN }}>{Number(r.progresso_total ?? 0)}%</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
         <p className="text-center text-xs text-muted-foreground py-4">
           F&M Construções Inteligentes · Atualizado em tempo real
         </p>
       </main>
+      {relatorioOpen && (
+        <RelatorioModal r={relatorioOpen} onClose={() => setRelatorioOpen(null)} />
+      )}
+    </div>
+  );
+}
+
+function RelatorioModal({ r, onClose }: { r: Row; onClose: () => void }) {
+  const fotos = Array.isArray(r.fotos) ? (r.fotos as string[]) : [];
+  const lista = (v: unknown): string[] => Array.isArray(v) ? (v as string[]) : [];
+  return (
+    <Dialog open onOpenChange={(o) => { if (!o) onClose(); }}>
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+        <DialogTitle>{String(r.titulo ?? "Relatório semanal")}</DialogTitle>
+        <p className="text-xs text-muted-foreground">{String(r.semana_inicio ?? "")} → {String(r.semana_fim ?? "")}</p>
+        <div className="mt-3 space-y-4 text-sm">
+          {r.resumo ? <p className="whitespace-pre-wrap text-foreground/80">{String(r.resumo)}</p> : null}
+          <div className="grid grid-cols-3 gap-2 rounded-lg border p-3 text-center">
+            <div><p className="text-xs text-muted-foreground">Semana</p><p className="font-bold">{Number(r.progresso_semana ?? 0)}%</p></div>
+            <div><p className="text-xs text-muted-foreground">Total</p><p className="font-bold">{Number(r.progresso_total ?? 0)}%</p></div>
+            <div><p className="text-xs text-muted-foreground">Profissionais</p><p className="font-bold">{Number(r.profissionais ?? 0)}</p></div>
+          </div>
+          <Block title="Serviços executados" items={lista(r.servicos_executados)} />
+          <Block title="Materiais utilizados" items={lista(r.materiais_utilizados)} />
+          <Block title="Pendências" items={lista(r.pendencias)} />
+          <Block title="Próximos passos" items={lista(r.proximos_passos)} />
+          {fotos.length > 0 && (
+            <div>
+              <p className="font-semibold mb-2">Fotos da semana</p>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {fotos.map((u, i) => (
+                  <img key={i} src={u} alt={`foto ${i + 1}`} className="aspect-square w-full rounded-md object-cover" />
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function Block({ title, items }: { title: string; items: string[] }) {
+  if (items.length === 0) return null;
+  return (
+    <div>
+      <p className="font-semibold">{title}</p>
+      <ul className="mt-1 list-disc pl-5 text-foreground/80">
+        {items.map((it, i) => <li key={i}>{it}</li>)}
+      </ul>
     </div>
   );
 }

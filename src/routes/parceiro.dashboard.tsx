@@ -98,11 +98,16 @@ function ParceiroDashboardPage() {
     let active = true;
     async function load() {
       try {
-        const [av, op, obrasRes, parceiroRes, solicRes] = await Promise.all([
+        const [av, avNew, op, obrasRes, parceiroRes, solicRes] = await Promise.all([
           fmSupabase
             .from("Avaliacoes")
             .select("*")
             .eq("Parceiro_id", parceiro!.id as string | number),
+          fmSupabase
+            .from("avaliacoes")
+            .select("*")
+            .eq("parceiro_id", parceiro!.id as string | number)
+            .eq("aprovado", true),
           fmSupabase
             .from("Mural_oportunidades")
             .select("*")
@@ -132,7 +137,13 @@ function ParceiroDashboardPage() {
         console.log("[parceiro/dashboard] avaliacoes:", av);
         console.log("[parceiro/dashboard] oportunidades:", op);
         if (!active) return;
-        setAvaliacoes((av.data as Row[]) ?? []);
+        const novas = ((avNew.data as Row[]) ?? []).map((a) => ({
+          ...a,
+          Rating: a.nota,
+          Comentario: a.comentario,
+          Nome_avaliador: a.nome_avaliador,
+        }));
+        setAvaliacoes([...(((av.data as Row[]) ?? [])), ...novas]);
         setOportunidades((op.data as Row[]) ?? []);
         setObras((obrasRes.data as Row[]) ?? []);
         setLeads((leadsRes.data as Row[]) ?? []);
