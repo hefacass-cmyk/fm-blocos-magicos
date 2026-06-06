@@ -157,26 +157,74 @@ function AdminContratoDetalhePage() {
     const el = document.getElementById("contrato-preview");
     if (!el) return;
     toast.info("Gerando PDF...");
+    const logoSrc = empresa.logo_url || fmLogoUrl;
+    const logoDataUrl = await loadImageAsDataURL(logoSrc);
     const canvas = await html2canvas(el, { scale: 2, backgroundColor: "#ffffff" });
-    const img = canvas.toDataURL("image/png");
     const pdf = new jsPDF({ unit: "mm", format: "a4" });
     const pageW = pdf.internal.pageSize.getWidth();
     const pageH = pdf.internal.pageSize.getHeight();
-    const ratio = canvas.width / canvas.height;
-    const w = pageW - 20;
-    const h = w / ratio;
-    let y = 10;
-    if (h <= pageH - 20) {
-      pdf.addImage(img, "PNG", 10, y, w, h);
-    } else {
-      // simple paginate by drawing the whole image scaled and slicing pages
-      const totalPages = Math.ceil(h / (pageH - 20));
-      for (let i = 0; i < totalPages; i++) {
-        pdf.addImage(img, "PNG", 10, 10 - i * (pageH - 20), w, h);
-        if (i < totalPages - 1) pdf.addPage();
+    const headerH = 24;
+    const footerH = 14;
+    const marginX = 12;
+    const contentW = pageW - marginX * 2;
+    const contentH = pageH - headerH - footerH;
+    const pageCanvasPx = (canvas.width * contentH) / contentW;
+    const totalPages = Math.max(1, Math.ceil(canvas.height / pageCanvasPx));
+
+    for (let p = 0; p < totalPages; p++) {
+      if (p > 0) pdf.addPage();
+      const sourceY = p * pageCanvasPx;
+      const sliceH = Math.min(pageCanvasPx, canvas.height - sourceY);
+      const slice = document.createElement("canvas");
+      slice.width = canvas.width;
+      slice.height = sliceH;
+      const ctx = slice.getContext("2d");
+      if (ctx) {
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, slice.width, slice.height);
+        ctx.drawImage(canvas, 0, sourceY, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
       }
+      const imgH = (sliceH * contentW) / canvas.width;
+      pdf.addImage(slice.toDataURL("image/png"), "PNG", marginX, headerH, contentW, imgH);
     }
-    pdf.save(`${String(contrato.numero || "contrato")}.pdf`);
+
+    const pageCount = pdf.getNumberOfPages();
+    for (let p = 1; p <= pageCount; p++) {
+      pdf.setPage(p);
+      // header
+      if (logoDataUrl) {
+        try { pdf.addImage(logoDataUrl, "PNG", marginX, 6, 16, 16); } catch { /* noop */ }
+      }
+      pdf.setTextColor(26, 77, 122);
+      pdf.setFontSize(11);
+      pdf.setFont("helvetica", "bold");
+      pdf.text(empresa.razao_social || "F&M Construções Inteligentes", marginX + 20, 12);
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(8);
+      pdf.setTextColor(80, 80, 80);
+      pdf.text(`CNPJ: ${empresa.cnpj || ""}`, marginX + 20, 17);
+      pdf.text(empresa.endereco || "", marginX + 20, 21);
+      pdf.setDrawColor(200);
+      pdf.line(marginX, headerH - 2, pageW - marginX, headerH - 2);
+
+      // footer
+      pdf.setDrawColor(200);
+      pdf.line(marginX, pageH - footerH + 2, pageW - marginX, pageH - footerH + 2);
+      pdf.setFontSize(8);
+      pdf.setTextColor(80, 80, 80);
+      const left = `Contrato ${String(contrato.numero || "")}`;
+      pdf.text(left, marginX, pageH - 5);
+      const mid = `Página ${p} de ${pageCount}`;
+      pdf.text(mid, (pageW - pdf.getTextWidth(mid)) / 2, pageH - 5);
+      const right = "www.fmsmartbuild.com.br";
+      pdf.text(right, pageW - marginX - pdf.getTextWidth(right), pageH - 5);
+    }
+
+    const nomeSlug = String(contrato.prospect_nome || contrato.cliente_nome || "")
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+    const filename = `Contrato_FM_${String(contrato.numero || "contrato")}${nomeSlug ? "_" + nomeSlug : ""}.pdf`;
+    pdf.save(filename);
   };
 
   // Aditivos
