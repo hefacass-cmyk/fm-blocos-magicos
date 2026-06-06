@@ -90,15 +90,25 @@ function AdminContratoDetalhePage() {
       console.log("[admin.contratos.$id] Todos contratos (probe):", probe.data, probe.error);
 
       const [{ data: c, error: cErr }, { data: ad }, { data: me }] = await Promise.all([
-        fmSupabase.from("contratos").select("*").eq("id", id).maybeSingle(),
+        fmSupabase.from("contratos").select("*").eq("id", id).single(),
         fmSupabase.from("contratos_aditivos").select("*").eq("contrato_id", id).order("criado_em"),
         fmSupabase.from("obra_financeiro").select("*").eq("contrato_id", id).order("data_vencimento"),
       ]);
       console.log("[admin.contratos.$id] Query por id resultado:", { data: c, error: cErr });
-      if (cErr || !c) {
-        console.error("[admin.contratos] erro/sem retorno id=", id, cErr);
-        toast.error("Contrato não encontrado" + (cErr ? `: ${cErr.message}` : ""));
-        navigate({ to: "/admin/contratos" });
+      if (cErr) {
+        console.error("[admin.contratos] Erro detalhado:", cErr);
+        console.error("[admin.contratos] Código:", cErr.code);
+        console.error("[admin.contratos] Mensagem:", cErr.message);
+        console.error("[admin.contratos] Detalhes:", cErr.details);
+        console.error("[admin.contratos] Hint:", cErr.hint);
+        toast.error(`Erro ${cErr.code ?? ""}: ${cErr.message}`);
+        setContrato({ __error: cErr.message, __code: cErr.code, __details: cErr.details, __hint: cErr.hint } as Row);
+        setLoading(false);
+        return;
+      }
+      if (!c) {
+        setContrato({ __error: "Nenhum registro retornado", __code: "EMPTY" } as Row);
+        setLoading(false);
         return;
       }
       setContrato(c as Row);
