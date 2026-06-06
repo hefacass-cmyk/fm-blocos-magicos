@@ -10,6 +10,7 @@ import { fmSupabase } from "@/lib/fm-contratos";
 import { maskCep, maskCpfCnpj, maskPhone, onlyDigits, viaCep, type TipoPessoa } from "@/lib/fm-clientes";
 import SignaturePad, { type SignaturePadHandle } from "@/components/admin/SignaturePad";
 import ContratoTexto from "@/components/admin/ContratoTexto";
+import { carregarEmpresaConfig, EMPRESA_DEFAULT, type EmpresaConfig } from "@/lib/fm-empresa";
 
 export const Route = createFileRoute("/contrato/$token")({
   head: () => ({ meta: [{ title: "Assinar Contrato · F&M" }] }),
@@ -22,6 +23,7 @@ function PublicContratoPage() {
   const { token } = useParams({ from: "/contrato/$token" });
   const [loading, setLoading] = useState(true);
   const [c, setC] = useState<Row | null>(null);
+  const [empresa, setEmpresa] = useState<EmpresaConfig>(EMPRESA_DEFAULT);
   const [tipo, setTipo] = useState<TipoPessoa>("PF");
   const [aceito, setAceito] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -31,6 +33,7 @@ function PublicContratoPage() {
 
   const load = async () => {
     setLoading(true);
+    void carregarEmpresaConfig().then(setEmpresa);
     const { data, error } = await fmSupabase.rpc("get_contrato_publico", { p_token: token });
     if (error || !data) { toast.error("Contrato não encontrado"); setLoading(false); return; }
     setC(data as Row);
@@ -107,7 +110,7 @@ function PublicContratoPage() {
         )}
 
         <section className="rounded-lg border bg-white p-5">
-          <ContratoTexto c={c} />
+          <ContratoTexto c={c} empresa={empresa} />
         </section>
 
         {jaAssinado ? (

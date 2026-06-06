@@ -19,6 +19,7 @@ import {
 import SignaturePad, { type SignaturePadHandle } from "@/components/admin/SignaturePad";
 import ContratoTexto from "@/components/admin/ContratoTexto";
 import { MarcarPagoModal } from "@/components/admin/MarcarPagoModal";
+import { carregarEmpresaConfig, EMPRESA_DEFAULT, type EmpresaConfig } from "@/lib/fm-empresa";
 
 export const Route = createFileRoute("/admin/contratos/$id")({
   head: () => ({ meta: [{ title: "Contrato · F&M" }] }),
@@ -38,6 +39,7 @@ function AdminContratoDetalhePage() {
   const [clientes, setClientes] = useState<{ id: string; nome: string; codigo: string }[]>([]);
   const [aditivos, setAditivos] = useState<Row[]>([]);
   const [medicoes, setMedicoes] = useState<Row[]>([]);
+  const [empresa, setEmpresa] = useState<EmpresaConfig>(EMPRESA_DEFAULT);
   const fmPadRef = useRef<SignaturePadHandle>(null);
 
   useEffect(() => {
@@ -49,6 +51,7 @@ function AdminContratoDetalhePage() {
 
   const init = async () => {
     setLoading(true);
+    void carregarEmpresaConfig().then(setEmpresa);
     const { data: cs } = await fmSupabase.from("clientes").select("id, nome, codigo_cliente, codigo").order("nome");
     setClientes(((cs as Row[]) ?? []).map((c) => ({
       id: String(c.id), nome: String(c.nome ?? "—"),
@@ -116,12 +119,9 @@ function AdminContratoDetalhePage() {
     const saved = await save("aguardando_cliente");
     if (!saved) return;
     const token = saved.token_cliente as string;
-    const url = `${window.location.origin}/contrato/${token}`;
+    const url = `https://www.fmsmartbuild.com.br/contrato/${token}`;
     try { await navigator.clipboard.writeText(url); } catch { /* noop */ }
-    toast.success("Link copiado para a área de transferência");
-    const tel = String(saved.cliente_telefone || (clientes.find(c => c.id === saved.cliente_id)?.codigo) || "").replace(/\D/g, "");
-    const msg = encodeURIComponent(`Olá! Segue o link do seu contrato F&M para revisão e assinatura: ${url}`);
-    if (tel) window.open(`https://wa.me/55${tel}?text=${msg}`, "_blank");
+    toast.success("Contrato gerado! Envie o link ao cliente pelo WhatsApp.");
   };
 
   const assinarFM = async () => {
@@ -258,7 +258,7 @@ function AdminContratoDetalhePage() {
             </Button>
             {!isNew && (status === "rascunho" || status === "aguardando_cliente") && (
               <Button variant="outline" onClick={enviarParaCliente}>
-                <Send className="mr-1 h-4 w-4" /> Enviar para Cliente
+                <Send className="mr-1 h-4 w-4" /> Gerar Contrato e Enviar
               </Button>
             )}
             {!isNew && <Button variant="outline" onClick={baixarPDF}><FileDown className="mr-1 h-4 w-4" /> PDF</Button>}
@@ -530,17 +530,7 @@ function AdminContratoDetalhePage() {
           {/* PREVIEW */}
           <TabsContent value="preview">
             <div id="contrato-preview" className="rounded-lg border bg-white p-8">
-              <ContratoTexto c={contrato} />
-              <div className="mt-8 grid grid-cols-2 gap-8">
-                <div>
-                  <div className="border-b border-slate-400 pb-2">{contrato.assinatura_cliente ? <img src={contrato.assinatura_cliente as string} alt="" className="h-16" /> : <span className="text-slate-300">—</span>}</div>
-                  <p className="mt-1 text-center text-xs">CONTRATANTE</p>
-                </div>
-                <div>
-                  <div className="border-b border-slate-400 pb-2">{contrato.assinatura_fm ? <img src={contrato.assinatura_fm as string} alt="" className="h-16" /> : <span className="text-slate-300">—</span>}</div>
-                  <p className="mt-1 text-center text-xs">F&M SMART BUILD</p>
-                </div>
-              </div>
+              <ContratoTexto c={contrato} empresa={empresa} />
             </div>
           </TabsContent>
         </Tabs>
