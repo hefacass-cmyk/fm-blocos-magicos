@@ -1,79 +1,139 @@
-## Premissas
+## Visão geral
 
-- Views `dashboard_admin`, `leads_por_parceiro`, `contratos_pendentes`, `financeiro_resumo` e tabelas `notificacoes_log`, `referral_leads`, `obra_financeiro`, `parceiros`, `fornecedores`, `tabela_precos` já existem no Supabase. Antes de cada query confirmo as colunas reais; se faltar algo crio migration em `db/2026_06_06_admin_final.sql` (idempotente, para você rodar no SQL Editor).
-- Buckets `comprovantes-pagamento` e `perfil-parceiros` precisam existir. Se não existirem, eu crio via tool de storage (privado para comprovantes, público para fotos de perfil) e escrevo as policies de RLS em `storage.objects`.
-- Toda escrita do parceiro/admin usa client browser autenticado (RLS já existente). Toasts via `sonner`.
+Reformatar todo o fluxo de contratos em 5 frentes:
 
-## 1. Dashboard admin (`/admin/dashboard`)
+1. Formulário público `/iniciar-contrato` sem qualquer preço/cálculo
+2. Schema do banco: novas colunas `prospect_*` e tabela `empresa_config`
+3. Painel admin `/admin/contratos/[id]` — cards de leitura do prospect + seção "Proposta F&M" + botão "Gerar contrato e enviar"
+4. Página `/contrato/[token]` — contrato formatado com **14 cláusulas completas**, dados da F&M (de `empresa_config`), cônjuge como interveniente, assinaturas
+5. Geração de PDF formatado com cabeçalho, cláusulas, assinaturas e rodapé
 
-- Componente `DashboardResumo` no topo da página, 3 linhas × 4 cards.
-- Hook `useQuery(['dashboard_admin'], …, { refetchInterval: 60_000 })` lendo a view `dashboard_admin`.
-- Cores via tokens (`bg-primary/10`, `text-emerald-600`, `text-amber-600`, `text-destructive`). Cards pulsantes usam `animate-pulse` quando contagem > 0.
-- Cada card é um `<Link>` para a rota correspondente (`/admin/contratos?tab=pendentes`, `/admin/clientes`, `/admin/leads`, `/admin/financeiro`).
-- Banners de alerta acima dos cards (item 6): aguardando_fm (azul pulsante), atrasados (vermelho com R$ total), leads >7d (âmbar). Calculo via mesma view + uma chamada extra à `referral_leads`.
+---
 
-## 2. Leads de parceiros (`/admin/leads`)
+## 1. Schema do banco (nova migration)
 
-- Nova rota `src/routes/admin.leads.tsx` + link na navbar admin existente.
-- Tabela principal lendo `leads_por_parceiro` (Nome, Cidade/UF, Total, Convertidos, Pendentes, Último Lead). Linha clicável expande (Accordion) com SELECT em `referral_leads` filtrado por parceiro.
-- Cada lead pendente tem botão "Converter em Contrato" → `navigate({to:'/iniciar-contrato', search:{lead: lead.id}})`. A página `/iniciar-contrato` passa a aceitar `?lead=…` e pré-preenche nome/telefone/email lendo `referral_leads`.
+**Arquivo:** `db/2026_06_07_contratos_v2.sql`
 
-## 3. Comprovantes de pagamento
+**Tabela `empresa_config`** (singleton, 1 linha):
+```
+razao_social, cnpj, endereco, representante_nome,
+representante_cpf, representante_rg, representante_estado_civil,
+representante_profissao, representante_nascimento,
+representante_endereco, responsavel_tecnico, crea, pix_chave,
+logo_url, assinatura_fm_default (base64)
+```
+Seed com os dados fornecidos (Hélder, CNPJ 21.560.948/0001-71, etc).
 
-- Em `admin.contratos.$id.tsx` (aba Financeiro) e onde existir a listagem de `obra_financeiro`:
-  - Botão "Marcar como Pago" abre `<Dialog>` com Datepicker (shadcn), input file e textarea.
-  - Upload em `comprovantes-pagamento/<contrato_id>/<lancamento_id>.<ext>`. Salvo o path; gero URL via `createSignedUrl` no botão 👁️.
-  - Update em `obra_financeiro`: status='pago', `data_pagamento`, `comprovante_url`, `observacao_pagamento`.
-- Helper `statusEfetivo(l)` que vira `'atrasado'` quando `status='pendente' && data_vencimento < hoje`; aplico cor vermelha e badge.
+**Novas colunas em `contratos`** (idempotente, `add column if not exists`):
+- `prospect_whatsapp` text
+- `prospect_tipo_obra` text[]  (array de checkboxes)
+- `prospect_sistema_preferido`, `prospect_servico_preferido`, `prospect_camera_preferida` text  (apelidos novos; manter antigos para compat)
+- `prospect_conjuge_assinatura` text + `prospect_conjuge_assinatura_data` timestamptz
 
-## 4. Fotos de perfil — parceiros e fornecedores
+**Atualizar RPC `criar_contrato_publico`** para gravar nas novas colunas (incluindo `prospect_tipo_obra` como array em vez dos 3 booleans antigos).
 
-- Componente reutilizável `<FotoPerfilUpload bucket="perfil-parceiros" path={`parceiros/${id}.jpg`} value={url} onChange={…}/>` (preview circular + botão alterar).
-- `parceiro.dashboard.tsx`: seção "Minha Foto de Perfil" usando o componente; persiste em `parceiros.foto_perfil`.
-- Detalhe admin do parceiro: mesma componente + permissão admin.
-- Mesmo componente em fornecedores (bucket idem, coluna `fornecedores.foto_url`).
-- Se as colunas `foto_perfil`/`foto_url` não existirem, adiciono na migration.
+GRANT/RLS conforme padrão do projeto.
 
-## 5. "Meus Leads" no dashboard do parceiro
+---
 
-- Nova aba `Tabs` em `parceiro.dashboard.tsx`.
-- Lê `leads_por_parceiro` filtrando por `parceiro_id = session.parceiro.id` + lista detalhada em `referral_leads`.
-- Card de destaque com `Você já indicou {convertidos} clientes para a F&M! 🎉`.
+## 2. Formulário público `/iniciar-contrato` (src/routes/iniciar-contrato.tsx)
 
-## 6. Alertas (já cobertos no item 1)
+**Remover:**
+- `precoPreview` (linhas 346-349) e badge de `R$/m²` no Etapa 2
+- Qualquer exibição de preço no Etapa 3 (resumo) — substituir por resumo textual
+- Import de `precoM2`, `brl`, `PLANOS_CAMERA`
 
-Banners no topo do `admin.dashboard.tsx`. Cada banner é um `Link` para a aba relacionada e some quando a contagem for zero.
+**Estrutura nova:**
+- **Etapa 1** (Dados Pessoais): adicionar **WhatsApp** separado de Telefone. Mantém cônjuge condicional (já existe).
+- **Etapa 2** (Dados da Obra): substituir os 3 booleans `tipo_obra_*` por **array de checkboxes** `tipo_obra[]`. Sistema/Serviço/Câmera continuam como Radio mas **sem preço** ao lado.
+- **Etapa 3** (Confirmação): apenas listar campos preenchidos (sem qualquer valor financeiro), checkbox de confirmação, botão ENVIAR.
 
-## 7. Página pública `/precos`
+Payload enviado à RPC inclui as novas chaves (`whatsapp`, `tipo_obra` array, `sistema_preferido`, etc).
 
-- Nova rota `src/routes/precos.tsx` com `head()` próprio (title/desc/og).
-- Hero F&M (cores `#1A4D7A` / `#F4B941`).
-- Carrega `tabela_precos where ativo=true` uma vez (`useQuery`). Monta a matriz 4 planos × 3 sistemas usando os campos existentes (`sistema`, `tipo_servico`, `preco_m2`).
-- Seções extras por `categoria`: Câmeras, Serviços Técnicos, Inclusos (badge verde), Consultar (botão WhatsApp `https://wa.me/5571999454343`).
-- CTAs finais: amarelo → `/iniciar-contrato`, azul → WhatsApp.
-- Link "Preços" no header do `FMSite.tsx`.
+---
 
-## 8. Notificações WhatsApp (`/admin/notificacoes`)
+## 3. Admin — `/admin/contratos/$id` (src/routes/admin.contratos.$id.tsx)
 
-- Nova rota lendo `notificacoes_log` com filtros (`Select` tipo + status) e paginação simples (50/página).
-- Badges: enviado (verde), pendente (âmbar), erro (vermelho).
-- Botão "Reenviar" em itens com erro: chama RPC `reenviar_notificacao(id)` se existir; senão faz `update notificacoes_log set status='pendente', tentativas=tentativas+1` e mostra toast informando que o worker irá reprocessar. Confirmo qual mecanismo existe antes de implementar; documento na migration se for preciso criar a RPC.
+**Já existe** o card azul "Dados recebidos do solicitante". Expandir com:
+- WhatsApp, tipo_obra (array), cônjuge completo
+- Bloco "Endereço da obra" formatado
 
-## Detalhes técnicos
+**Seção "Proposta F&M"** (editável, novo agrupamento dos campos já existentes):
+- Sistema construtivo, Tipo de serviço (selects)
+- Valor m² (input livre — manter `precoM2()` como sugestão mas não impor)
+- Área m² (pré-carregada de `prospect_area_construir`, editável)
+- Valor serviço, plano câmera, databook, valor total, adiantamento 15%
+- Data início, prazo dias, data fim automática
+- Modalidades (checkboxes)
+- Observações
 
-- Refetch global de 60s nos dashboards via `refetchInterval`.
-- Navegação admin: amplio a barra de tabs existente em `admin.dashboard.tsx` para incluir Leads e Notificações.
-- Helpers compartilhados em `src/lib/fm-admin.ts` (formatadores BRL, statusEfetivo).
-- Storage: arquivo `db/2026_06_06_admin_final.sql` com policies de `storage.objects` para `comprovantes-pagamento` (admin read/write; parceiro/cliente sem acesso) e `perfil-parceiros` (público read; parceiro escreve só seu próprio path; admin tudo) — só se essas policies ainda não existirem.
-- Não toco em fluxo de contratos já estável; apenas leio dados e adiciono UI.
+**Botão "GERAR CONTRATO E ENVIAR PARA ASSINATURA"** (substitui "Enviar para Cliente"):
+- Valida campos mínimos da proposta
+- Salva com `status='aguardando_cliente'`
+- Copia link `https://www.fmsmartbuild.com.br/contrato/[token]` para clipboard
+- Toast: "Contrato gerado! Envie o link ao cliente pelo WhatsApp."
+- Não abre wa.me automaticamente (admin envia manual)
 
-## Entregáveis
+**Assinar como F&M** (aba já existente): pré-carregar `empresa_config.assinatura_fm_default` se existir.
 
-1. `db/2026_06_06_admin_final.sql` (eventual, idempotente)
-2. Buckets criados via tool
-3. Novas rotas: `admin.leads.tsx`, `admin.notificacoes.tsx`, `precos.tsx`
-4. Edições: `admin.dashboard.tsx`, `admin.contratos.$id.tsx`, `parceiro.dashboard.tsx`, `iniciar-contrato.tsx`, `FMSite.tsx`
-5. Componentes novos: `DashboardResumo`, `AlertasAdmin`, `FotoPerfilUpload`, `MarcarPagoModal`
-6. Helper: `src/lib/fm-admin.ts`
+---
 
-Confirma essa abordagem (entrego tudo de uma vez na próxima resposta)?
+## 4. `/contrato/[token]` — Contrato com 14 cláusulas
+
+**Reescrever `src/components/admin/ContratoTexto.tsx`** (usado em ambos preview admin e página pública):
+- Buscar `empresa_config` (passado por prop ou hook)
+- Renderizar **as 14 cláusulas exatamente como especificado** no pedido:
+  1. Qualificação das Partes (com cônjuge interveniente se aplicável)
+  2. Objeto (com modalidade, tipo obra, endereço, áreas, sistema, serviço)
+  3. Prazo de Execução (com condições de prorrogação)
+  4. Serviços Adicionais e Aditivos (15% adiantamento)
+  5. Valor e Forma de Pagamento (com valor por extenso; PIX CNPJ; câmera/databook condicionais)
+  6. Obrigações da Contratada
+  7. Obrigações do Contratante (extra item se F&M ESSENCIAL)
+  8. Responsabilidade Técnica (CREA, ART)
+  9. Especificações Técnicas IBPP (somente se sistema=IBPP)
+  10. Rescisão Contratual
+  11. Penalidades ao Contratante (com cláusula extra F&M ESSENCIAL)
+  12. Garantia Legal (Art. 618 CC, 5 anos)
+  13. Alterações Contratuais
+  14. Disposições Gerais (Foro Camaçari/BA)
+- Local e data: "Camaçari/BA, [DIA] de [MÊS] de [ANO]"
+- Bloco de assinaturas: CONTRATADA (imagem + nome + CPF + data) + CONTRATANTE + CÔNJUGE (se houver) + 2 linhas em branco para testemunhas
+
+**Helper `valor por extenso`** em `src/lib/fm-extenso.ts` (escrever do zero — função pura, converte número → "vinte mil reais").
+
+**Página `/contrato/$token`:**
+- Carregar `empresa_config` junto com o contrato
+- Se prospect tem cônjuge, exibir campo extra de assinatura do cônjuge
+- Ao assinar: salva `assinatura_cliente` + `assinatura_cliente_data`, status `aguardando_fm`, toast "✅ Assinatura registrada!"
+
+---
+
+## 5. PDF (já existe `baixarPDF` mas precisa melhorar)
+
+**Em `src/routes/admin.contratos.$id.tsx`:**
+- Renderizar o `ContratoTexto` em um container fora-da-tela com largura A4 (210mm = ~794px @ 96dpi)
+- Cabeçalho: logo F&M + dados empresa
+- Rodapé fixo: "F&M Construções Inteligentes | CNPJ: 21.560.948/0001-71"
+- Nome do arquivo: `Contrato_FM_${numero}_${nome_cliente_slug}.pdf`
+- Paginação correta via html2canvas (já tem rudimentar, melhorar com slicing por altura útil)
+
+---
+
+## Arquivos a criar
+- `db/2026_06_07_contratos_v2.sql`
+- `src/lib/fm-extenso.ts`
+- `src/lib/fm-empresa.ts` (loader de empresa_config + tipos)
+
+## Arquivos a editar
+- `src/routes/iniciar-contrato.tsx` — remover preços, adicionar WhatsApp, tipo_obra array
+- `src/routes/admin.contratos.$id.tsx` — botão "Gerar e enviar", PDF melhorado
+- `src/routes/contrato.$token.tsx` — carregar empresa_config, assinatura cônjuge
+- `src/components/admin/ContratoTexto.tsx` — reescrever com 14 cláusulas
+
+## Pontos a confirmar antes de implementar
+
+1. **Logo da F&M**: tem URL/asset já no projeto ou devo deixar placeholder no cabeçalho do PDF?
+2. **Assinatura padrão do Hélder**: você quer carregar uma imagem pré-cadastrada de `empresa_config.assinatura_fm_default` (admin só clica "confirmar"), ou continua desenhando manualmente toda vez?
+3. **Campos do prospect já gravados**: o banco hoje tem `prospect_tipo_obra_construcao/reforma/ampliacao` (3 booleans) — devo migrar para o array `prospect_tipo_obra[]` e dropar os booleans, ou manter ambos por compat?
+4. **Telefone vs WhatsApp**: você quer **dois campos separados** no formulário, ou um único campo "Telefone/WhatsApp" (como hoje)?
