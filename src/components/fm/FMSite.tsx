@@ -142,9 +142,19 @@ function Header({ onLogin }: { onLogin: () => void }) {
           <Link to="/parceiro/login" className="text-[12px] font-medium text-foreground/80 hover:text-primary transition-colors whitespace-nowrap px-1.5 py-1">
             Área do Parceiro
           </Link>
-          <Link to="/precos" className="text-[12px] font-bold text-foreground/80 hover:text-primary transition-colors whitespace-nowrap px-1.5 py-1">
-            Preços
-          </Link>
+          <DropdownMenu>
+            <DropdownMenuTrigger className="text-[12px] font-medium text-foreground/80 hover:text-primary transition-colors whitespace-nowrap px-1.5 py-1 inline-flex items-center gap-0.5 outline-none">
+              Cliente <ChevronDown className="h-3 w-3" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="min-w-[10rem]">
+              <DropdownMenuItem asChild>
+                <Link to="/vamos-construir" className="cursor-pointer text-sm">Vamos Construir</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/precos" className="cursor-pointer text-sm">Preços</Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </nav>
         <div className="hidden xl:flex items-center gap-2 shrink-0">
           <button
@@ -154,11 +164,11 @@ function Header({ onLogin }: { onLogin: () => void }) {
             <User className="h-3.5 w-3.5" /> Área do Cliente
           </button>
           <Link
-            to="/iniciar-contrato"
+            to="/vamos-construir"
             className="inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-[11px] font-bold text-slate-900 hover:brightness-95 transition whitespace-nowrap"
             style={{ backgroundColor: "#F4B941" }}
           >
-            Quero Construir <ArrowRight className="h-3.5 w-3.5" />
+            Vamos Construir <ArrowRight className="h-3.5 w-3.5" />
           </Link>
           <a href="#contato" className="inline-flex items-center gap-1 rounded-md bg-accent px-2.5 py-1.5 text-[11px] font-semibold text-accent-foreground hover:brightness-95 transition whitespace-nowrap">
             Diagnóstico <ArrowRight className="h-3.5 w-3.5" />
