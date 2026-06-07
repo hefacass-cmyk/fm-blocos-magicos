@@ -8,8 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { fmSupabase } from "@/lib/fm-supabase";
+import { enviarContatoRapido } from "@/lib/contato-rapido.functions";
 
-const FM_WA = "5571999454343";
+const FM_WA = "5571999154343";
 const YELLOW = "#F4B941";
 
 export const Route = createFileRoute("/contato-rapido")({
@@ -67,10 +68,15 @@ function ContatoRapidoPage() {
     try {
       const waFinal = whatsapp.trim() || telefone.trim();
       const tiposStr = tipos.join(", ");
+      const dataHora = new Date().toLocaleString("pt-BR", { timeZone: "America/Bahia" });
       const obs = [
         terreno ? `Tamanho terreno: ${terreno} m²` : null,
         `Tipos: ${tiposStr}`,
       ].filter(Boolean).join("\n");
+      const resumo =
+        `Nome: ${nome}\nE-mail: ${email}\nTelefone: ${telefone}\n` +
+        `WhatsApp: ${waFinal}\nLocal: ${cidade}\nTerreno: ${terreno || "—"} m²\n` +
+        `Tipo: ${tiposStr}\nRecebido em: ${dataHora}`;
 
       const payload: Record<string, unknown> = {
         origem: "site",
@@ -85,18 +91,44 @@ function ContatoRapidoPage() {
         telefone_cliente: telefone,
         mensagem: obs,
       };
-      const { error } = await fmSupabase.from("leads_indicacao").insert(payload);
-      if (error) throw error;
+      // Lead (não-bloqueante)
+      await fmSupabase.from("leads_indicacao").insert(payload).then(({ error }) => {
+        if (error) console.warn("[contato-rapido] lead insert:", error.message);
+      });
 
-      const waText = encodeURIComponent(
-        `📱 Novo contato recebido!\n` +
-        `Nome: ${nome}\n` +
-        `Tel: ${telefone}\n` +
-        `Local: ${cidade}\n` +
-        `Tipo: ${tiposStr}`
-      );
-      window.open(`https://wa.me/${FM_WA}?text=${waText}`, "_blank");
+      // Email via Resend (server fn)
+      try {
+        await enviarContatoRapido({
+          data: { nome, email, telefone, whatsapp: waFinal, cidade, terreno, tipos },
+        });
+      } catch (e) {
+        console.warn("[contato-rapido] email:", (e as Error).message);
+      }
 
+      // Notificação log (não-bloqueante)
+      await fmSupabase.from("notificacoes_log").insert({
+        tipo: "contato_rapido",
+        destinatario_telefone: "71999154343",
+        destinatario_nome: nome,
+        mensagem: resumo,
+        status: "enviado",
+      }).then(({ error }) => {
+        if (error) console.warn("[contato-rapido] notif log:", error.message);
+      });
+
+      // WhatsApp
+      const mensagem =
+        `🏗️ *Novo pedido de orçamento F&M!*\n` +
+        `👤 Nome: ${nome}\n` +
+        `📧 E-mail: ${email}\n` +
+        `📱 Telefone: ${telefone}\n` +
+        `📍 Local: ${cidade}\n` +
+        `📐 Terreno: ${terreno || "—"}m²\n` +
+        `🏠 Tipo: ${tiposStr}\n` +
+        `⏰ Recebido em: ${dataHora}`;
+      window.open(`https://wa.me/${FM_WA}?text=${encodeURIComponent(mensagem)}`, "_blank");
+
+      toast.success("✅ Pedido enviado! Nossa equipe entrará em contato em até 24h.");
       setOk(true);
     } catch (err) {
       toast.error("Erro ao enviar: " + (err as Error).message);
@@ -110,13 +142,29 @@ function ContatoRapidoPage() {
       <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
         <div className="max-w-md w-full bg-white border rounded-2xl p-8 text-center shadow-sm">
           <CheckCircle2 className="mx-auto h-14 w-14 text-emerald-500" />
-          <h1 className="mt-4 text-2xl font-extrabold text-slate-900">✅ Recebemos seu contato!</h1>
-          <p className="mt-2 text-sm text-slate-600">
-            Em até 24h nossa equipe entrará em contato.
+          <h1 className="mt-4 text-2xl font-extrabold text-slate-900">🎉 Recebemos seu pedido!</h1>
+          <p className="mt-3 text-sm text-slate-700">
+            Em até 24 horas nossa equipe entrará em contato.
           </p>
-          <Link to="/" className="mt-6 inline-block text-sm text-slate-500 hover:text-slate-900">
-            Voltar ao início
-          </Link>
+          <p className="mt-2 text-sm text-slate-700">
+            Enquanto isso, você pode nos chamar diretamente:
+          </p>
+          <a
+            href="https://wa.me/5571999154343"
+            target="_blank"
+            rel="noreferrer"
+            className="mt-2 inline-block text-base font-bold text-emerald-600 hover:underline"
+          >
+            📱 (71) 99915-4343
+          </a>
+          <div className="mt-6">
+            <Link
+              to="/"
+              className="inline-block rounded-md bg-blue-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-blue-700"
+            >
+              VOLTAR AO SITE
+            </Link>
+          </div>
         </div>
       </div>
     );
