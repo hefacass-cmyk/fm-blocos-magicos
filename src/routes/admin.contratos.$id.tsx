@@ -56,6 +56,7 @@ function AdminContratoDetalhePage() {
   const [medicoes, setMedicoes] = useState<Row[]>([]);
   const [empresa, setEmpresa] = useState<EmpresaConfig>(EMPRESA_DEFAULT);
   const fmPadRef = useRef<SignaturePadHandle>(null);
+  const [linkModal, setLinkModal] = useState<string | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -191,6 +192,30 @@ function AdminContratoDetalhePage() {
     if (error) { toast.error(error.message); return; }
     toast.success("Contrato assinado com a assinatura padrão");
     setContrato((c) => ({ ...c, assinatura_fm: dataUrl, status: "assinado" }));
+  };
+
+  const salvarEAssinarFM = async () => {
+    const dataUrl = empresa.assinatura_fm_default;
+    if (!dataUrl) {
+      toast.error("Cadastre sua assinatura padrão em /admin/configuracoes antes.");
+      return;
+    }
+    const saved = await save();
+    if (!saved) return;
+    setSaving(true);
+    const { error } = await fmSupabase.from("contratos").update({
+      assinatura_fm: dataUrl,
+      assinatura_fm_data: new Date().toISOString(),
+      status: "aguardando_revisao",
+      atualizado_em: new Date().toISOString(),
+    }).eq("id", saved.id as string);
+    setSaving(false);
+    if (error) { toast.error(error.message); return; }
+    const token = saved.token_cliente as string;
+    const url = `https://www.fmsmartbuild.com.br/contrato/revisar/${token}`;
+    setContrato((c) => ({ ...c, assinatura_fm: dataUrl, assinatura_fm_data: new Date().toISOString(), status: "aguardando_revisao" }));
+    setLinkModal(url);
+    toast.success("Contrato assinado pela F&M! Envie o link ao cliente.");
   };
 
   const baixarPDF = async () => {
