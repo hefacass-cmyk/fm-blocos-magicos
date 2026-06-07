@@ -232,15 +232,22 @@ function Tabela({ rows, onDelete }: { rows: Row[]; onDelete: (r: Row) => void })
                         <Pencil className="h-4 w-4" />
                       </Link>
                     </Button>
+                    <Button asChild size="icon" variant="ghost" title="Abrir contrato (abas Proposta F&M, Financeiro, Aditivos, Assinatura, Preview)">
+                      <Link
+                        to="/admin/contratos/$id"
+                        params={{ id: String(r.id) }}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Link>
+                    </Button>
                     {r.token_cliente ? (
-                      <Button asChild size="icon" variant="ghost" title="Link do cliente">
+                      <Button asChild size="icon" variant="ghost" title="Abrir link público do cliente em nova aba">
                         <Link
                           to="/contrato/$token"
                           params={{ token: String(r.token_cliente) }}
                           target="_blank"
-                          onClick={() => console.log("[admin.contratos] Abrindo link cliente token:", r.token_cliente, "contrato id:", r.id)}
                         >
-                          <Eye className="h-4 w-4" />
+                          <Link2 className="h-4 w-4" />
                         </Link>
                       </Button>
                     ) : null}
