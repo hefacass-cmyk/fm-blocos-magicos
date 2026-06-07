@@ -150,7 +150,6 @@ function AdminContratoDetalhePage() {
   };
 
   const save = async (statusOverride?: ContratoStatus): Promise<Row | null> => {
-    if (!contrato.cliente_id) { toast.error("Selecione um cliente"); return null; }
     if (!contrato.numero) { toast.error("Número obrigatório"); return null; }
     setSaving(true);
     const payload: Row = { ...contrato, atualizado_em: new Date().toISOString() };
