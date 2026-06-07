@@ -293,60 +293,42 @@ function NovoLinkClienteModal({
   contratos: Row[];
   onCreated: () => void;
 }) {
-  const [busca, setBusca] = useState("");
-  const [selecionado, setSelecionado] = useState<Row | null>(null);
-  const [gerando, setGerando] = useState(false);
-  const [novoToken, setNovoToken] = useState<{ token: string; numero: string } | null>(null);
+  const LINK = "https://www.fmsmartbuild.com.br/iniciar-contrato";
+  const [copiado, setCopiado] = useState(false);
+  const [excluindo, setExcluindo] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!open) {
-      setBusca(""); setSelecionado(null); setNovoToken(null); setGerando(false);
-    }
+    if (!open) setCopiado(false);
   }, [open]);
 
-  const filtrados = useMemo(() => {
-    const t = busca.trim().toLowerCase();
-    if (!t) return contratos.slice(0, 8);
-    return contratos.filter((c) => {
-      const cli = (c.clientes as { nome?: string } | null)?.nome ?? String(c.prospect_nome ?? c.cliente_nome ?? "");
-      return String(c.numero ?? "").toLowerCase().includes(t) || cli.toLowerCase().includes(t);
-    }).slice(0, 12);
-  }, [busca, contratos]);
-
-  const tokenAtual = novoToken?.token ?? (selecionado?.token_cliente as string | undefined);
-  const numeroAtual = novoToken?.numero ?? (selecionado?.numero as string | undefined);
-  const url = tokenAtual ? `https://www.fmsmartbuild.com.br/iniciar-contrato?token=${tokenAtual}` : "";
-
   const copiar = async () => {
-    if (!url) return;
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(LINK);
+      setCopiado(true);
       toast.success("Link copiado!");
     } catch {
-      window.prompt("Copie e envie ao cliente:", url);
+      window.prompt("Copie e envie ao cliente:", LINK);
+      setCopiado(true);
     }
   };
 
-  const gerarNovo = async () => {
-    setGerando(true);
-    try {
-      const numero = await gerarNumeroContrato();
-      const { data, error } = await fmSupabase
-        .from("contratos")
-        .insert({ numero, status: "rascunho" })
-        .select("token_cliente, numero")
-        .single();
-      if (error || !data) throw new Error(error?.message ?? "Falha ao criar contrato");
-      const d = data as { token_cliente: string; numero: string };
-      setNovoToken({ token: d.token_cliente, numero: d.numero });
-      setSelecionado(null);
-      toast.success(`Contrato ${d.numero} criado`);
-      onCreated();
-    } catch (e) {
-      toast.error((e as Error).message);
-    } finally {
-      setGerando(false);
-    }
+  const semToken = useMemo(
+    () => contratos.filter((c) => {
+      const cli = (c.clientes as { nome?: string } | null)?.nome
+        ?? String(c.prospect_nome ?? c.cliente_nome ?? "").trim();
+      return !c.token_cliente || !cli;
+    }),
+    [contratos],
+  );
+
+  const excluir = async (id: string) => {
+    if (!confirm("Excluir este contrato vazio?")) return;
+    setExcluindo(id);
+    const { error } = await fmSupabase.from("contratos").delete().eq("id", id);
+    setExcluindo(null);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Excluído");
+    onCreated();
   };
 
   return (
@@ -355,65 +337,48 @@ function NovoLinkClienteModal({
         <DialogHeader>
           <DialogTitle>Novo Link Cliente</DialogTitle>
           <DialogDescription>
-            Selecione um contrato existente ou gere um novo. O cliente preenche os dados pelo link.
+            Envie este link ao cliente. Ao abrir e preencher o formulário, o contrato é criado automaticamente.
           </DialogDescription>
         </DialogHeader>
 
-        {tokenAtual ? (
-          <div className="space-y-3">
-            <div className="rounded-md border bg-slate-50 p-3">
-              <p className="text-xs text-slate-500">Contrato {numeroAtual}</p>
-              <p className="mt-1 break-all text-xs font-mono text-slate-800">{url}</p>
-            </div>
-            <Button onClick={copiar} className="w-full">
-              <Copy className="mr-2 h-4 w-4" /> COPIAR LINK
-            </Button>
-            <p className="text-xs text-slate-600 text-center">
-              Envie este link ao cliente para que ele preencha seus dados pessoais e da obra.
+        <div className="space-y-3">
+          <Input value={LINK} readOnly className="font-mono text-xs" onFocus={(e) => e.currentTarget.select()} />
+          <Button onClick={copiar} className="w-full">
+            <Copy className="mr-2 h-4 w-4" />
+            {copiado ? "COPIAR NOVAMENTE" : "GERAR NOVO LINK"}
+          </Button>
+          {copiado && (
+            <p className="rounded-md bg-emerald-50 p-2 text-center text-xs text-emerald-700">
+              ✅ Link copiado! Cole no WhatsApp e envie ao cliente.
             </p>
-            <Button variant="ghost" size="sm" className="w-full" onClick={() => { setSelecionado(null); setNovoToken(null); }}>
-              <X className="mr-1 h-3 w-3" /> Escolher outro
-            </Button>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            <div className="relative">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <Input
-                placeholder="Buscar por protocolo ou nome..."
-                value={busca}
-                onChange={(e) => setBusca(e.target.value)}
-                className="pl-9"
-              />
-            </div>
-            <div className="max-h-60 overflow-y-auto rounded-md border divide-y">
-              {filtrados.length === 0 ? (
-                <p className="p-4 text-center text-xs text-slate-500">Nenhum contrato encontrado.</p>
-              ) : filtrados.map((c) => {
-                const cli = (c.clientes as { nome?: string } | null)?.nome
-                  ?? String(c.prospect_nome ?? c.cliente_nome ?? "—");
-                return (
-                  <button
-                    key={String(c.id)}
-                    type="button"
-                    onClick={() => setSelecionado(c)}
-                    disabled={!c.token_cliente}
-                    className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <span className="font-mono text-xs text-slate-500">{String(c.numero ?? "—")}</span>
-                    <span className="ml-2">{cli}</span>
-                    {!c.token_cliente && <span className="ml-2 text-[10px] text-rose-500">(sem token)</span>}
-                  </button>
-                );
-              })}
-            </div>
+          )}
+
+          {semToken.length > 0 && (
             <div className="border-t pt-3">
-              <Button onClick={gerarNovo} disabled={gerando} className="w-full" variant="outline">
-                {gerando ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Plus className="mr-1 h-4 w-4" /> GERAR NOVO LINK</>}
-              </Button>
+              <p className="mb-2 text-xs font-medium text-slate-700">
+                Contratos vazios / sem token ({semToken.length})
+              </p>
+              <div className="max-h-48 overflow-y-auto rounded-md border divide-y">
+                {semToken.map((c) => (
+                  <div key={String(c.id)} className="flex items-center justify-between px-3 py-2 text-sm">
+                    <span className="font-mono text-xs text-slate-500">{String(c.numero ?? "—")}</span>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => excluir(String(c.id))}
+                      disabled={excluindo === String(c.id)}
+                      title="Excluir"
+                    >
+                      {excluindo === String(c.id)
+                        ? <Loader2 className="h-4 w-4 animate-spin" />
+                        : <Trash2 className="h-4 w-4 text-rose-600" />}
+                    </Button>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );
