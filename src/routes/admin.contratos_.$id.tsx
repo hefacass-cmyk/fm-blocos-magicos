@@ -211,9 +211,16 @@ function AdminContratoDetalhePage() {
   };
 
   const salvarEAssinarFM = async () => {
-    const dataUrl = empresa.assinatura_fm_default;
+    // Buscar assinatura padrão fresh do banco
+    const { data: cfg, error: cfgErr } = await fmSupabase
+      .from("empresa_config")
+      .select("assinatura_fm_default")
+      .limit(1)
+      .maybeSingle();
+    if (cfgErr) { toast.error("Erro ao carregar config: " + cfgErr.message); return; }
+    const dataUrl = (cfg?.assinatura_fm_default as string | null) ?? null;
     if (!dataUrl) {
-      toast.error("Cadastre sua assinatura padrão em /admin/configuracoes antes.");
+      toast.error("⚠️ Assinatura não encontrada. Configure em /admin/configuracoes antes de prosseguir.");
       return;
     }
     const saved = await save();
