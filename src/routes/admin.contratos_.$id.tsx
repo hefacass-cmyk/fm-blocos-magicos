@@ -512,11 +512,12 @@ function AdminContratoDetalhePage() {
 
             <Section title="Cliente e Numeração">
               <div className="grid gap-4 md:grid-cols-2">
-                <Field label="Cliente">
-                  <Select value={(contrato.cliente_id as string) || ""} onValueChange={(v) => setC({ cliente_id: v })}>
-                    <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
-                    <SelectContent>{clientes.map((c) => <SelectItem key={c.id} value={c.id}>{c.nome} ({c.codigo})</SelectItem>)}</SelectContent>
-                  </Select>
+                <Field label="Nome do Cliente (somente leitura)">
+                  <Input
+                    readOnly
+                    value={String(contrato.prospect_nome ?? contrato.cliente_nome ?? "(não informado)")}
+                    className="bg-slate-100"
+                  />
                 </Field>
                 <Field label="Número do Contrato"><Input value={(contrato.numero as string) || ""} onChange={(e) => setC({ numero: e.target.value })} /></Field>
               </div>
