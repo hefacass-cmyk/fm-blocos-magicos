@@ -37,7 +37,7 @@ async function loadImageAsDataURL(url: string): Promise<string | null> {
   } catch { return null; }
 }
 
-export const Route = createFileRoute("/admin/contratos/$id")({
+export const Route = createFileRoute("/admin/contratos_/$id")({
   head: () => ({ meta: [{ title: "Contrato · F&M" }] }),
   component: AdminContratoDetalhePage,
 });
