@@ -426,6 +426,20 @@ function AdminContratoDetalhePage() {
 
           {/* DADOS */}
           <TabsContent value="dados" className="space-y-6">
+            {(status === "rascunho" || status === "dados_cliente_enviados") && (
+              <section className="rounded-lg border-2 border-emerald-400 bg-emerald-50 p-5">
+                <h2 className="text-lg font-bold text-emerald-900">📝 PROPOSTA F&amp;M</h2>
+                <p className="text-sm text-emerald-800 mt-1">
+                  Preencha os campos abaixo (sistema construtivo, modalidade, valores, prazos, câmera e databook) e clique em
+                  <strong> &quot;Salvar e Assinar como F&amp;M&quot;</strong> no topo para gerar o contrato e o link de revisão ao cliente.
+                </p>
+                {!empresa.assinatura_fm_default && (
+                  <p className="mt-2 rounded border border-yellow-400 bg-yellow-50 px-3 py-2 text-xs text-yellow-900">
+                    ⚠️ Você ainda não cadastrou sua assinatura padrão. <Link to="/admin/configuracoes" className="font-semibold underline">Configure em /admin/configuracoes</Link> antes de assinar.
+                  </p>
+                )}
+              </section>
+            )}
             {contrato.observacoes_cliente ? (
               <section className="rounded-lg border-2 border-yellow-400 bg-yellow-50 p-4 space-y-1">
                 <h3 className="text-sm font-bold text-yellow-900">⚠️ Cliente solicitou alteração</h3>
