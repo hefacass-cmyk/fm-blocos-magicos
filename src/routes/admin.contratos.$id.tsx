@@ -399,9 +399,15 @@ function AdminContratoDetalhePage() {
               </Button>
             )}
             {!isNew && (status === "dados_cliente_enviados" || status === "em_revisao" || status === "aguardando_revisao") && (
-              <Button variant="outline" onClick={enviarParaCliente}>
-                <Send className="mr-1 h-4 w-4" /> Reenviar p/ Revisão
-              </Button>
+              <>
+                <Button onClick={salvarEAssinarFM} disabled={saving} className="bg-emerald-600 hover:bg-emerald-700">
+                  {saving ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Check className="mr-1 h-4 w-4" />}
+                  Salvar e Assinar como F&M
+                </Button>
+                <Button variant="outline" onClick={enviarParaCliente}>
+                  <Send className="mr-1 h-4 w-4" /> Reenviar p/ Revisão
+                </Button>
+              </>
             )}
             {!isNew && <Button variant="outline" onClick={baixarPDF}><FileDown className="mr-1 h-4 w-4" /> PDF</Button>}
           </div>
