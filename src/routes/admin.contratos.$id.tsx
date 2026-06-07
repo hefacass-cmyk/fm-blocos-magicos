@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import {
   fmSupabase, gerarNumeroContrato, precoM2, calcularValores, calcularDataFim,
   proximaSegunda, brl, fmtData, STATUS_COLORS, STATUS_LABELS, FIN_COLORS, FIN_LABELS,
