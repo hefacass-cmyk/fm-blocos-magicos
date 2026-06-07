@@ -588,6 +588,66 @@ function AdminContratoDetalhePage() {
               <Field label="Observações"><Textarea rows={3} value={(contrato.observacoes as string) || ""} onChange={(e) => setC({ observacoes: e.target.value })} /></Field>
             </Section>
 
+            <Section title="Forma de Pagamento e Negociação">
+              <Field label="Forma de Pagamento (texto que aparece na Cláusula 5ª)">
+                <Textarea
+                  rows={3}
+                  placeholder="Ex.: Adiantamento de 15% na assinatura; medições toda sexta-feira; pagamentos toda segunda-feira via PIX CNPJ 21.560.948/0001-71; reajuste anual pelo INCC/IPCA."
+                  value={(contrato.forma_pagamento as string) || ""}
+                  onChange={(e) => setC({ forma_pagamento: e.target.value })}
+                />
+              </Field>
+              <Field label="Itens incluídos na negociação (texto livre, entra no contrato)">
+                <Textarea
+                  rows={3}
+                  placeholder="Ex.: incluso 1 piscina 4x8; descontados R$ 5.000 referentes a..."
+                  value={(contrato.itens_negociacao as string) || ""}
+                  onChange={(e) => setC({ itens_negociacao: e.target.value })}
+                />
+              </Field>
+            </Section>
+
+            <Section title="Serviços Extras">
+              <p className="text-xs text-slate-500">Marque os extras inclusos. Os valores sugeridos são preenchidos automaticamente, mas podem ser ajustados.</p>
+              {([
+                ["extra_seguro_obra", "valor_seguro_obra", "Seguro de Obra", 1200],
+                ["extra_readequacao_ferragem", "valor_readequacao_ferragem", "Readequação de Ferragem", 800],
+                ["extra_carta_tecnica", "valor_carta_tecnica", "Carta Técnica do Engenheiro", 500],
+                ["extra_quantitativo_blocos", "valor_quantitativo_blocos", "Quantitativo de Blocos", 350],
+              ] as const).map(([flag, valorKey, label, padrao]) => (
+                <div key={flag} className="grid grid-cols-1 gap-2 md:grid-cols-[1fr,200px] md:items-center">
+                  <label className="flex items-center gap-2 text-sm">
+                    <Checkbox
+                      checked={Boolean(contrato[flag])}
+                      onCheckedChange={(v) => {
+                        const on = Boolean(v);
+                        setC({
+                          [flag]: on,
+                          [valorKey]: on ? (Number(contrato[valorKey]) || padrao) : 0,
+                        });
+                      }}
+                    />
+                    {label}
+                  </label>
+                  <Input
+                    type="number"
+                    placeholder={`R$ ${padrao}`}
+                    disabled={!contrato[flag]}
+                    value={String(contrato[valorKey] ?? "")}
+                    onChange={(e) => setC({ [valorKey]: Number(e.target.value) })}
+                  />
+                </div>
+              ))}
+              <Field label="Outros serviços extras (texto livre)">
+                <Textarea
+                  rows={2}
+                  placeholder="Ex.: Acompanhamento de paisagismo; consultoria de iluminação..."
+                  value={(contrato.extras_outros as string) || ""}
+                  onChange={(e) => setC({ extras_outros: e.target.value })}
+                />
+              </Field>
+            </Section>
+
             <Section title="Equipe F&M">
               <div className="grid gap-4 md:grid-cols-2">
                 <Field label="Gerente"><Input value={(contrato.gerente_nome as string) || ""} onChange={(e) => setC({ gerente_nome: e.target.value })} /></Field>

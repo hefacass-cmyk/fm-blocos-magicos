@@ -105,17 +105,39 @@ export default function ContratoTexto({ c, empresa }: { c: Row; empresa?: Empres
       <p>
         O valor total dos serviços é de <strong>{brl(valorTotal)}</strong> ({valorPorExtenso(valorTotal)}), sendo:
       </p>
-      <ul>
-        <li>Adiantamento de 15%: <strong>{brl(adiant)}</strong> na assinatura;</li>
-        <li>Medições toda sexta-feira;</li>
-        <li>Pagamentos toda segunda-feira via PIX CNPJ {e.pix_chave};</li>
-        <li>Reajuste anual pelo INCC/IPCA.</li>
-      </ul>
+      {c.forma_pagamento ? (
+        <p className="whitespace-pre-wrap">{String(c.forma_pagamento)}</p>
+      ) : (
+        <ul>
+          <li>Adiantamento de 15%: <strong>{brl(adiant)}</strong> na assinatura;</li>
+          <li>Medições toda sexta-feira;</li>
+          <li>Pagamentos toda segunda-feira via PIX CNPJ {e.pix_chave};</li>
+          <li>Reajuste anual pelo INCC/IPCA.</li>
+        </ul>
+      )}
       {camera.valor > 0 && (
         <p>Adicional <strong>F&M Live</strong>: {brl(camera.valor)}/mês ({camera.label}).</p>
       )}
       {c.databook_eletronico ? (
         <p>Adicional <strong>Databook Eletrônico</strong>: {brl(Number(c.valor_databook || 0))} (3% do contrato).</p>
+      ) : null}
+      {(c.extra_seguro_obra || c.extra_readequacao_ferragem || c.extra_carta_tecnica || c.extra_quantitativo_blocos || c.extras_outros) ? (
+        <>
+          <p><strong>Serviços extras inclusos nesta proposta:</strong></p>
+          <ul>
+            {c.extra_seguro_obra ? <li>Seguro de Obra — {brl(Number(c.valor_seguro_obra || 0))}</li> : null}
+            {c.extra_readequacao_ferragem ? <li>Readequação de Ferragem — {brl(Number(c.valor_readequacao_ferragem || 0))}</li> : null}
+            {c.extra_carta_tecnica ? <li>Carta Técnica do Engenheiro — {brl(Number(c.valor_carta_tecnica || 0))}</li> : null}
+            {c.extra_quantitativo_blocos ? <li>Quantitativo de Blocos — {brl(Number(c.valor_quantitativo_blocos || 0))}</li> : null}
+            {c.extras_outros ? <li className="whitespace-pre-wrap">{String(c.extras_outros)}</li> : null}
+          </ul>
+        </>
+      ) : null}
+      {c.itens_negociacao ? (
+        <>
+          <p><strong>Itens incluídos na negociação:</strong></p>
+          <p className="whitespace-pre-wrap">{String(c.itens_negociacao)}</p>
+        </>
       ) : null}
 
       <h3>CLÁUSULA 6ª — OBRIGAÇÕES DA CONTRATADA</h3>
