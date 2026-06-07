@@ -560,6 +560,17 @@ function AdminContratoDetalhePage() {
                 <div className="text-base">TOTAL: <strong className="text-emerald-700">{brl(Number(contrato.valor_total || 0))}</strong></div>
                 <div>Adiantamento 15%: <strong>{brl(Number(contrato.valor_adiantamento || 0))}</strong></div>
               </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <Field label="Valor Total R$ (editável)">
+                  <Input type="number" value={String(contrato.valor_total ?? "")} onChange={(e) => {
+                    const v = Number(e.target.value);
+                    setContrato((c) => ({ ...c, valor_total: v, valor_adiantamento: v * 0.15 }));
+                  }} />
+                </Field>
+                <Field label="Adiantamento R$ (editável)">
+                  <Input type="number" value={String(contrato.valor_adiantamento ?? "")} onChange={(e) => setContrato((c) => ({ ...c, valor_adiantamento: Number(e.target.value) }))} />
+                </Field>
+              </div>
               <Field label="Observações"><Textarea rows={3} value={(contrato.observacoes as string) || ""} onChange={(e) => setC({ observacoes: e.target.value })} /></Field>
             </Section>
 
