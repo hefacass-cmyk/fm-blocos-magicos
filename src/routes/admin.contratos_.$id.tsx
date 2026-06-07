@@ -10,7 +10,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import {
   fmSupabase, gerarNumeroContrato, precoM2, calcularValores, calcularDataFim,
@@ -150,7 +149,6 @@ function AdminContratoDetalhePage() {
   };
 
   const save = async (statusOverride?: ContratoStatus): Promise<Row | null> => {
-    if (!contrato.cliente_id) { toast.error("Selecione um cliente"); return null; }
     if (!contrato.numero) { toast.error("Número obrigatório"); return null; }
     setSaving(true);
     const payload: Row = { ...contrato, atualizado_em: new Date().toISOString() };
@@ -212,9 +210,16 @@ function AdminContratoDetalhePage() {
   };
 
   const salvarEAssinarFM = async () => {
-    const dataUrl = empresa.assinatura_fm_default;
+    // Buscar assinatura padrão fresh do banco
+    const { data: cfg, error: cfgErr } = await fmSupabase
+      .from("empresa_config")
+      .select("assinatura_fm_default")
+      .limit(1)
+      .maybeSingle();
+    if (cfgErr) { toast.error("Erro ao carregar config: " + cfgErr.message); return; }
+    const dataUrl = (cfg?.assinatura_fm_default as string | null) ?? null;
     if (!dataUrl) {
-      toast.error("Cadastre sua assinatura padrão em /admin/configuracoes antes.");
+      toast.error("⚠️ Assinatura não encontrada. Configure em /admin/configuracoes antes de prosseguir.");
       return;
     }
     const saved = await save();
@@ -506,11 +511,12 @@ function AdminContratoDetalhePage() {
 
             <Section title="Cliente e Numeração">
               <div className="grid gap-4 md:grid-cols-2">
-                <Field label="Cliente">
-                  <Select value={(contrato.cliente_id as string) || ""} onValueChange={(v) => setC({ cliente_id: v })}>
-                    <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
-                    <SelectContent>{clientes.map((c) => <SelectItem key={c.id} value={c.id}>{c.nome} ({c.codigo})</SelectItem>)}</SelectContent>
-                  </Select>
+                <Field label="Nome do Cliente (somente leitura)">
+                  <Input
+                    readOnly
+                    value={String(contrato.prospect_nome ?? contrato.cliente_nome ?? "(não informado)")}
+                    className="bg-slate-100"
+                  />
                 </Field>
                 <Field label="Número do Contrato"><Input value={(contrato.numero as string) || ""} onChange={(e) => setC({ numero: e.target.value })} /></Field>
               </div>

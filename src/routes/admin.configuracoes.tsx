@@ -87,7 +87,7 @@ function AdminConfiguracoesPage() {
     }
     setSaving(false);
     if (res.error) { toast.error("Erro: " + res.error.message); return; }
-    toast.success("Configurações salvas");
+    toast.success(form.assinatura_fm_default ? "✅ Assinatura salva com sucesso!" : "✅ Configurações salvas");
     setForm({ ...EMPRESA_DEFAULT, ...(res.data as EmpresaConfig & { id: string }) });
   };
 
