@@ -136,15 +136,9 @@ export default function ContratoTexto({ c, empresa }: { c: Row; empresa?: Empres
         {essencial && <li>Fornecer os materiais nos prazos estabelecidos pela CONTRATADA (F&M ESSENCIAL).</li>}
       </ul>
 
-      <h3>CLÁUSULA 8ª — RESPONSABILIDADE TÉCNICA</h3>
-      <p>
-        Os serviços serão executados sob responsabilidade técnica de
-        <strong> {e.responsavel_tecnico}</strong>, CREA {e.crea}, com emissão de ART.
-      </p>
-
       {sistemaIBPP && (
         <>
-          <h3>CLÁUSULA 9ª — ESPECIFICAÇÕES TÉCNICAS IBPP</h3>
+          <h3>CLÁUSULA 8ª — ESPECIFICAÇÕES TÉCNICAS IBPP</h3>
           <p>
             O sistema Inova Blocos Paredes Prontas® (IBPP), patente INPI BR 20 2024 012110 0,
             utiliza painéis pré-moldados com núcleo EPS T1AF antichamas e duas faces de
@@ -154,7 +148,7 @@ export default function ContratoTexto({ c, empresa }: { c: Row; empresa?: Empres
         </>
       )}
 
-      <h3>CLÁUSULA 10ª — RESCISÃO CONTRATUAL</h3>
+      <h3>CLÁUSULA {sistemaIBPP ? "9ª" : "8ª"} — RESCISÃO CONTRATUAL</h3>
       <p>
         O contrato poderá ser rescindido por qualquer das partes, mediante notificação por escrito
         com 15 (quinze) dias de antecedência, em caso de inadimplemento, descumprimento de cláusula
@@ -163,7 +157,7 @@ export default function ContratoTexto({ c, empresa }: { c: Row; empresa?: Empres
         remanescente do contrato.
       </p>
 
-      <h3>CLÁUSULA 11ª — PENALIDADES AO CONTRATANTE</h3>
+      <h3>CLÁUSULA {sistemaIBPP ? "10ª" : "9ª"} — PENALIDADES AO CONTRATANTE</h3>
       <p>
         O atraso no pagamento de qualquer parcela acarretará multa de 2% sobre o valor em atraso,
         acrescida de juros de 1% ao mês.
@@ -175,19 +169,27 @@ export default function ContratoTexto({ c, empresa }: { c: Row; empresa?: Empres
         </p>
       )}
 
-      <h3>CLÁUSULA 12ª — GARANTIA LEGAL</h3>
+      <h3>CLÁUSULA {sistemaIBPP ? "11ª" : "10ª"} — GARANTIA LEGAL</h3>
       <p>
         Nos termos do Art. 618 do Código Civil Brasileiro, a CONTRATADA garante a solidez e
-        segurança da obra pelo prazo de 5 (cinco) anos após a conclusão.
+        segurança da obra pelo prazo de 5 (cinco) anos após a conclusão dos serviços executados
+        diretamente pela F&M Construções Inteligentes.
+      </p>
+      <p>
+        A garantia não se aplica a serviços, materiais ou instalações executados por terceiros
+        contratados diretamente pelo CONTRATANTE, incluindo mas não se limitando a: instalações
+        elétricas, hidráulicas, esquadrias, revestimentos, pinturas e demais acabamentos quando
+        fornecidos ou executados por empresas ou profissionais indicados ou contratados pelo
+        próprio CONTRATANTE.
       </p>
 
-      <h3>CLÁUSULA 13ª — ALTERAÇÕES CONTRATUAIS</h3>
+      <h3>CLÁUSULA {sistemaIBPP ? "12ª" : "11ª"} — ALTERAÇÕES CONTRATUAIS</h3>
       <p>
         Qualquer alteração deste contrato somente terá validade se efetuada por escrito e
         assinada por ambas as partes.
       </p>
 
-      <h3>CLÁUSULA 14ª — DISPOSIÇÕES GERAIS</h3>
+      <h3>CLÁUSULA {sistemaIBPP ? "13ª" : "12ª"} — DISPOSIÇÕES GERAIS</h3>
       <p>
         Fica eleito o foro da Comarca de Camaçari/BA para dirimir quaisquer dúvidas oriundas
         deste contrato, com renúncia a qualquer outro, por mais privilegiado que seja.
