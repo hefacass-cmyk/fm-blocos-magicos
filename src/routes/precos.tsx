@@ -33,8 +33,35 @@ type Linha = Record<string, unknown>;
 
 function normalizar(s: string) { return s.toLowerCase().replace(/[^a-z0-9]/g, ""); }
 
+const DESCRICOES: Record<string, string> = {
+  // Câmeras
+  "cameraunitaria": "Monitore sua obra 24h por dia pelo celular ou computador. Câmera HD instalada no canteiro com acesso remoto em tempo real.",
+  "fmlive": "Pacote completo de monitoramento: 2 câmeras HD + internet dedicada na obra. Acompanhe cada etapa de qualquer lugar do mundo pelo nosso dashboard exclusivo.",
+  "fmlivepro": "A solução premium para obras em locais sem infraestrutura de internet. 2 câmeras HD + antena Starlink com conexão via satélite. Monitoramento garantido em qualquer terreno.",
+  "mensalidadeinternet": "Conexão dedicada e estável para manter suas câmeras sempre online. Sem interrupções, sem surpresas.",
+  // Técnicos
+  "databookeletronicodaobra": "Documentação digital completa da sua obra: fotos semanais, relatórios, laudos e registros organizados em um único arquivo eletrônico entregue ao final da construção. Seu histórico para sempre.",
+  "databookeletronico": "Documentação digital completa da sua obra: fotos semanais, relatórios, laudos e registros organizados em um único arquivo eletrônico entregue ao final da construção. Seu histórico para sempre.",
+  "readequacaodeferragem": "Revisamos o projeto estrutural e adequamos o consumo de aço ao sistema IBPP, reduzindo até 25% no custo de ferragem sem comprometer a segurança da obra.",
+  "levantamentodequantitativodeblocos": "Calculamos com precisão a quantidade exata de blocos IBPP necessários para sua obra, evitando desperdício de material e garantindo o abastecimento correto em cada fase da construção.",
+  "cartatecnicaaoengenheiro": "Documento técnico formal elaborado pela F&M explicando as especificidades do sistema IBPP ao engenheiro responsável pelo seu projeto estrutural.",
+  "segurodaobra": "Proteção financeira contra imprevistos durante a construção: incêndio, danos a terceiros, roubo de materiais e outros riscos cobertos sob consulta com nossa corretora parceira.",
+  // Inclusos
+  "relatoriosemanalfotograficodigital": "Toda sexta-feira você recebe um relatório completo com fotos, serviços executados na semana, profissionais no canteiro e próximos passos. Transparência total, sempre.",
+  "acessoaodashboarddocliente": "Sua obra na palma da mão. Acompanhe o progresso em tempo real, veja o histórico financeiro, acesse fotos e documentos pelo nosso portal exclusivo.",
+  "ligacaoprovisoriadeaguaeluz": "Instalamos a infraestrutura provisória necessária para início das obras: ligação de água e energia elétrica no canteiro, sem custo adicional.",
+  "tapumeeplacadeobra": "Cercamento de proteção e identificação visual da obra com placa F&M. Segurança para o canteiro e profissionalismo na apresentação.",
+  "containerescritorionocanteiro": "Estrutura física de gestão instalada na obra para reuniões, armazenamento de documentos e controle diário da execução pelos nossos gerentes.",
+};
+
+function descricaoServico(nome: string, fallback?: string): string {
+  const k = normalizar(nome);
+  return DESCRICOES[k] || fallback || "Serviço F&M Smart Build. Fale com um especialista para mais detalhes.";
+}
+
 function PrecosPage() {
   const [linhas, setLinhas] = useState<Linha[]>([]);
+  const [servicoAtivo, setServicoAtivo] = useState<{ nome: string; descricao: string; icon: React.ReactNode } | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -62,7 +89,9 @@ function PrecosPage() {
     return m;
   }, [linhas]);
 
-  const cameras = linhas.filter((l) => normalizar(String(l.categoria || "")).includes("camera"));
+  const cameras = linhas
+    .filter((l) => normalizar(String(l.categoria || "")).includes("camera"))
+    .filter((l) => !normalizar(String(l.nome || l.descricao || l.item || "")).includes("starlink"));
   const tecnicos = linhas.filter((l) => normalizar(String(l.categoria || "")).includes("tecn"));
   const inclusos = linhas.filter((l) => normalizar(String(l.categoria || "")).includes("inclus"));
   const consultar = linhas.filter((l) => normalizar(String(l.categoria || "")).includes("consult"));
@@ -119,7 +148,7 @@ function PrecosPage() {
                       const v = matriz[s]?.[p.key];
                       return (
                         <td key={p.key} className="p-3 text-center">
-                          {v ? <span className="font-bold text-slate-900">{BRL(v)}<span className="ml-1 text-[10px] text-slate-500">/m²</span></span> : <span className="text-slate-400">—</span>}
+                          {v ? <CheckCircle2 className="inline h-5 w-5" style={{ color: GREEN }} /> : <span className="text-slate-400">—</span>}
                         </td>
                       );
                     })}
@@ -140,10 +169,10 @@ function PrecosPage() {
         </div>
       </section>
 
-      <Bloco titulo="Câmeras e Monitoramento" icon={<Camera className="h-5 w-5" />} itens={cameras} />
-      <Bloco titulo="Serviços Técnicos" icon={<Wrench className="h-5 w-5" />} itens={tecnicos} />
-      <Bloco titulo="Inclusos em todos os planos" icon={<CheckCircle2 className="h-5 w-5" />} itens={inclusos} badge="INCLUSO" badgeColor={GREEN} />
-      <Bloco titulo="Consultar valores" icon={<Phone className="h-5 w-5" />} itens={consultar} mostrarBotaoWhatsapp />
+      <Bloco titulo="Câmeras e Monitoramento" icon={<Camera className="h-5 w-5" />} itens={cameras} onOpen={setServicoAtivo} cardIcon={<Camera className="h-6 w-6" />} />
+      <Bloco titulo="Serviços Técnicos" icon={<Wrench className="h-5 w-5" />} itens={tecnicos} onOpen={setServicoAtivo} cardIcon={<Wrench className="h-6 w-6" />} />
+      <Bloco titulo="Inclusos em todos os planos" icon={<CheckCircle2 className="h-5 w-5" />} itens={inclusos} badge="INCLUSO" badgeColor={GREEN} onOpen={setServicoAtivo} cardIcon={<CheckCircle2 className="h-6 w-6" />} />
+      <Bloco titulo="Consultar valores" icon={<Phone className="h-5 w-5" />} itens={consultar} onOpen={setServicoAtivo} cardIcon={<Phone className="h-6 w-6" />} />
 
       <section className="py-14" style={{ backgroundColor: "#F7FAFC" }}>
         <div className="container mx-auto px-4 max-w-3xl text-center">
@@ -159,13 +188,46 @@ function PrecosPage() {
           </div>
         </div>
       </section>
+
+      {servicoAtivo && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+          onClick={() => setServicoAtivo(null)}
+        >
+          <div
+            className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setServicoAtivo(null)}
+              className="absolute right-3 top-3 rounded-full p-1 text-slate-500 hover:bg-slate-100"
+              aria-label="Fechar"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <div className="flex items-center justify-center mb-3" style={{ color: BLUE }}>
+              {servicoAtivo.icon}
+            </div>
+            <h3 className="text-center text-xl font-bold" style={{ color: BLUE }}>{servicoAtivo.nome}</h3>
+            <p className="mt-3 text-sm leading-relaxed text-slate-700">{servicoAtivo.descricao}</p>
+            <Link
+              to="/iniciar-contrato"
+              onClick={() => setServicoAtivo(null)}
+              className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-lg px-5 py-3 text-sm font-extrabold text-slate-900"
+              style={{ backgroundColor: YELLOW }}
+            >
+              QUERO ESTE SERVIÇO <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
 function Bloco({
-  titulo, icon, itens, badge, badgeColor, mostrarBotaoWhatsapp,
-}: { titulo: string; icon: React.ReactNode; itens: Linha[]; badge?: string; badgeColor?: string; mostrarBotaoWhatsapp?: boolean }) {
+  titulo, icon, itens, badge, badgeColor, onOpen, cardIcon,
+}: { titulo: string; icon: React.ReactNode; itens: Linha[]; badge?: string; badgeColor?: string; onOpen: (s: { nome: string; descricao: string; icon: React.ReactNode }) => void; cardIcon: React.ReactNode }) {
   if (itens.length === 0) return null;
   return (
     <section className="py-10">
@@ -174,25 +236,25 @@ function Bloco({
         <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {itens.map((it, i) => {
             const nome = String(it.nome || it.descricao || it.item || "Item");
-            const preco = Number(it.preco_m2 || it.valor || it.preco || 0);
             const obs = String(it.observacao || it.detalhe || "");
             return (
-              <div key={i} className="rounded-xl border bg-white p-4 shadow-sm">
+              <button
+                key={i}
+                type="button"
+                onClick={() => onOpen({ nome, descricao: descricaoServico(nome, obs), icon: cardIcon })}
+                className="text-left rounded-xl border bg-white p-4 shadow-sm transition hover:shadow-md hover:-translate-y-0.5"
+              >
                 <div className="flex items-start justify-between gap-2">
                   <h3 className="font-semibold text-slate-900">{nome}</h3>
-                  {badge ? (
+                  {badge && (
                     <span className="rounded-full px-2 py-0.5 text-[10px] font-bold text-white" style={{ backgroundColor: badgeColor || GREEN }}>{badge}</span>
-                  ) : preco > 0 ? (
-                    <span className="font-bold text-slate-900">{BRL(preco)}</span>
-                  ) : null}
+                  )}
                 </div>
-                {obs && <p className="mt-1 text-xs text-slate-500">{obs}</p>}
-                {mostrarBotaoWhatsapp && (
-                  <a href={WHATSAPP_FM} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold text-white" style={{ backgroundColor: GREEN }}>
-                    <Phone className="h-3.5 w-3.5" /> Consultar
-                  </a>
-                )}
-              </div>
+                <p className="mt-2 text-xs text-slate-500 line-clamp-2">{descricaoServico(nome, obs)}</p>
+                <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold" style={{ color: BLUE }}>
+                  Saiba mais <ArrowRight className="h-3 w-3" />
+                </span>
+              </button>
             );
           })}
         </div>
