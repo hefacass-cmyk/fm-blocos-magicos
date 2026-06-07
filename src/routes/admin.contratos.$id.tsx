@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import {
   fmSupabase, gerarNumeroContrato, precoM2, calcularValores, calcularDataFim,
   proximaSegunda, brl, fmtData, STATUS_COLORS, STATUS_LABELS, FIN_COLORS, FIN_LABELS,
@@ -55,6 +56,7 @@ function AdminContratoDetalhePage() {
   const [medicoes, setMedicoes] = useState<Row[]>([]);
   const [empresa, setEmpresa] = useState<EmpresaConfig>(EMPRESA_DEFAULT);
   const fmPadRef = useRef<SignaturePadHandle>(null);
+  const [linkModal, setLinkModal] = useState<string | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -190,6 +192,30 @@ function AdminContratoDetalhePage() {
     if (error) { toast.error(error.message); return; }
     toast.success("Contrato assinado com a assinatura padrão");
     setContrato((c) => ({ ...c, assinatura_fm: dataUrl, status: "assinado" }));
+  };
+
+  const salvarEAssinarFM = async () => {
+    const dataUrl = empresa.assinatura_fm_default;
+    if (!dataUrl) {
+      toast.error("Cadastre sua assinatura padrão em /admin/configuracoes antes.");
+      return;
+    }
+    const saved = await save();
+    if (!saved) return;
+    setSaving(true);
+    const { error } = await fmSupabase.from("contratos").update({
+      assinatura_fm: dataUrl,
+      assinatura_fm_data: new Date().toISOString(),
+      status: "aguardando_revisao",
+      atualizado_em: new Date().toISOString(),
+    }).eq("id", saved.id as string);
+    setSaving(false);
+    if (error) { toast.error(error.message); return; }
+    const token = saved.token_cliente as string;
+    const url = `https://www.fmsmartbuild.com.br/contrato/revisar/${token}`;
+    setContrato((c) => ({ ...c, assinatura_fm: dataUrl, assinatura_fm_data: new Date().toISOString(), status: "aguardando_revisao" }));
+    setLinkModal(url);
+    toast.success("Contrato assinado pela F&M! Envie o link ao cliente.");
   };
 
   const baixarPDF = async () => {
@@ -373,9 +399,15 @@ function AdminContratoDetalhePage() {
               </Button>
             )}
             {!isNew && (status === "dados_cliente_enviados" || status === "em_revisao" || status === "aguardando_revisao") && (
-              <Button variant="outline" onClick={enviarParaCliente}>
-                <Send className="mr-1 h-4 w-4" /> Reenviar p/ Revisão
-              </Button>
+              <>
+                <Button onClick={salvarEAssinarFM} disabled={saving} className="bg-emerald-600 hover:bg-emerald-700">
+                  {saving ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Check className="mr-1 h-4 w-4" />}
+                  Salvar e Assinar como F&M
+                </Button>
+                <Button variant="outline" onClick={enviarParaCliente}>
+                  <Send className="mr-1 h-4 w-4" /> Reenviar p/ Revisão
+                </Button>
+              </>
             )}
             {!isNew && <Button variant="outline" onClick={baixarPDF}><FileDown className="mr-1 h-4 w-4" /> PDF</Button>}
           </div>
@@ -527,6 +559,17 @@ function AdminContratoDetalhePage() {
                 <div>Valor databook: <strong>{brl(Number(contrato.valor_databook || 0))}</strong></div>
                 <div className="text-base">TOTAL: <strong className="text-emerald-700">{brl(Number(contrato.valor_total || 0))}</strong></div>
                 <div>Adiantamento 15%: <strong>{brl(Number(contrato.valor_adiantamento || 0))}</strong></div>
+              </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <Field label="Valor Total R$ (editável)">
+                  <Input type="number" value={String(contrato.valor_total ?? "")} onChange={(e) => {
+                    const v = Number(e.target.value);
+                    setContrato((c) => ({ ...c, valor_total: v, valor_adiantamento: v * 0.15 }));
+                  }} />
+                </Field>
+                <Field label="Adiantamento R$ (editável)">
+                  <Input type="number" value={String(contrato.valor_adiantamento ?? "")} onChange={(e) => setContrato((c) => ({ ...c, valor_adiantamento: Number(e.target.value) }))} />
+                </Field>
               </div>
               <Field label="Observações"><Textarea rows={3} value={(contrato.observacoes as string) || ""} onChange={(e) => setC({ observacoes: e.target.value })} /></Field>
             </Section>
@@ -685,6 +728,24 @@ function AdminContratoDetalhePage() {
           onSaved={(patch) => setMedicoes((arr) => arr.map((m) => m.id === pagModal ? { ...m, ...patch } : m))}
         />
       )}
+      <Dialog open={!!linkModal} onOpenChange={(o) => !o && setLinkModal(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Contrato assinado pela F&M ✅</DialogTitle>
+            <DialogDescription>Envie este link ao cliente para revisão e assinatura:</DialogDescription>
+          </DialogHeader>
+          <div className="rounded border bg-slate-50 p-3 text-xs break-all">{linkModal}</div>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setLinkModal(null)}>Fechar</Button>
+            <Button onClick={async () => {
+              if (!linkModal) return;
+              try { await navigator.clipboard.writeText(linkModal); toast.success("Link copiado!"); } catch { toast.error("Não foi possível copiar"); }
+            }}>
+              <Copy className="mr-1 h-4 w-4" /> COPIAR LINK
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
