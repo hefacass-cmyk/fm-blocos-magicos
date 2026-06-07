@@ -728,6 +728,24 @@ function AdminContratoDetalhePage() {
           onSaved={(patch) => setMedicoes((arr) => arr.map((m) => m.id === pagModal ? { ...m, ...patch } : m))}
         />
       )}
+      <Dialog open={!!linkModal} onOpenChange={(o) => !o && setLinkModal(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Contrato assinado pela F&M ✅</DialogTitle>
+            <DialogDescription>Envie este link ao cliente para revisão e assinatura:</DialogDescription>
+          </DialogHeader>
+          <div className="rounded border bg-slate-50 p-3 text-xs break-all">{linkModal}</div>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setLinkModal(null)}>Fechar</Button>
+            <Button onClick={async () => {
+              if (!linkModal) return;
+              try { await navigator.clipboard.writeText(linkModal); toast.success("Link copiado!"); } catch { toast.error("Não foi possível copiar"); }
+            }}>
+              <Copy className="mr-1 h-4 w-4" /> COPIAR LINK
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
