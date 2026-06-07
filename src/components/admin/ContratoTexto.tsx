@@ -14,6 +14,7 @@ function dataExtenso(d?: string | null): string {
 export default function ContratoTexto({ c, empresa }: { c: Row; empresa?: EmpresaConfig }) {
   const e = empresa || EMPRESA_DEFAULT;
   const s = (k: string) => String(c[k] ?? "");
+  const lc = (v: unknown) => String(v ?? "").toLowerCase();
 
   // tipo_obra: prefere array novo, fallback aos booleans antigos
   const tipoObraArr = Array.isArray(c.prospect_tipo_obra) ? (c.prospect_tipo_obra as string[]) : [];
@@ -54,15 +55,15 @@ export default function ContratoTexto({ c, empresa }: { c: Row; empresa?: Empres
       <p>
         <strong>CONTRATADA:</strong> {e.razao_social}, inscrita no CNPJ sob nº {e.cnpj},
         com sede em {e.endereco}, neste ato representada por <strong>{e.representante_nome}</strong>,
-        {e.representante_estado_civil.toLowerCase()}, {e.representante_profissao.toLowerCase()},
+        {lc(e.representante_estado_civil)}, {lc(e.representante_profissao)},
         nascido em {fmtData(e.representante_nascimento)}, portador do RG nº {e.representante_rg}
         {" e do CPF nº "}{e.representante_cpf}, residente em {e.representante_endereco}.
       </p>
       <p>
         <strong>CONTRATANTE:</strong> {s("cliente_nome") || s("prospect_nome") || "—"},
-        {" "}{(s("prospect_nacionalidade") || "brasileiro(a)").toLowerCase()},
-        {" "}{(s("prospect_estado_civil") || "—").toLowerCase()},
-        {" "}{(s("prospect_profissao") || "—").toLowerCase()},
+        {" "}{lc(s("prospect_nacionalidade") || "brasileiro(a)")},
+        {" "}{lc(s("prospect_estado_civil") || "—")},
+        {" "}{lc(s("prospect_profissao") || "—")},
         portador(a) do RG nº {s("cliente_rg") || s("prospect_rg") || "—"} e CPF/CNPJ nº {s("cliente_cpf_cnpj") || s("prospect_cpf_cnpj") || "—"},
         e-mail {s("cliente_email") || s("prospect_email") || "—"}, telefone {s("cliente_telefone") || s("prospect_telefone") || "—"},
         residente em {enderecoContratante}.
@@ -70,8 +71,8 @@ export default function ContratoTexto({ c, empresa }: { c: Row; empresa?: Empres
       {temConjuge && (
         <p>
           <strong>INTERVENIENTE ANUENTE (cônjuge/companheiro(a)):</strong> {s("prospect_conjuge_nome")},
-          {" "}{(s("prospect_conjuge_nacionalidade") || "brasileiro(a)").toLowerCase()},
-          {" "}{(s("prospect_conjuge_profissao") || "—").toLowerCase()},
+          {" "}{lc(s("prospect_conjuge_nacionalidade") || "brasileiro(a)")},
+          {" "}{lc(s("prospect_conjuge_profissao") || "—")},
           portador(a) do RG nº {s("prospect_conjuge_rg") || "—"} e CPF nº {s("prospect_conjuge_cpf") || "—"},
           e-mail {s("prospect_conjuge_email") || "—"}, telefone {s("prospect_conjuge_telefone") || "—"}.
         </p>
@@ -80,7 +81,7 @@ export default function ContratoTexto({ c, empresa }: { c: Row; empresa?: Empres
       <h3>CLÁUSULA 2ª — OBJETO DO CONTRATO</h3>
       <p>
         O presente contrato tem por objeto a prestação de serviços de <strong>{modalidades}</strong> para
-        <strong> {tipos.toLowerCase()}</strong> do imóvel localizado em {enderecoObra},
+        <strong> {lc(tipos)}</strong> do imóvel localizado em {enderecoObra},
         com área de <strong>{area} m²</strong> sobre terreno de {terreno} m² ({s("prospect_tipo_terreno") || "—"}),
         pelo sistema construtivo <strong>{s("sistema_construtivo") || s("prospect_sistema") || "—"}</strong>,
         na modalidade <strong>{s("tipo_servico") || s("prospect_servico") || "—"}</strong>.
