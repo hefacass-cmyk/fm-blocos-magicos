@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Search, Pencil, Trash2, Eye, Loader2, ArrowLeft, Link2, Copy, X } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Eye, Loader2, ArrowLeft, Link2, Copy } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { fmSupabase, STATUS_COLORS, STATUS_LABELS, brl, fmtData, gerarNumeroContrato, type ContratoStatus } from "@/lib/fm-contratos";
+import { fmSupabase, STATUS_COLORS, STATUS_LABELS, brl, fmtData, type ContratoStatus } from "@/lib/fm-contratos";
 import { restoreAdminSession } from "@/lib/fm-admin-auth";
 
 export const Route = createFileRoute("/admin/contratos")({
