@@ -37,7 +37,7 @@ async function loadImageAsDataURL(url: string): Promise<string | null> {
   } catch { return null; }
 }
 
-export const Route = createFileRoute("/admin/contratos/$id")({
+export const Route = createFileRoute("/admin/contratos_/$id")({
   head: () => ({ meta: [{ title: "Contrato · F&M" }] }),
   component: AdminContratoDetalhePage,
 });
@@ -46,7 +46,7 @@ const ADMIN_KEY = "fm_admin_auth";
 type Row = Record<string, unknown>;
 
 function AdminContratoDetalhePage() {
-  const { id } = useParams({ from: "/admin/contratos/$id" });
+  const { id } = useParams({ from: "/admin/contratos_/$id" });
   const isNew = id === "novo";
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -166,7 +166,7 @@ function AdminContratoDetalhePage() {
     if (res.error) { toast.error("Erro ao salvar: " + res.error.message); return null; }
     toast.success("Contrato salvo");
     if (isNew && res.data) {
-      navigate({ to: "/admin/contratos/$id", params: { id: String((res.data as Row).id) } });
+      navigate({ to: "/admin/contratos_/$id", params: { id: String((res.data as Row).id) } });
       return res.data as Row;
     }
     setContrato(res.data as Row);

@@ -45,7 +45,7 @@ import { Route as AdminAuditoriaEmailsRouteImport } from './routes/admin.auditor
 import { Route as ContratoRevisarTokenRouteImport } from './routes/contrato.revisar.$token'
 import { Route as ContratoDadosTokenRouteImport } from './routes/contrato.dados.$token'
 import { Route as ContratoAssinarTokenRouteImport } from './routes/contrato.assinar.$token'
-import { Route as AdminContratosIdRouteImport } from './routes/admin.contratos.$id'
+import { Route as AdminContratosIdRouteImport } from './routes/admin.contratos_.$id'
 import { Route as AdminClientesIdRouteImport } from './routes/admin.clientes.$id'
 
 const VamosConstruirRoute = VamosConstruirRouteImport.update({
@@ -229,9 +229,9 @@ const ContratoAssinarTokenRoute = ContratoAssinarTokenRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminContratosIdRoute = AdminContratosIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => AdminContratosRoute,
+  id: '/admin/contratos_/$id',
+  path: '/admin/contratos/$id',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AdminClientesIdRoute = AdminClientesIdRouteImport.update({
   id: '/admin/clientes/$id',
@@ -257,7 +257,7 @@ export interface FileRoutesByFullPath {
   '/admin/auditoria-emails': typeof AdminAuditoriaEmailsRoute
   '/admin/avaliacoes': typeof AdminAvaliacoesRoute
   '/admin/configuracoes': typeof AdminConfiguracoesRoute
-  '/admin/contratos': typeof AdminContratosRouteWithChildren
+  '/admin/contratos': typeof AdminContratosRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/leads': typeof AdminLeadsRoute
   '/admin/login': typeof AdminLoginRoute
@@ -297,7 +297,7 @@ export interface FileRoutesByTo {
   '/admin/auditoria-emails': typeof AdminAuditoriaEmailsRoute
   '/admin/avaliacoes': typeof AdminAvaliacoesRoute
   '/admin/configuracoes': typeof AdminConfiguracoesRoute
-  '/admin/contratos': typeof AdminContratosRouteWithChildren
+  '/admin/contratos': typeof AdminContratosRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/leads': typeof AdminLeadsRoute
   '/admin/login': typeof AdminLoginRoute
@@ -338,7 +338,7 @@ export interface FileRoutesById {
   '/admin/auditoria-emails': typeof AdminAuditoriaEmailsRoute
   '/admin/avaliacoes': typeof AdminAvaliacoesRoute
   '/admin/configuracoes': typeof AdminConfiguracoesRoute
-  '/admin/contratos': typeof AdminContratosRouteWithChildren
+  '/admin/contratos': typeof AdminContratosRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/leads': typeof AdminLeadsRoute
   '/admin/login': typeof AdminLoginRoute
@@ -355,7 +355,7 @@ export interface FileRoutesById {
   '/parceiro/login': typeof ParceiroLoginRoute
   '/reset-senha/$token': typeof ResetSenhaTokenRoute
   '/admin/clientes/$id': typeof AdminClientesIdRoute
-  '/admin/contratos/$id': typeof AdminContratosIdRoute
+  '/admin/contratos_/$id': typeof AdminContratosIdRoute
   '/contrato/assinar/$token': typeof ContratoAssinarTokenRoute
   '/contrato/dados/$token': typeof ContratoDadosTokenRoute
   '/contrato/revisar/$token': typeof ContratoRevisarTokenRoute
@@ -477,7 +477,7 @@ export interface FileRouteTypes {
     | '/parceiro/login'
     | '/reset-senha/$token'
     | '/admin/clientes/$id'
-    | '/admin/contratos/$id'
+    | '/admin/contratos_/$id'
     | '/contrato/assinar/$token'
     | '/contrato/dados/$token'
     | '/contrato/revisar/$token'
@@ -501,7 +501,7 @@ export interface RootRouteChildren {
   AdminAuditoriaEmailsRoute: typeof AdminAuditoriaEmailsRoute
   AdminAvaliacoesRoute: typeof AdminAvaliacoesRoute
   AdminConfiguracoesRoute: typeof AdminConfiguracoesRoute
-  AdminContratosRoute: typeof AdminContratosRouteWithChildren
+  AdminContratosRoute: typeof AdminContratosRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminLeadsRoute: typeof AdminLeadsRoute
   AdminLoginRoute: typeof AdminLoginRoute
@@ -518,6 +518,7 @@ export interface RootRouteChildren {
   ParceiroLoginRoute: typeof ParceiroLoginRoute
   ResetSenhaTokenRoute: typeof ResetSenhaTokenRoute
   AdminClientesIdRoute: typeof AdminClientesIdRoute
+  AdminContratosIdRoute: typeof AdminContratosIdRoute
   ContratoAssinarTokenRoute: typeof ContratoAssinarTokenRoute
   ContratoDadosTokenRoute: typeof ContratoDadosTokenRoute
   ContratoRevisarTokenRoute: typeof ContratoRevisarTokenRoute
@@ -777,12 +778,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContratoAssinarTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/contratos/$id': {
-      id: '/admin/contratos/$id'
-      path: '/$id'
+    '/admin/contratos_/$id': {
+      id: '/admin/contratos_/$id'
+      path: '/admin/contratos/$id'
       fullPath: '/admin/contratos/$id'
       preLoaderRoute: typeof AdminContratosIdRouteImport
-      parentRoute: typeof AdminContratosRoute
+      parentRoute: typeof rootRouteImport
     }
     '/admin/clientes/$id': {
       id: '/admin/clientes/$id'
@@ -793,18 +794,6 @@ declare module '@tanstack/react-router' {
     }
   }
 }
-
-interface AdminContratosRouteChildren {
-  AdminContratosIdRoute: typeof AdminContratosIdRoute
-}
-
-const AdminContratosRouteChildren: AdminContratosRouteChildren = {
-  AdminContratosIdRoute: AdminContratosIdRoute,
-}
-
-const AdminContratosRouteWithChildren = AdminContratosRoute._addFileChildren(
-  AdminContratosRouteChildren,
-)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -824,7 +813,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminAuditoriaEmailsRoute: AdminAuditoriaEmailsRoute,
   AdminAvaliacoesRoute: AdminAvaliacoesRoute,
   AdminConfiguracoesRoute: AdminConfiguracoesRoute,
-  AdminContratosRoute: AdminContratosRouteWithChildren,
+  AdminContratosRoute: AdminContratosRoute,
   AdminDashboardRoute: AdminDashboardRoute,
   AdminLeadsRoute: AdminLeadsRoute,
   AdminLoginRoute: AdminLoginRoute,
@@ -841,6 +830,7 @@ const rootRouteChildren: RootRouteChildren = {
   ParceiroLoginRoute: ParceiroLoginRoute,
   ResetSenhaTokenRoute: ResetSenhaTokenRoute,
   AdminClientesIdRoute: AdminClientesIdRoute,
+  AdminContratosIdRoute: AdminContratosIdRoute,
   ContratoAssinarTokenRoute: ContratoAssinarTokenRoute,
   ContratoDadosTokenRoute: ContratoDadosTokenRoute,
   ContratoRevisarTokenRoute: ContratoRevisarTokenRoute,
@@ -848,3 +838,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
