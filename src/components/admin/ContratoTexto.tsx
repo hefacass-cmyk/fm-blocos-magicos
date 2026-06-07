@@ -121,7 +121,7 @@ export default function ContratoTexto({ c, empresa }: { c: Row; empresa?: Empres
       {c.databook_eletronico ? (
         <p>Adicional <strong>Databook Eletrônico</strong>: {brl(Number(c.valor_databook || 0))} (3% do contrato).</p>
       ) : null}
-      {(c.extra_seguro_obra || c.extra_readequacao_ferragem || c.extra_carta_tecnica || c.extra_quantitativo_blocos || c.extras_outros) && (
+      {(c.extra_seguro_obra || c.extra_readequacao_ferragem || c.extra_carta_tecnica || c.extra_quantitativo_blocos || c.extras_outros) ? (
         <>
           <p><strong>Serviços extras inclusos nesta proposta:</strong></p>
           <ul>
@@ -132,7 +132,7 @@ export default function ContratoTexto({ c, empresa }: { c: Row; empresa?: Empres
             {c.extras_outros ? <li className="whitespace-pre-wrap">{String(c.extras_outros)}</li> : null}
           </ul>
         </>
-      )}
+      ) : null}
       {c.itens_negociacao ? (
         <>
           <p><strong>Itens incluídos na negociação:</strong></p>
