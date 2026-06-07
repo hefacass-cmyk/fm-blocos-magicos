@@ -152,7 +152,7 @@ function Header({ onLogin }: { onLogin: () => void }) {
                 Entrar / Área do Cliente
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link to="/precos" className="cursor-pointer text-sm">Preços</Link>
+                <Link to="/precos" className="cursor-pointer text-sm">Serviços F&amp;M</Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -209,7 +209,7 @@ function Header({ onLogin }: { onLogin: () => void }) {
               Entrar / Área do Cliente
             </button>
             <Link to="/precos" onClick={() => setOpen(false)} className="py-2 text-sm font-medium text-foreground/80">
-              Preços
+              Serviços F&M
             </Link>
             <Link
               to="/vamos-construir"
