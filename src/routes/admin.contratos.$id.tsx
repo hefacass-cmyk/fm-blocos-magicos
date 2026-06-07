@@ -417,7 +417,9 @@ function AdminContratoDetalhePage() {
       <main className="mx-auto max-w-6xl p-4">
         <Tabs defaultValue="dados">
           <TabsList>
-            <TabsTrigger value="dados">Dados da Obra</TabsTrigger>
+            <TabsTrigger value="dados" className="data-[state=active]:bg-emerald-100 data-[state=active]:text-emerald-900 font-semibold">
+              📝 Proposta F&amp;M (preencher aqui)
+            </TabsTrigger>
             <TabsTrigger value="financeiro" disabled={isNew}>Financeiro</TabsTrigger>
             <TabsTrigger value="aditivos" disabled={isNew}>Aditivos</TabsTrigger>
             <TabsTrigger value="assinatura" disabled={isNew}>Assinatura F&M</TabsTrigger>
