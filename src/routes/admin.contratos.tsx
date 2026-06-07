@@ -10,6 +10,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { fmSupabase, STATUS_COLORS, STATUS_LABELS, brl, fmtData, gerarNumeroContrato, type ContratoStatus } from "@/lib/fm-contratos";
+import { restoreAdminSession } from "@/lib/fm-admin-auth";
 
 export const Route = createFileRoute("/admin/contratos")({
   head: () => ({ meta: [{ title: "Contratos · F&M" }] }),
@@ -29,8 +30,22 @@ function AdminContratosPage() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (sessionStorage.getItem(ADMIN_KEY) !== "1") { navigate({ to: "/admin/login" }); return; }
-    load();
+    let active = true;
+
+    const init = async () => {
+      const ok = sessionStorage.getItem(ADMIN_KEY) === "1" || await restoreAdminSession();
+      if (!ok) {
+        navigate({ to: "/admin/login" });
+        return;
+      }
+      if (active) await load();
+    };
+
+    void init();
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   const load = async () => {

@@ -21,6 +21,7 @@ import SignaturePad, { type SignaturePadHandle } from "@/components/admin/Signat
 import ContratoTexto from "@/components/admin/ContratoTexto";
 import { MarcarPagoModal } from "@/components/admin/MarcarPagoModal";
 import { carregarEmpresaConfig, EMPRESA_DEFAULT, type EmpresaConfig } from "@/lib/fm-empresa";
+import { restoreAdminSession } from "@/lib/fm-admin-auth";
 import fmLogoUrl from "@/assets/fm-logo.png";
 
 async function loadImageAsDataURL(url: string): Promise<string | null> {
@@ -60,8 +61,24 @@ function AdminContratoDetalhePage() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (sessionStorage.getItem(ADMIN_KEY) !== "1") { navigate({ to: "/admin/login" }); return; }
-    void init();
+    let active = true;
+
+    const bootstrap = async () => {
+      const ok = sessionStorage.getItem(ADMIN_KEY) === "1" || await restoreAdminSession();
+      if (!ok) {
+        navigate({ to: "/admin/login" });
+        return;
+      }
+      if (active) {
+        void init();
+      }
+    };
+
+    void bootstrap();
+
+    return () => {
+      active = false;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
