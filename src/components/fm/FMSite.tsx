@@ -157,7 +157,7 @@ function Header({ onLogin }: { onLogin: () => void }) {
             </DropdownMenuContent>
           </DropdownMenu>
           <Link
-            to="/vamos-construir"
+            to="/contato-rapido"
             className="inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-[11px] font-bold text-slate-900 hover:brightness-95 transition whitespace-nowrap"
             style={{ backgroundColor: "#F4B941" }}
           >
@@ -212,7 +212,7 @@ function Header({ onLogin }: { onLogin: () => void }) {
               Serviços F&M
             </Link>
             <Link
-              to="/vamos-construir"
+              to="/contato-rapido"
               onClick={() => setOpen(false)}
               className="mt-2 inline-flex items-center justify-center gap-2 rounded-md px-4 py-3 text-sm font-bold text-slate-900"
               style={{ backgroundColor: "#F4B941" }}

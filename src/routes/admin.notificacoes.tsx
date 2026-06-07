@@ -17,7 +17,7 @@ type Notif = {
   destinatario?: string | null;
   telefone?: string | null;
   status?: string | null;
-  created_at?: string | null;
+  criado_em?: string | null;
   enviado_em?: string | null;
   erro?: string | null;
   tentativas?: number | null;
@@ -43,7 +43,7 @@ function AdminNotificacoesPage() {
       const { data, error } = await fmSupabase
         .from("notificacoes_log")
         .select("*")
-        .order("created_at", { ascending: false })
+        .order("criado_em", { ascending: false })
         .limit(300);
       if (error) throw error;
       setRows((data || []) as Notif[]);
@@ -145,7 +145,7 @@ function AdminNotificacoesPage() {
                         <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${STATUS_CLASSES[st] || "bg-slate-100 text-slate-700"}`}>{st}</span>
                         {r.erro && <p className="mt-1 text-[10px] text-rose-600 truncate max-w-[260px]" title={r.erro}>{r.erro}</p>}
                       </td>
-                      <td className="p-3 text-xs text-slate-500">{(r.enviado_em || r.created_at) ? new Date((r.enviado_em || r.created_at) as string).toLocaleString("pt-BR") : "—"}</td>
+                      <td className="p-3 text-xs text-slate-500">{(r.enviado_em || r.criado_em) ? new Date((r.enviado_em || r.criado_em) as string).toLocaleString("pt-BR") : "—"}</td>
                       <td className="p-3 text-right">
                         {st === "erro" && <Button size="sm" variant="outline" onClick={() => reenviar(r.id)}><RefreshCw className="h-3 w-3 mr-1" /> Reenviar</Button>}
                       </td>

@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Search, Pencil, Trash2, Eye, Loader2, ArrowLeft, Link2 } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Eye, Loader2, ArrowLeft, Link2, Copy, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { fmSupabase, STATUS_COLORS, STATUS_LABELS, brl, fmtData, gerarNumeroContrato, type ContratoStatus } from "@/lib/fm-contratos";
 import { restoreAdminSession } from "@/lib/fm-admin-auth";
 
@@ -27,6 +28,7 @@ function AdminContratosPage() {
   const [q, setQ] = useState("");
   const [delOpen, setDelOpen] = useState(false);
   const [delTarget, setDelTarget] = useState<Row | null>(null);
+  const [linkModalOpen, setLinkModalOpen] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -95,24 +97,7 @@ function AdminContratosPage() {
     setDelOpen(false); setDelTarget(null);
   };
 
-  const novoLinkCliente = async () => {
-    const numero = await gerarNumeroContrato();
-    const { data, error } = await fmSupabase
-      .from("contratos")
-      .insert({ numero, status: "rascunho" })
-      .select("token_cliente, numero")
-      .single();
-    if (error || !data) { toast.error("Erro: " + (error?.message ?? "")); return; }
-    const token = (data as { token_cliente: string }).token_cliente;
-    const url = `https://www.fmsmartbuild.com.br/contrato/dados/${token}`;
-    try {
-      await navigator.clipboard.writeText(url);
-      toast.success(`Link copiado (${(data as { numero: string }).numero}). Envie ao cliente pelo WhatsApp.`);
-    } catch {
-      window.prompt("Copie e envie ao cliente:", url);
-    }
-    load();
-  };
+  const abrirModalLink = () => setLinkModalOpen(true);
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -127,7 +112,7 @@ function AdminContratosPage() {
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
-              onClick={novoLinkCliente}
+              onClick={abrirModalLink}
               title="Cria um contrato em branco e copia o link para o cliente preencher seus dados"
             >
               <Link2 className="mr-1 h-4 w-4" /> Novo Link Cliente
@@ -186,6 +171,12 @@ function AdminContratosPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <NovoLinkClienteModal
+        open={linkModalOpen}
+        onClose={() => setLinkModalOpen(false)}
+        contratos={rows}
+        onCreated={load}
+      />
     </div>
   );
 }
@@ -215,10 +206,24 @@ function Tabela({ rows, onDelete }: { rows: Row[]; onDelete: (r: Row) => void })
         <tbody>
           {rows.map((r) => {
             const status = (r.status as ContratoStatus) || "rascunho";
-            const cli = (r.clientes as { nome?: string } | null)?.nome ?? String(r.prospect_nome ?? "—");
-            const cidade = [r.prospect_cidade, r.prospect_estado].filter(Boolean).join("/") || "—";
-            const whatsapp = String(r.prospect_whatsapp ?? "—");
-            const area = r.prospect_area_construir ? `${r.prospect_area_construir} m²` : "—";
+            const coalesce = (...vals: unknown[]) => {
+              for (const v of vals) {
+                if (v !== null && v !== undefined && String(v).trim() !== "") return String(v);
+              }
+              return "—";
+            };
+            const cli = (r.clientes as { nome?: string } | null)?.nome
+              ?? coalesce(r.prospect_nome, r.cliente_nome);
+            const whatsapp = coalesce(r.prospect_whatsapp, r.cliente_whatsapp);
+            const cidadeRaw = coalesce(r.prospect_cidade, r.obra_cidade, r.cidade);
+            const estadoRaw = coalesce(r.prospect_estado, r.obra_estado, r.estado);
+            const cidade = cidadeRaw !== "—" || estadoRaw !== "—"
+              ? [cidadeRaw, estadoRaw].filter((v) => v && v !== "—").join("/") || "—"
+              : "—";
+            const sistema = coalesce(r.sistema_construtivo, r.prospect_sistema_preferido);
+            const servico = coalesce(r.tipo_servico, r.prospect_servico_preferido);
+            const areaVal = coalesce(r.prospect_area_construir, r.area_m2, r.obra_area_construir);
+            const area = areaVal !== "—" ? `${areaVal} m²` : "—";
             const valor = Number(r.valor_total || 0);
             return (
               <tr key={String(r.id)} className="border-b last:border-0 hover:bg-slate-50">
@@ -226,8 +231,8 @@ function Tabela({ rows, onDelete }: { rows: Row[]; onDelete: (r: Row) => void })
                 <td className="p-3">{cli}</td>
                 <td className="p-3 text-xs text-slate-600">{whatsapp}</td>
                 <td className="p-3 text-xs text-slate-600">{cidade}</td>
-                <td className="p-3">{String(r.sistema_construtivo || r.prospect_sistema_preferido || "—")}</td>
-                <td className="p-3">{String(r.tipo_servico || r.prospect_servico_preferido || "—")}</td>
+                <td className="p-3">{sistema}</td>
+                <td className="p-3">{servico}</td>
                 <td className="p-3 text-right text-xs">{area}</td>
                 <td className="p-3 text-right">{valor > 0 ? brl(valor) : <span className="text-xs text-slate-400">A definir</span>}</td>
                 <td className="p-3">
@@ -277,5 +282,139 @@ function Tabela({ rows, onDelete }: { rows: Row[]; onDelete: (r: Row) => void })
         </tbody>
       </table>
     </div>
+  );
+}
+
+function NovoLinkClienteModal({
+  open, onClose, contratos, onCreated,
+}: {
+  open: boolean;
+  onClose: () => void;
+  contratos: Row[];
+  onCreated: () => void;
+}) {
+  const [busca, setBusca] = useState("");
+  const [selecionado, setSelecionado] = useState<Row | null>(null);
+  const [gerando, setGerando] = useState(false);
+  const [novoToken, setNovoToken] = useState<{ token: string; numero: string } | null>(null);
+
+  useEffect(() => {
+    if (!open) {
+      setBusca(""); setSelecionado(null); setNovoToken(null); setGerando(false);
+    }
+  }, [open]);
+
+  const filtrados = useMemo(() => {
+    const t = busca.trim().toLowerCase();
+    if (!t) return contratos.slice(0, 8);
+    return contratos.filter((c) => {
+      const cli = (c.clientes as { nome?: string } | null)?.nome ?? String(c.prospect_nome ?? c.cliente_nome ?? "");
+      return String(c.numero ?? "").toLowerCase().includes(t) || cli.toLowerCase().includes(t);
+    }).slice(0, 12);
+  }, [busca, contratos]);
+
+  const tokenAtual = novoToken?.token ?? (selecionado?.token_cliente as string | undefined);
+  const numeroAtual = novoToken?.numero ?? (selecionado?.numero as string | undefined);
+  const url = tokenAtual ? `https://www.fmsmartbuild.com.br/iniciar-contrato?token=${tokenAtual}` : "";
+
+  const copiar = async () => {
+    if (!url) return;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success("Link copiado!");
+    } catch {
+      window.prompt("Copie e envie ao cliente:", url);
+    }
+  };
+
+  const gerarNovo = async () => {
+    setGerando(true);
+    try {
+      const numero = await gerarNumeroContrato();
+      const { data, error } = await fmSupabase
+        .from("contratos")
+        .insert({ numero, status: "rascunho" })
+        .select("token_cliente, numero")
+        .single();
+      if (error || !data) throw new Error(error?.message ?? "Falha ao criar contrato");
+      const d = data as { token_cliente: string; numero: string };
+      setNovoToken({ token: d.token_cliente, numero: d.numero });
+      setSelecionado(null);
+      toast.success(`Contrato ${d.numero} criado`);
+      onCreated();
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setGerando(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Novo Link Cliente</DialogTitle>
+          <DialogDescription>
+            Selecione um contrato existente ou gere um novo. O cliente preenche os dados pelo link.
+          </DialogDescription>
+        </DialogHeader>
+
+        {tokenAtual ? (
+          <div className="space-y-3">
+            <div className="rounded-md border bg-slate-50 p-3">
+              <p className="text-xs text-slate-500">Contrato {numeroAtual}</p>
+              <p className="mt-1 break-all text-xs font-mono text-slate-800">{url}</p>
+            </div>
+            <Button onClick={copiar} className="w-full">
+              <Copy className="mr-2 h-4 w-4" /> COPIAR LINK
+            </Button>
+            <p className="text-xs text-slate-600 text-center">
+              Envie este link ao cliente para que ele preencha seus dados pessoais e da obra.
+            </p>
+            <Button variant="ghost" size="sm" className="w-full" onClick={() => { setSelecionado(null); setNovoToken(null); }}>
+              <X className="mr-1 h-3 w-3" /> Escolher outro
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <Input
+                placeholder="Buscar por protocolo ou nome..."
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+            <div className="max-h-60 overflow-y-auto rounded-md border divide-y">
+              {filtrados.length === 0 ? (
+                <p className="p-4 text-center text-xs text-slate-500">Nenhum contrato encontrado.</p>
+              ) : filtrados.map((c) => {
+                const cli = (c.clientes as { nome?: string } | null)?.nome
+                  ?? String(c.prospect_nome ?? c.cliente_nome ?? "—");
+                return (
+                  <button
+                    key={String(c.id)}
+                    type="button"
+                    onClick={() => setSelecionado(c)}
+                    disabled={!c.token_cliente}
+                    className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span className="font-mono text-xs text-slate-500">{String(c.numero ?? "—")}</span>
+                    <span className="ml-2">{cli}</span>
+                    {!c.token_cliente && <span className="ml-2 text-[10px] text-rose-500">(sem token)</span>}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="border-t pt-3">
+              <Button onClick={gerarNovo} disabled={gerando} className="w-full" variant="outline">
+                {gerando ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Plus className="mr-1 h-4 w-4" /> GERAR NOVO LINK</>}
+              </Button>
+            </div>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }
