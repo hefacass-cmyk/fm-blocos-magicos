@@ -104,7 +104,7 @@ function PrecosPage() {
           <nav className="hidden sm:flex items-center gap-4 text-sm">
             <Link to="/" className="font-medium text-slate-700 hover:text-primary">Início</Link>
             <Link to="/precos" className="font-bold" style={{ color: BLUE }}>Serviços F&amp;M</Link>
-            <Link to="/iniciar-contrato" className="rounded-md px-3 py-1.5 text-xs font-bold text-slate-900" style={{ backgroundColor: YELLOW }}>
+            <Link to="/contato-rapido" className="rounded-md px-3 py-1.5 text-xs font-bold text-slate-900" style={{ backgroundColor: YELLOW }}>
               Quero Construir
             </Link>
           </nav>
