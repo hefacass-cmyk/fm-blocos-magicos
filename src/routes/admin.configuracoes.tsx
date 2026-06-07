@@ -50,10 +50,41 @@ function AdminConfiguracoesPage() {
 
   const salvar = async () => {
     setSaving(true);
-    const payload = { ...form, atualizado_em: new Date().toISOString() } as Record<string, unknown>;
-    let res;
-    if (form.id) res = await fmSupabase.from("empresa_config").update(payload).eq("id", form.id).select().single();
-    else res = await fmSupabase.from("empresa_config").insert(payload).select().single();
+    const clean = (v: unknown) => (typeof v === "string" && v.trim() === "" ? null : v);
+    const base: Record<string, unknown> = {
+      razao_social: clean(form.razao_social),
+      cnpj: clean(form.cnpj),
+      endereco: clean(form.endereco),
+      representante_nome: clean(form.representante_nome),
+      representante_cpf: clean(form.representante_cpf),
+      representante_rg: clean(form.representante_rg),
+      representante_estado_civil: clean(form.representante_estado_civil),
+      representante_profissao: clean(form.representante_profissao),
+      representante_nascimento: clean(form.representante_nascimento),
+      representante_endereco: clean(form.representante_endereco),
+      responsavel_tecnico: clean(form.responsavel_tecnico),
+      crea: clean(form.crea),
+      pix_chave: clean(form.pix_chave),
+      logo_url: clean(form.logo_url),
+      assinatura_fm_default: clean(form.assinatura_fm_default),
+      atualizado_em: new Date().toISOString(),
+    };
+    const tryWrite = async (payload: Record<string, unknown>) => {
+      if (form.id) return await fmSupabase.from("empresa_config").update(payload).eq("id", form.id).select().single();
+      return await fmSupabase.from("empresa_config").insert(payload).select().single();
+    };
+    let res = await tryWrite(base);
+    let attempts = 0;
+    while (res.error && attempts < 8) {
+      const msg = res.error.message || "";
+      const m = /Could not find the ['"]?(\w+)['"]? column/i.exec(msg)
+        || /column ['"]?(\w+)['"]? .*(?:does not exist|schema cache)/i.exec(msg);
+      const col = m?.[1];
+      if (!col || !(col in base)) break;
+      delete base[col];
+      res = await tryWrite(base);
+      attempts++;
+    }
     setSaving(false);
     if (res.error) { toast.error("Erro: " + res.error.message); return; }
     toast.success("Configurações salvas");
@@ -101,8 +132,8 @@ function AdminConfiguracoesPage() {
 
         <Section title="Responsável Técnico">
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Nome"><Input value={form.responsavel_tecnico || ""} onChange={(e) => set({ responsavel_tecnico: e.target.value })} /></Field>
-            <Field label="CREA"><Input value={form.crea || ""} onChange={(e) => set({ crea: e.target.value })} /></Field>
+            <Field label="Nome (opcional)"><Input value={form.responsavel_tecnico || ""} onChange={(e) => set({ responsavel_tecnico: e.target.value })} /></Field>
+            <Field label="CREA (opcional)"><Input value={form.crea || ""} onChange={(e) => set({ crea: e.target.value })} /></Field>
           </div>
         </Section>
 
