@@ -103,7 +103,7 @@ function PrecosPage() {
           <Link to="/" className="font-extrabold tracking-tight" style={{ color: BLUE }}>F&amp;M Smart Build</Link>
           <nav className="hidden sm:flex items-center gap-4 text-sm">
             <Link to="/" className="font-medium text-slate-700 hover:text-primary">Início</Link>
-            <Link to="/precos" className="font-bold" style={{ color: BLUE }}>Preços</Link>
+            <Link to="/precos" className="font-bold" style={{ color: BLUE }}>Serviços F&amp;M</Link>
             <Link to="/iniciar-contrato" className="rounded-md px-3 py-1.5 text-xs font-bold text-slate-900" style={{ backgroundColor: YELLOW }}>
               Quero Construir
             </Link>
@@ -129,7 +129,7 @@ function PrecosPage() {
       <section className="py-12">
         <div className="container mx-auto px-4 max-w-6xl">
           <h2 className="text-2xl font-bold text-center" style={{ color: BLUE }}>Tabela comparativa</h2>
-          <p className="mt-1 text-center text-sm text-muted-foreground">Preços por m² por sistema construtivo</p>
+          <p className="mt-1 text-center text-sm text-muted-foreground">Serviços F&amp;M por sistema construtivo</p>
           <div className="mt-6 overflow-x-auto rounded-xl border bg-white shadow-sm">
             <table className="w-full text-sm">
               <thead>
