@@ -206,10 +206,24 @@ function Tabela({ rows, onDelete }: { rows: Row[]; onDelete: (r: Row) => void })
         <tbody>
           {rows.map((r) => {
             const status = (r.status as ContratoStatus) || "rascunho";
-            const cli = (r.clientes as { nome?: string } | null)?.nome ?? String(r.prospect_nome ?? "—");
-            const cidade = [r.prospect_cidade, r.prospect_estado].filter(Boolean).join("/") || "—";
-            const whatsapp = String(r.prospect_whatsapp ?? "—");
-            const area = r.prospect_area_construir ? `${r.prospect_area_construir} m²` : "—";
+            const coalesce = (...vals: unknown[]) => {
+              for (const v of vals) {
+                if (v !== null && v !== undefined && String(v).trim() !== "") return String(v);
+              }
+              return "—";
+            };
+            const cli = (r.clientes as { nome?: string } | null)?.nome
+              ?? coalesce(r.prospect_nome, r.cliente_nome);
+            const whatsapp = coalesce(r.prospect_whatsapp, r.cliente_whatsapp);
+            const cidadeRaw = coalesce(r.prospect_cidade, r.obra_cidade, r.cidade);
+            const estadoRaw = coalesce(r.prospect_estado, r.obra_estado, r.estado);
+            const cidade = cidadeRaw !== "—" || estadoRaw !== "—"
+              ? [cidadeRaw, estadoRaw].filter((v) => v && v !== "—").join("/") || "—"
+              : "—";
+            const sistema = coalesce(r.sistema_construtivo, r.prospect_sistema_preferido);
+            const servico = coalesce(r.tipo_servico, r.prospect_servico_preferido);
+            const areaVal = coalesce(r.prospect_area_construir, r.area_m2, r.obra_area_construir);
+            const area = areaVal !== "—" ? `${areaVal} m²` : "—";
             const valor = Number(r.valor_total || 0);
             return (
               <tr key={String(r.id)} className="border-b last:border-0 hover:bg-slate-50">
@@ -217,8 +231,8 @@ function Tabela({ rows, onDelete }: { rows: Row[]; onDelete: (r: Row) => void })
                 <td className="p-3">{cli}</td>
                 <td className="p-3 text-xs text-slate-600">{whatsapp}</td>
                 <td className="p-3 text-xs text-slate-600">{cidade}</td>
-                <td className="p-3">{String(r.sistema_construtivo || r.prospect_sistema_preferido || "—")}</td>
-                <td className="p-3">{String(r.tipo_servico || r.prospect_servico_preferido || "—")}</td>
+                <td className="p-3">{sistema}</td>
+                <td className="p-3">{servico}</td>
                 <td className="p-3 text-right text-xs">{area}</td>
                 <td className="p-3 text-right">{valor > 0 ? brl(valor) : <span className="text-xs text-slate-400">A definir</span>}</td>
                 <td className="p-3">
