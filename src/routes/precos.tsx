@@ -1,16 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, CheckCircle2, Camera, Wrench, Phone, ShieldCheck, Layers, Building2 } from "lucide-react";
+import { ArrowRight, CheckCircle2, Camera, Wrench, Phone, ShieldCheck, Layers, Building2, X } from "lucide-react";
 import { fmSupabase } from "@/lib/fm-supabase";
-import { BRL, WHATSAPP_FM } from "@/lib/fm-admin";
+import { WHATSAPP_FM } from "@/lib/fm-admin";
 
 export const Route = createFileRoute("/precos")({
   head: () => ({
     meta: [
-      { title: "Preços e Planos · F&M Smart Build" },
-      { name: "description", content: "Conheça os 4 planos da F&M Smart Build: TOTAL, GESTÃO, ESSENCIAL e Só Gestão. Construção rápida com transparência total." },
-      { property: "og:title", content: "Preços e Planos · F&M Smart Build" },
-      { property: "og:description", content: "Construção inteligente em Inova Blocos, Alvenaria e ICF. Compare os 4 planos e inicie sua obra." },
+      { title: "Serviços F&M · F&M Smart Build" },
+      { name: "description", content: "Conheça os serviços F&M Smart Build: monitoramento, gestão de obra, documentação e muito mais. Construção inteligente com transparência total." },
+      { property: "og:title", content: "Serviços F&M · F&M Smart Build" },
+      { property: "og:description", content: "Monitoramento, gestão e serviços técnicos para sua obra com a F&M Smart Build." },
     ],
   }),
   component: PrecosPage,
