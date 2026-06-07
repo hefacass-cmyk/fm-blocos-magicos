@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Search, Pencil, Trash2, Eye, Loader2, ArrowLeft, Link2 } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Eye, Loader2, ArrowLeft, Link2, Copy, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { fmSupabase, STATUS_COLORS, STATUS_LABELS, brl, fmtData, gerarNumeroContrato, type ContratoStatus } from "@/lib/fm-contratos";
 import { restoreAdminSession } from "@/lib/fm-admin-auth";
 
@@ -27,6 +28,7 @@ function AdminContratosPage() {
   const [q, setQ] = useState("");
   const [delOpen, setDelOpen] = useState(false);
   const [delTarget, setDelTarget] = useState<Row | null>(null);
+  const [linkModalOpen, setLinkModalOpen] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -95,24 +97,7 @@ function AdminContratosPage() {
     setDelOpen(false); setDelTarget(null);
   };
 
-  const novoLinkCliente = async () => {
-    const numero = await gerarNumeroContrato();
-    const { data, error } = await fmSupabase
-      .from("contratos")
-      .insert({ numero, status: "rascunho" })
-      .select("token_cliente, numero")
-      .single();
-    if (error || !data) { toast.error("Erro: " + (error?.message ?? "")); return; }
-    const token = (data as { token_cliente: string }).token_cliente;
-    const url = `https://www.fmsmartbuild.com.br/contrato/dados/${token}`;
-    try {
-      await navigator.clipboard.writeText(url);
-      toast.success(`Link copiado (${(data as { numero: string }).numero}). Envie ao cliente pelo WhatsApp.`);
-    } catch {
-      window.prompt("Copie e envie ao cliente:", url);
-    }
-    load();
-  };
+  const abrirModalLink = () => setLinkModalOpen(true);
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -127,7 +112,7 @@ function AdminContratosPage() {
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
-              onClick={novoLinkCliente}
+              onClick={abrirModalLink}
               title="Cria um contrato em branco e copia o link para o cliente preencher seus dados"
             >
               <Link2 className="mr-1 h-4 w-4" /> Novo Link Cliente
@@ -186,6 +171,12 @@ function AdminContratosPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <NovoLinkClienteModal
+        open={linkModalOpen}
+        onClose={() => setLinkModalOpen(false)}
+        contratos={rows}
+        onCreated={load}
+      />
     </div>
   );
 }

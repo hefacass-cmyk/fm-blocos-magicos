@@ -19,6 +19,7 @@ import { Route as IniciarContratoRouteImport } from './routes/iniciar-contrato'
 import { Route as FornecedoresRouteImport } from './routes/fornecedores'
 import { Route as EsqueciSenhaRouteImport } from './routes/esqueci-senha'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as ContatoRapidoRouteImport } from './routes/contato-rapido'
 import { Route as CadastroParceiroRouteImport } from './routes/cadastro-parceiro'
 import { Route as CadastroFornecedorRouteImport } from './routes/cadastro-fornecedor'
 import { Route as BuscarProfissionalRouteImport } from './routes/buscar-profissional'
@@ -96,6 +97,11 @@ const EsqueciSenhaRoute = EsqueciSenhaRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContatoRapidoRoute = ContatoRapidoRouteImport.update({
+  id: '/contato-rapido',
+  path: '/contato-rapido',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CadastroParceiroRoute = CadastroParceiroRouteImport.update({
@@ -244,6 +250,7 @@ export interface FileRoutesByFullPath {
   '/buscar-profissional': typeof BuscarProfissionalRoute
   '/cadastro-fornecedor': typeof CadastroFornecedorRoute
   '/cadastro-parceiro': typeof CadastroParceiroRoute
+  '/contato-rapido': typeof ContatoRapidoRoute
   '/dashboard': typeof DashboardRoute
   '/esqueci-senha': typeof EsqueciSenhaRoute
   '/fornecedores': typeof FornecedoresRoute
@@ -284,6 +291,7 @@ export interface FileRoutesByTo {
   '/buscar-profissional': typeof BuscarProfissionalRoute
   '/cadastro-fornecedor': typeof CadastroFornecedorRoute
   '/cadastro-parceiro': typeof CadastroParceiroRoute
+  '/contato-rapido': typeof ContatoRapidoRoute
   '/dashboard': typeof DashboardRoute
   '/esqueci-senha': typeof EsqueciSenhaRoute
   '/fornecedores': typeof FornecedoresRoute
@@ -325,6 +333,7 @@ export interface FileRoutesById {
   '/buscar-profissional': typeof BuscarProfissionalRoute
   '/cadastro-fornecedor': typeof CadastroFornecedorRoute
   '/cadastro-parceiro': typeof CadastroParceiroRoute
+  '/contato-rapido': typeof ContatoRapidoRoute
   '/dashboard': typeof DashboardRoute
   '/esqueci-senha': typeof EsqueciSenhaRoute
   '/fornecedores': typeof FornecedoresRoute
@@ -367,6 +376,7 @@ export interface FileRouteTypes {
     | '/buscar-profissional'
     | '/cadastro-fornecedor'
     | '/cadastro-parceiro'
+    | '/contato-rapido'
     | '/dashboard'
     | '/esqueci-senha'
     | '/fornecedores'
@@ -407,6 +417,7 @@ export interface FileRouteTypes {
     | '/buscar-profissional'
     | '/cadastro-fornecedor'
     | '/cadastro-parceiro'
+    | '/contato-rapido'
     | '/dashboard'
     | '/esqueci-senha'
     | '/fornecedores'
@@ -447,6 +458,7 @@ export interface FileRouteTypes {
     | '/buscar-profissional'
     | '/cadastro-fornecedor'
     | '/cadastro-parceiro'
+    | '/contato-rapido'
     | '/dashboard'
     | '/esqueci-senha'
     | '/fornecedores'
@@ -488,6 +500,7 @@ export interface RootRouteChildren {
   BuscarProfissionalRoute: typeof BuscarProfissionalRoute
   CadastroFornecedorRoute: typeof CadastroFornecedorRoute
   CadastroParceiroRoute: typeof CadastroParceiroRoute
+  ContatoRapidoRoute: typeof ContatoRapidoRoute
   DashboardRoute: typeof DashboardRoute
   EsqueciSenhaRoute: typeof EsqueciSenhaRoute
   FornecedoresRoute: typeof FornecedoresRoute
@@ -594,6 +607,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contato-rapido': {
+      id: '/contato-rapido'
+      path: '/contato-rapido'
+      fullPath: '/contato-rapido'
+      preLoaderRoute: typeof ContatoRapidoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cadastro-parceiro': {
@@ -800,6 +820,7 @@ const rootRouteChildren: RootRouteChildren = {
   BuscarProfissionalRoute: BuscarProfissionalRoute,
   CadastroFornecedorRoute: CadastroFornecedorRoute,
   CadastroParceiroRoute: CadastroParceiroRoute,
+  ContatoRapidoRoute: ContatoRapidoRoute,
   DashboardRoute: DashboardRoute,
   EsqueciSenhaRoute: EsqueciSenhaRoute,
   FornecedoresRoute: FornecedoresRoute,
@@ -838,13 +859,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
