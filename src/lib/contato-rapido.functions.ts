@@ -77,23 +77,5 @@ export const enviarContatoRapido = createServerFn({ method: "POST" })
       emailErr = "RESEND_API_KEY ausente";
     }
 
-    // 2) Notificacao log via supabaseAdmin
-    let logOk = false; let logErr: string | null = null;
-    try {
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      const { error } = await supabaseAdmin.from("notificacoes_log").insert({
-        tipo: "contato_rapido",
-        destinatario_telefone: "71999154343",
-        destinatario_nome: data.nome,
-        mensagem: resumo,
-        status: emailOk ? "enviado" : "pendente",
-        criado_em: new Date().toISOString(),
-      });
-      if (error) logErr = error.message;
-      else logOk = true;
-    } catch (e) {
-      logErr = (e as Error).message;
-    }
-
-    return { emailOk, emailErr, logOk, logErr };
+    return { emailOk, emailErr, resumo };
   });
