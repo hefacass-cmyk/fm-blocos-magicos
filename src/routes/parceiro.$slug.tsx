@@ -20,8 +20,6 @@ const BRAND_BLUE = "#1A4D7A";
 const BRAND_YELLOW = "#F4B941";
 const BRAND_GREEN = "#25D366";
 const FM_WHATSAPP = "5571999454343";
-const VIDEO_URL =
-  "https://hdjlwidfnikbahfhrkil.supabase.co/storage/v1/object/public/videos/novo.mp4";
 const SITE_URL = "https://www.fmsmartbuild.com.br";
 const DEFAULT_LIMITE_OBRAS = 5;
 
