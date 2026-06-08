@@ -63,6 +63,12 @@ function formatLocation(cidade: string, estado: string) {
   return parts.join(", ") || "";
 }
 
+function getAvaliacaoDate(row: Row) {
+  const raw = pick<string>(row, ["criado_em", "created_at"], "");
+  const time = raw ? new Date(raw).getTime() : 0;
+  return Number.isFinite(time) ? time : 0;
+}
+
 function ParceiroModal({
   parceiro,
   avaliacoes,
@@ -92,9 +98,11 @@ function ParceiroModal({
     ? [pick<string>(parceiro, ["Segmento", "segmento", "Categoria", "categoria", "Especialidade", "especialidade"], "")].filter(Boolean)
     : parseEspecialidades(parceiro.Especialidade ?? (parceiro as Row).Especialidades);
 
-  const avs = avaliacoes.filter(
-    (a) => String(pick<string | number>(a, ["Parceiro_id", "parceiro_id"], "")) === String(id),
-  );
+  const avs = avaliacoes
+    .filter(
+      (a) => String(pick<string | number>(a, ["Parceiro_id", "parceiro_id"], "")) === String(id),
+    )
+    .sort((a, b) => getAvaliacaoDate(b) - getAvaliacaoDate(a));
   const ratings = avs
     .map((a) => Number(pick<number | string>(a, ["Rating", "rating"], 0)))
     .filter((n) => n > 0);
@@ -302,15 +310,32 @@ function ParceirosPublicPage() {
   useEffect(() => {
     let active = true;
     async function load() {
-      const [p, a] = await Promise.all([
+      const [p, aLegacy, aPublicas] = await Promise.all([
         fmSupabase.from("parceiros_publico").select("*"),
         fmSupabase.from("Avaliacoes").select("*"),
+        fmSupabase.from("avaliacoes").select("*").eq("aprovado", true),
       ]);
       console.log("[parceiros] parceiros:", p);
-      console.log("[parceiros] avaliacoes:", a);
+      console.log("[parceiros] avaliacoes legacy:", aLegacy);
+      console.log("[parceiros] avaliacoes publicas:", aPublicas);
       if (!active) return;
       setParceiros((p.data as Row[]) ?? []);
-      setAvaliacoes((a.data as Row[]) ?? []);
+      const novas = ((aPublicas.data as Row[]) ?? []).map((a) => ({
+        ...a,
+        Parceiro_id: a.parceiro_id,
+        Rating: a.nota,
+        Comentario: a.comentario,
+        Nome_avaliador: a.nome_avaliador,
+        Telefone_avaliador: a.telefone_avaliador,
+        Email_avaliador: a.email_avaliador,
+        Depoimento: a.depoimento,
+        Cidade_avaliador: a.cidade_avaliador,
+        Aprovado: a.aprovado,
+      }));
+      const todas = [...(((aLegacy.data as Row[]) ?? [])), ...novas].sort(
+        (a, b) => getAvaliacaoDate(b) - getAvaliacaoDate(a),
+      );
+      setAvaliacoes(todas);
       setLoading(false);
     }
     load();
@@ -414,9 +439,11 @@ function ParceirosPublicPage() {
               const cidade = pick<string>(p, ["Cidade", "cidade"], "");
               const estado = pick<string>(p, ["Estado", "UF", "estado"], "");
               const foto = pick<string>(p, ["Foto_url", "foto_url", "Foto"], "");
-              const avs = avaliacoes.filter(
-                (a) => String(pick<string | number>(a, ["Parceiro_id", "parceiro_id"], "")) === String(id),
-              );
+              const avs = avaliacoes
+                .filter(
+                  (a) => String(pick<string | number>(a, ["Parceiro_id", "parceiro_id"], "")) === String(id),
+                )
+                .sort((a, b) => getAvaliacaoDate(b) - getAvaliacaoDate(a));
               const ratings = avs
                 .map((a) => Number(pick<number | string>(a, ["Rating", "rating"], 0)))
                 .filter((n) => n > 0);
