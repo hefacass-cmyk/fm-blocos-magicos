@@ -257,14 +257,15 @@ function ParceiroPublicoPage() {
     <div className="min-h-screen bg-slate-50">
       {/* BLOCO 1 — Vídeo F&M */}
       <section className="relative w-full bg-black">
-        <video
-          ref={videoRef}
-          src={VIDEO_URL}
-          autoPlay
-          playsInline
-          controls
-          onEnded={handleVideoEnded}
-          className="block h-auto max-h-[80vh] w-full object-cover"
+        <iframe
+          width="100%"
+          height="315"
+          src="https://www.youtube.com/embed/fKMF0RARDQU"
+          title="F&M Construções Inteligentes"
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+          className="block h-auto max-h-[80vh] w-full"
         />
         <div
           className="absolute right-3 top-3 rounded-md px-3 py-1.5 text-sm font-extrabold shadow"
