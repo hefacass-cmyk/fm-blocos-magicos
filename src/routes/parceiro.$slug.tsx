@@ -197,9 +197,6 @@ function ParceiroPublicoPage() {
   const obrasVisiveis = obras.slice(0, limite);
   const atingiuLimite = obras.length >= limite;
 
-  const handleVideoEnded = () => {
-    perfilRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
 
   if (loading) {
     return (
