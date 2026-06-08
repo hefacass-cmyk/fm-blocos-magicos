@@ -124,8 +124,14 @@ function ParceiroModal({
     <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent
         className="sm:max-w-lg w-[92vw] p-0 gap-0 overflow-hidden border-0 rounded-2xl"
-        onInteractOutside={onClose}
-        onEscapeKeyDown={onClose}
+        onInteractOutside={(e) => {
+          if (avaliarOpen) { e.preventDefault(); return; }
+          onClose();
+        }}
+        onEscapeKeyDown={(e) => {
+          if (avaliarOpen) { e.preventDefault(); return; }
+          onClose();
+        }}
       >
         <DialogTitle className="sr-only">Perfil do parceiro</DialogTitle>
 
