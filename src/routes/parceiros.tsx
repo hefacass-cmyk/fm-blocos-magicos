@@ -100,6 +100,11 @@ function ParceiroModal({
     .filter((n) => n > 0);
   const media = ratings.length ? ratings.reduce((s, v) => s + v, 0) / ratings.length : 0;
   const ultima = avs[0];
+  const depoimentosAprovados = avs.filter((a) => {
+    const aprovado = pick<boolean | string>(a, ["Aprovado", "aprovado"], false);
+    const dep = pick<string>(a, ["Depoimento", "depoimento"], "");
+    return (aprovado === true || aprovado === "true") && !!dep && String(dep).trim().length > 0;
+  });
 
   const waLink = (num: string) => {
     const clean = num.replace(/\D/g, "");
@@ -200,6 +205,34 @@ function ParceiroModal({
                 </div>
               ) : null;
             })()}
+
+            {depoimentosAprovados.length > 0 && (
+              <div className="mt-3 space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Depoimentos
+                </p>
+                {depoimentosAprovados.map((d, i) => {
+                  const nomeAv = pick<string>(d, ["Nome_avaliador", "nome_avaliador", "Nome", "nome"], "Cliente");
+                  const dep = pick<string>(d, ["Depoimento", "depoimento"], "");
+                  const cidadeAv = pick<string>(d, ["Cidade_avaliador", "cidade_avaliador"], "");
+                  return (
+                    <div
+                      key={i}
+                      className="rounded-xl bg-[#F7FAFC] p-3 border-l-4"
+                      style={{ borderLeftColor: BRAND_BLUE }}
+                    >
+                      <p className="text-sm italic text-foreground/80 leading-relaxed">"{dep}"</p>
+                      <p className="mt-1.5 text-xs font-bold" style={{ color: BRAND_BLUE }}>
+                        — {nomeAv}
+                        {cidadeAv && (
+                          <span className="ml-1 font-normal text-muted-foreground">· {cidadeAv}</span>
+                        )}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* Contato */}
