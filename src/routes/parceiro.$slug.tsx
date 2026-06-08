@@ -20,8 +20,6 @@ const BRAND_BLUE = "#1A4D7A";
 const BRAND_YELLOW = "#F4B941";
 const BRAND_GREEN = "#25D366";
 const FM_WHATSAPP = "5571999454343";
-const VIDEO_URL =
-  "https://hdjlwidfnikbahfhrkil.supabase.co/storage/v1/object/public/videos/novo.mp4";
 const SITE_URL = "https://www.fmsmartbuild.com.br";
 const DEFAULT_LIMITE_OBRAS = 5;
 
@@ -73,7 +71,7 @@ function ParceiroPublicoPage() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const perfilRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  
 
   useEffect(() => {
     let active = true;
@@ -199,9 +197,6 @@ function ParceiroPublicoPage() {
   const obrasVisiveis = obras.slice(0, limite);
   const atingiuLimite = obras.length >= limite;
 
-  const handleVideoEnded = () => {
-    perfilRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
 
   if (loading) {
     return (
@@ -259,14 +254,15 @@ function ParceiroPublicoPage() {
     <div className="min-h-screen bg-slate-50">
       {/* BLOCO 1 — Vídeo F&M */}
       <section className="relative w-full bg-black">
-        <video
-          ref={videoRef}
-          src={VIDEO_URL}
-          autoPlay
-          playsInline
-          controls
-          onEnded={handleVideoEnded}
-          className="block h-auto max-h-[80vh] w-full object-cover"
+        <iframe
+          width="100%"
+          height="315"
+          src="https://www.youtube.com/embed/fKMF0RARDQU"
+          title="F&M Construções Inteligentes"
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+          className="block h-auto max-h-[80vh] w-full"
         />
         <div
           className="absolute right-3 top-3 rounded-md px-3 py-1.5 text-sm font-extrabold shadow"
