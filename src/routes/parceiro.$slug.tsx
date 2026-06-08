@@ -71,7 +71,7 @@ function ParceiroPublicoPage() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const perfilRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  
 
   useEffect(() => {
     let active = true;
