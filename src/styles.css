@@ -157,3 +157,186 @@
     scroll-behavior: smooth;
   }
 }
+
+/* ── Tema F&M SmartBuild ─────────────────────────────── */
+body {
+  background-color: #080808;
+  color: #ffffff;
+}
+
+/* Seção de números/stats — fundo laranja */
+section[id="sobre"] .stats-section,
+.stats-highlight-section {
+  background-color: #FF5A1A;
+  color: #080808;
+}
+
+/* Links e destaques */
+a { color: #FF5A1A; }
+a:hover { color: #e04a10; }
+
+/* Botão primário */
+.btn-primary,
+button[class*="primary"],
+a[class*="primary"] {
+  background-color: #FF5A1A !important;
+  color: #ffffff !important;
+  border: none !important;
+}
+
+.btn-primary:hover,
+button[class*="primary"]:hover,
+a[class*="primary"]:hover {
+  background-color: #e04a10 !important;
+}
+
+/* Botão secundário / outline */
+button[class*="outline"],
+a[class*="outline"] {
+  border-color: rgba(255,255,255,0.3) !important;
+  color: #ffffff !important;
+  background: transparent !important;
+}
+
+button[class*="outline"]:hover,
+a[class*="outline"]:hover {
+  border-color: #FF5A1A !important;
+  color: #FF5A1A !important;
+}
+
+/* Cards */
+[class*="card"],
+[class*="Card"] {
+  background-color: #111111 !important;
+  border-color: rgba(255,255,255,0.07) !important;
+  color: #ffffff !important;
+}
+
+/* Inputs e formulários */
+input, textarea, select {
+  background-color: rgba(255,255,255,0.06) !important;
+  border-color: rgba(255,255,255,0.12) !important;
+  color: #ffffff !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(255,255,255,0.35) !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: #FF5A1A !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(255,90,26,0.25) !important;
+}
+
+/* Labels de texto */
+label {
+  color: rgba(255,255,255,0.7) !important;
+}
+
+/* Tabs / abas de tecnologia e portfólio */
+[role="tablist"],
+[class*="TabsList"],
+[class*="tabs-list"] {
+  background-color: rgba(255,255,255,0.06) !important;
+  border-color: rgba(255,255,255,0.08) !important;
+}
+
+[role="tab"][data-state="active"],
+[class*="TabsTrigger"][data-state="active"] {
+  background-color: #FF5A1A !important;
+  color: #ffffff !important;
+}
+
+[role="tab"],
+[class*="TabsTrigger"] {
+  color: rgba(255,255,255,0.55) !important;
+}
+
+/* Navbar */
+header, nav {
+  background-color: rgba(8,8,8,0.92) !important;
+  border-bottom-color: rgba(255,255,255,0.07) !important;
+  backdrop-filter: blur(16px) !important;
+}
+
+/* Badges e tags */
+[class*="badge"],
+[class*="Badge"],
+[class*="tag"],
+[class*="Tag"] {
+  background-color: rgba(255,90,26,0.15) !important;
+  color: #FF5A1A !important;
+  border-color: rgba(255,90,26,0.25) !important;
+}
+
+/* Separadores */
+hr, [class*="separator"], [class*="Separator"] {
+  border-color: rgba(255,255,255,0.07) !important;
+  background-color: rgba(255,255,255,0.07) !important;
+}
+
+/* Slider das calculadoras */
+[class*="slider"],
+[class*="Slider"] {
+  --slider-track-color: rgba(255,255,255,0.12);
+  --slider-range-color: #FF5A1A;
+  --slider-thumb-color: #FF5A1A;
+}
+
+[class*="SliderTrack"],
+[class*="slider-track"] {
+  background-color: rgba(255,255,255,0.12) !important;
+}
+
+[class*="SliderRange"],
+[class*="slider-range"] {
+  background-color: #FF5A1A !important;
+}
+
+[class*="SliderThumb"],
+[class*="slider-thumb"] {
+  background-color: #FF5A1A !important;
+  border-color: #FF5A1A !important;
+}
+
+/* Footer */
+footer {
+  background-color: #080808 !important;
+  border-top-color: rgba(255,255,255,0.07) !important;
+  color: rgba(255,255,255,0.45) !important;
+}
+
+/* Textos secundários / descrições */
+p[class*="muted"],
+span[class*="muted"],
+[class*="text-muted"] {
+  color: rgba(255,255,255,0.45) !important;
+}
+
+/* Ícones de check verde (seção Gestão F&M) */
+[class*="check"],
+.text-green-500,
+.text-green-400 {
+  color: #34C759 !important;
+}
+
+/* Ícones de X vermelho (seção Obra Convencional) */
+.text-red-500,
+.text-red-400 {
+  color: #FF3B30 !important;
+}
+
+/* Títulos de seção com cor de destaque */
+[class*="section-title"] em,
+[class*="highlight"] {
+  color: #FF5A1A !important;
+}
+
+/* Scroll bar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: #080808; }
+::-webkit-scrollbar-thumb { background: #FF5A1A; }
