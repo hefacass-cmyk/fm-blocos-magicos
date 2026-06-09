@@ -64,28 +64,26 @@
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.31 0.04 248); /* #2C3E50 */
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.31 0.04 248);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.31 0.04 248);
-  --primary: oklch(0.38 0.09 245); /* #1A4D7A */
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.96 0.01 240);
-  --secondary-foreground: oklch(0.31 0.04 248);
-  --muted: oklch(0.96 0.01 240);
-  --muted-foreground: oklch(0.5 0.02 248);
-  --accent: oklch(0.83 0.15 82); /* #F4B941 */
-  --accent-foreground: oklch(0.25 0.04 248);
-  --success: oklch(0.65 0.14 165); /* #06A77D */
-  --success-foreground: oklch(1 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(0.92 0.01 248);
-  --input: oklch(0.92 0.01 248);
-  --ring: oklch(0.38 0.09 245);
+  --radius: 0.25rem;
+  --background: #080808;
+  --foreground: #ffffff;
+  --card: #111111;
+  --card-foreground: #ffffff;
+  --popover: #111111;
+  --popover-foreground: #ffffff;
+  --primary: #FF5A1A;
+  --primary-foreground: #ffffff;
+  --secondary: #1a1a1a;
+  --secondary-foreground: #ffffff;
+  --muted: #1a1a1a;
+  --muted-foreground: rgba(255,255,255,0.45);
+  --accent: #FF5A1A;
+  --accent-foreground: #ffffff;
+  --destructive: #FF3B30;
+  --destructive-foreground: #ffffff;
+  --border: rgba(255,255,255,0.08);
+  --input: rgba(255,255,255,0.08);
+  --ring: #FF5A1A;
   --gradient-hero: linear-gradient(135deg, oklch(0.32 0.08 245) 0%, oklch(0.42 0.09 245) 100%);
   --shadow-elegant: 0 10px 40px -10px color-mix(in oklab, oklch(0.38 0.09 245) 30%, transparent);
   --shadow-card: 0 4px 20px -8px color-mix(in oklab, oklch(0.31 0.04 248) 20%, transparent);
@@ -105,25 +103,25 @@
 }
 
 .dark {
-  --background: oklch(0.129 0.042 264.695);
-  --foreground: oklch(0.984 0.003 247.858);
-  --card: oklch(0.208 0.042 265.755);
-  --card-foreground: oklch(0.984 0.003 247.858);
-  --popover: oklch(0.208 0.042 265.755);
-  --popover-foreground: oklch(0.984 0.003 247.858);
-  --primary: oklch(0.929 0.013 255.508);
-  --primary-foreground: oklch(0.208 0.042 265.755);
-  --secondary: oklch(0.279 0.041 260.031);
-  --secondary-foreground: oklch(0.984 0.003 247.858);
-  --muted: oklch(0.279 0.041 260.031);
-  --muted-foreground: oklch(0.704 0.04 256.788);
-  --accent: oklch(0.279 0.041 260.031);
-  --accent-foreground: oklch(0.984 0.003 247.858);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.551 0.027 264.364);
+  --background: #080808;
+  --foreground: #ffffff;
+  --card: #111111;
+  --card-foreground: #ffffff;
+  --popover: #111111;
+  --popover-foreground: #ffffff;
+  --primary: #FF5A1A;
+  --primary-foreground: #ffffff;
+  --secondary: #1a1a1a;
+  --secondary-foreground: #ffffff;
+  --muted: #1a1a1a;
+  --muted-foreground: rgba(255,255,255,0.45);
+  --accent: #FF5A1A;
+  --accent-foreground: #ffffff;
+  --destructive: #FF3B30;
+  --destructive-foreground: #ffffff;
+  --border: rgba(255,255,255,0.08);
+  --input: rgba(255,255,255,0.08);
+  --ring: #FF5A1A;
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
@@ -159,3 +157,186 @@
     scroll-behavior: smooth;
   }
 }
+
+/* ── Tema F&M SmartBuild ─────────────────────────────── */
+body {
+  background-color: #080808;
+  color: #ffffff;
+}
+
+/* Seção de números/stats — fundo laranja */
+section[id="sobre"] .stats-section,
+.stats-highlight-section {
+  background-color: #FF5A1A;
+  color: #080808;
+}
+
+/* Links e destaques */
+a { color: #FF5A1A; }
+a:hover { color: #e04a10; }
+
+/* Botão primário */
+.btn-primary,
+button[class*="primary"],
+a[class*="primary"] {
+  background-color: #FF5A1A !important;
+  color: #ffffff !important;
+  border: none !important;
+}
+
+.btn-primary:hover,
+button[class*="primary"]:hover,
+a[class*="primary"]:hover {
+  background-color: #e04a10 !important;
+}
+
+/* Botão secundário / outline */
+button[class*="outline"],
+a[class*="outline"] {
+  border-color: rgba(255,255,255,0.3) !important;
+  color: #ffffff !important;
+  background: transparent !important;
+}
+
+button[class*="outline"]:hover,
+a[class*="outline"]:hover {
+  border-color: #FF5A1A !important;
+  color: #FF5A1A !important;
+}
+
+/* Cards */
+[class*="card"],
+[class*="Card"] {
+  background-color: #111111 !important;
+  border-color: rgba(255,255,255,0.07) !important;
+  color: #ffffff !important;
+}
+
+/* Inputs e formulários */
+input, textarea, select {
+  background-color: rgba(255,255,255,0.06) !important;
+  border-color: rgba(255,255,255,0.12) !important;
+  color: #ffffff !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(255,255,255,0.35) !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: #FF5A1A !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(255,90,26,0.25) !important;
+}
+
+/* Labels de texto */
+label {
+  color: rgba(255,255,255,0.7) !important;
+}
+
+/* Tabs / abas de tecnologia e portfólio */
+[role="tablist"],
+[class*="TabsList"],
+[class*="tabs-list"] {
+  background-color: rgba(255,255,255,0.06) !important;
+  border-color: rgba(255,255,255,0.08) !important;
+}
+
+[role="tab"][data-state="active"],
+[class*="TabsTrigger"][data-state="active"] {
+  background-color: #FF5A1A !important;
+  color: #ffffff !important;
+}
+
+[role="tab"],
+[class*="TabsTrigger"] {
+  color: rgba(255,255,255,0.55) !important;
+}
+
+/* Navbar */
+header, nav {
+  background-color: rgba(8,8,8,0.92) !important;
+  border-bottom-color: rgba(255,255,255,0.07) !important;
+  backdrop-filter: blur(16px) !important;
+}
+
+/* Badges e tags */
+[class*="badge"],
+[class*="Badge"],
+[class*="tag"],
+[class*="Tag"] {
+  background-color: rgba(255,90,26,0.15) !important;
+  color: #FF5A1A !important;
+  border-color: rgba(255,90,26,0.25) !important;
+}
+
+/* Separadores */
+hr, [class*="separator"], [class*="Separator"] {
+  border-color: rgba(255,255,255,0.07) !important;
+  background-color: rgba(255,255,255,0.07) !important;
+}
+
+/* Slider das calculadoras */
+[class*="slider"],
+[class*="Slider"] {
+  --slider-track-color: rgba(255,255,255,0.12);
+  --slider-range-color: #FF5A1A;
+  --slider-thumb-color: #FF5A1A;
+}
+
+[class*="SliderTrack"],
+[class*="slider-track"] {
+  background-color: rgba(255,255,255,0.12) !important;
+}
+
+[class*="SliderRange"],
+[class*="slider-range"] {
+  background-color: #FF5A1A !important;
+}
+
+[class*="SliderThumb"],
+[class*="slider-thumb"] {
+  background-color: #FF5A1A !important;
+  border-color: #FF5A1A !important;
+}
+
+/* Footer */
+footer {
+  background-color: #080808 !important;
+  border-top-color: rgba(255,255,255,0.07) !important;
+  color: rgba(255,255,255,0.45) !important;
+}
+
+/* Textos secundários / descrições */
+p[class*="muted"],
+span[class*="muted"],
+[class*="text-muted"] {
+  color: rgba(255,255,255,0.45) !important;
+}
+
+/* Ícones de check verde (seção Gestão F&M) */
+[class*="check"],
+.text-green-500,
+.text-green-400 {
+  color: #34C759 !important;
+}
+
+/* Ícones de X vermelho (seção Obra Convencional) */
+.text-red-500,
+.text-red-400 {
+  color: #FF3B30 !important;
+}
+
+/* Títulos de seção com cor de destaque */
+[class*="section-title"] em,
+[class*="highlight"] {
+  color: #FF5A1A !important;
+}
+
+/* Scroll bar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: #080808; }
+::-webkit-scrollbar-thumb { background: #FF5A1A; }
