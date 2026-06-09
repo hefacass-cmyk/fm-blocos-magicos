@@ -386,7 +386,9 @@ function ProblemSolution() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl">
           <span className="text-sm font-bold uppercase tracking-wider text-primary">Problema × Solução</span>
-          <h2 className="mt-3 text-3xl sm:text-4xl lg:text-5xl font-bold text-primary">Por que escolher F&M?</h2>
+          <FadeUp>
+            <h2 className="mt-3 text-3xl sm:text-4xl lg:text-5xl font-bold text-primary">Por que escolher F&M?</h2>
+          </FadeUp>
           <p className="mt-4 text-muted-foreground text-lg">Compare a obra convencional com a gestão F&M usando tecnologia IBPP.</p>
         </div>
         <div className="mt-12 grid md:grid-cols-2 gap-6">
@@ -399,11 +401,18 @@ function ProblemSolution() {
               <h3 className="text-xl font-bold text-foreground">Obra Convencional</h3>
             </div>
             <ul className="mt-6 space-y-3">
-              {problems.map((p) => (
-                <li key={p} className="flex items-start gap-3 text-foreground/80">
+              {problems.map((p, index) => (
+                <motion.li
+                  key={p}
+                  initial={{ opacity: 0, x: -24 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, margin: '-40px' }}
+                  transition={{ duration: 0.6, delay: index * 0.1, ease: 'easeOut' }}
+                  className="flex items-start gap-3 text-foreground/80"
+                >
                   <X className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
                   <span>{p}</span>
-                </li>
+                </motion.li>
               ))}
             </ul>
           </div>
@@ -416,11 +425,18 @@ function ProblemSolution() {
               <h3 className="text-xl font-bold">Gestão F&M</h3>
             </div>
             <ul className="mt-6 space-y-3">
-              {solutions.map((p) => (
-                <li key={p} className="flex items-start gap-3 text-white/95">
+              {solutions.map((p, index) => (
+                <motion.li
+                  key={p}
+                  initial={{ opacity: 0, x: 24 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, margin: '-40px' }}
+                  transition={{ duration: 0.6, delay: index * 0.1, ease: 'easeOut' }}
+                  className="flex items-start gap-3 text-white/95"
+                >
                   <CheckCircle2 className="h-5 w-5 text-accent shrink-0 mt-0.5" />
                   <span>{p}</span>
-                </li>
+                </motion.li>
               ))}
             </ul>
           </div>
