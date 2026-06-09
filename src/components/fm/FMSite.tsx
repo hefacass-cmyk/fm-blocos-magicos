@@ -279,7 +279,7 @@ function Hero() {
             <Users className="h-5 w-5" /> Ver todos os parceiros
           </Link>
         </motion.div>
-        <div className="mt-12 grid grid-cols-3 gap-4 max-w-xl">
+        <div className="mt-12 grid grid-cols-3 gap-4 max-w-xl bg-[#FF5A1A]">
           {[
             { n: 46, l: "Mais rápido" },
             { n: 20, l: "Mais econômico" },
@@ -292,10 +292,10 @@ function Hero() {
               transition={{ duration: 0.6, delay: 1.0 + index * 0.12 }}
               className="rounded-lg bg-white/10 backdrop-blur border border-white/15 p-4"
             >
-              <div className="text-2xl sm:text-3xl font-extrabold text-accent">
+              <div className="text-2xl sm:text-3xl font-extrabold text-accent text-[#080808]">
                 <AnimatedCounter target={s.n} />%
               </div>
-              <div className="text-xs text-white/80 mt-1">{s.l}</div>
+              <div className="text-xs text-white/80 mt-1 text-black/60">{s.l}</div>
             </motion.div>
           ))}
         </div>
