@@ -560,7 +560,9 @@ function Portfolio() {
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div className="max-w-2xl">
             <span className="text-sm font-bold uppercase tracking-wider text-primary">Portfólio</span>
-            <h2 className="mt-3 text-3xl sm:text-4xl lg:text-5xl font-bold text-primary">Obras que entregam confiança</h2>
+            <FadeUp>
+              <h2 className="mt-3 text-3xl sm:text-4xl lg:text-5xl font-bold text-primary">Obras que entregam confiança</h2>
+            </FadeUp>
           </div>
           <div className="flex flex-wrap gap-2">
             {FILTERS.map((f) => (
@@ -575,14 +577,22 @@ function Portfolio() {
           </div>
         </div>
         <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {items.map((p) => (
-            <figure key={p.title} className="group relative overflow-hidden rounded-2xl bg-card border border-border">
-              <img src={p.src} alt={p.title} width={1024} height={768} loading="lazy" className="aspect-[4/3] w-full object-cover transition-transform duration-500 group-hover:scale-105" />
-              <figcaption className="absolute inset-x-0 bottom-0 p-5 text-white" style={{ background: "linear-gradient(to top, rgba(26,77,122,0.92), transparent)" }}>
-                <div className="text-xs uppercase tracking-wider text-accent font-bold">{p.type}</div>
-                <div className="text-lg font-bold">{p.title}</div>
-              </figcaption>
-            </figure>
+          {items.map((p, index) => (
+            <motion.div
+              key={p.title}
+              initial={{ opacity: 0, scale: 0.96 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true, margin: '-40px' }}
+              transition={{ duration: 0.6, delay: index * 0.08, ease: 'easeOut' }}
+            >
+              <figure className="group relative overflow-hidden rounded-2xl bg-card border border-border">
+                <img src={p.src} alt={p.title} width={1024} height={768} loading="lazy" className="aspect-[4/3] w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <figcaption className="absolute inset-x-0 bottom-0 p-5 text-white" style={{ background: "linear-gradient(to top, rgba(26,77,122,0.92), transparent)" }}>
+                  <div className="text-xs uppercase tracking-wider text-accent font-bold">{p.type}</div>
+                  <div className="text-lg font-bold">{p.title}</div>
+                </figcaption>
+              </figure>
+            </motion.div>
           ))}
         </div>
       </div>
