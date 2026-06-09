@@ -348,27 +348,28 @@ function VideoSection() {
         </div>
 
         <div className="mt-12 grid gap-5 sm:grid-cols-3 max-w-4xl mx-auto">
-          {cards.map((c) => {
+          {cards.map((c, index) => {
             const Icon = c.icon;
             return (
-              <div
-                key={c.title}
-                className="flex items-center gap-4 rounded-xl border bg-white p-5 text-left transition hover:-translate-y-0.5 hover:shadow-md"
-                style={{ borderColor: "#1A4D7A" }}
-              >
+              <FadeUp key={c.title} delay={index * 0.12}>
                 <div
-                  className="h-12 w-12 shrink-0 rounded-full grid place-items-center"
-                  style={{ backgroundColor: "#F4B941" }}
+                  className="flex items-center gap-4 rounded-xl border bg-white p-5 text-left transition hover:-translate-y-0.5 hover:shadow-md"
+                  style={{ borderColor: "#1A4D7A" }}
                 >
-                  <Icon className="h-6 w-6" style={{ color: "#1A4D7A" }} />
+                  <div
+                    className="h-12 w-12 shrink-0 rounded-full grid place-items-center"
+                    style={{ backgroundColor: "#F4B941" }}
+                  >
+                    <Icon className="h-6 w-6" style={{ color: "#1A4D7A" }} />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold" style={{ color: "#1A4D7A" }}>
+                      {c.title}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">{c.desc}</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-base font-bold" style={{ color: "#1A4D7A" }}>
-                    {c.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">{c.desc}</p>
-                </div>
-              </div>
+              </FadeUp>
             );
           })}
         </div>
