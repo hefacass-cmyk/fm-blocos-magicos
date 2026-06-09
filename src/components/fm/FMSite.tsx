@@ -238,17 +238,37 @@ function Hero() {
       <img src={heroImg} alt="Construção com sistema IBPP" width={1920} height={1080} className="absolute inset-0 h-full w-full object-cover" />
       <div className="absolute inset-0" style={{ background: "linear-gradient(120deg, color-mix(in oklab, var(--primary) 92%, transparent) 0%, color-mix(in oklab, var(--primary) 70%, transparent) 55%, transparent 100%)" }} />
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 lg:py-32 text-primary-foreground">
-        <span className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur px-3 py-1 text-xs font-semibold uppercase tracking-wider border border-white/20">
+        <motion.p
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur px-3 py-1 text-xs font-semibold uppercase tracking-wider border border-white/20"
+        >
           <span className="h-1.5 w-1.5 rounded-full bg-accent" /> Camaçari · Bahia
-        </span>
-        <h1 className="mt-5 text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.05] max-w-3xl">
+        </motion.p>
+        <motion.h1
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          className="mt-5 text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.05] max-w-3xl"
+        >
           Construção Inteligente.<br />
           <span className="text-accent">Entrega Garantida.</span>
-        </h1>
-        <p className="mt-5 text-lg sm:text-xl text-white/90 max-w-2xl">
+        </motion.h1>
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.65 }}
+          className="mt-5 text-lg sm:text-xl text-white/90 max-w-2xl"
+        >
           Tecnologia IBPP: <strong>46% mais rápido</strong> e <strong>20% mais econômico</strong> que a alvenaria convencional.
-        </p>
-        <div className="mt-8 flex flex-wrap gap-3">
+        </motion.p>
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.85 }}
+          className="mt-8 flex flex-wrap gap-3"
+        >
           <a href="#contato" className="inline-flex items-center gap-2 rounded-md bg-accent px-6 py-4 text-base font-bold text-accent-foreground shadow-lg hover:brightness-95 transition">
             Solicitar Diagnóstico Gratuito <ArrowRight className="h-5 w-5" />
           </a>
@@ -258,17 +278,25 @@ function Hero() {
           <Link to="/parceiros" className="inline-flex items-center gap-2 rounded-md border border-white/30 bg-white/5 px-6 py-4 text-base font-semibold text-white hover:bg-white/10 transition">
             <Users className="h-5 w-5" /> Ver todos os parceiros
           </Link>
-        </div>
+        </motion.div>
         <div className="mt-12 grid grid-cols-3 gap-4 max-w-xl">
           {[
-            { n: "46%", l: "Mais rápido" },
-            { n: "20%", l: "Mais econômico" },
-            { n: "100%", l: "Certificado" },
-          ].map((s) => (
-            <div key={s.l} className="rounded-lg bg-white/10 backdrop-blur border border-white/15 p-4">
-              <div className="text-2xl sm:text-3xl font-extrabold text-accent">{s.n}</div>
+            { n: 46, l: "Mais rápido" },
+            { n: 20, l: "Mais econômico" },
+            { n: 100, l: "Certificado" },
+          ].map((s, index) => (
+            <motion.div
+              key={s.l}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 1.0 + index * 0.12 }}
+              className="rounded-lg bg-white/10 backdrop-blur border border-white/15 p-4"
+            >
+              <div className="text-2xl sm:text-3xl font-extrabold text-accent">
+                <AnimatedCounter target={s.n} />%
+              </div>
               <div className="text-xs text-white/80 mt-1">{s.l}</div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
