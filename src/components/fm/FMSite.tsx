@@ -481,8 +481,12 @@ function Technologies() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl">
           <span className="text-sm font-bold uppercase tracking-wider text-primary">Tecnologias</span>
-          <h2 className="mt-3 text-3xl sm:text-4xl lg:text-5xl font-bold text-primary">Sistemas construtivos que entregamos</h2>
-          <p className="mt-4 text-muted-foreground text-lg">Clique em cada tecnologia para conhecer suas vantagens técnicas.</p>
+          <FadeUp>
+            <h2 className="mt-3 text-3xl sm:text-4xl lg:text-5xl font-bold text-primary">Sistemas construtivos que entregamos</h2>
+          </FadeUp>
+          <FadeUp delay={0.1}>
+            <p className="mt-4 text-muted-foreground text-lg">Clique em cada tecnologia para conhecer suas vantagens técnicas.</p>
+          </FadeUp>
         </div>
         <div className="mt-12 grid md:grid-cols-3 gap-5">
           {TECH.map((t) => {
