@@ -844,21 +844,23 @@ function BlogSection() {
           <p className="mt-4 text-muted-foreground text-lg">Dicas, tendências e orientações técnicas para quem quer construir com inteligência.</p>
         </div>
         <div className="mt-12 grid md:grid-cols-3 gap-6">
-          {ARTICLES.map((a) => {
+          {ARTICLES.map((a, index) => {
             const Icon = a.icon;
             return (
-              <div key={a.title} className="rounded-2xl bg-card border border-border p-7 flex flex-col transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-card)]">
-                <div className="h-12 w-12 rounded-lg bg-primary/10 grid place-items-center text-primary">
-                  <Icon className="h-6 w-6" />
+              <FadeUp key={a.title} delay={index * 0.12}>
+                <div className="rounded-2xl bg-card border border-border p-7 flex flex-col transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-card)]">
+                  <div className="h-12 w-12 rounded-lg bg-primary/10 grid place-items-center text-primary">
+                    <Icon className="h-6 w-6" />
+                  </div>
+                  <h3 className="mt-5 text-xl font-bold text-primary leading-snug">{a.title}</h3>
+                  <p className="mt-3 text-sm text-muted-foreground leading-relaxed line-clamp-3">{a.summary}</p>
+                  <div className="mt-auto pt-6">
+                    <button className="inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-accent transition">
+                      Ler mais <ArrowRight className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
-                <h3 className="mt-5 text-xl font-bold text-primary leading-snug">{a.title}</h3>
-                <p className="mt-3 text-sm text-muted-foreground leading-relaxed line-clamp-3">{a.summary}</p>
-                <div className="mt-auto pt-6">
-                  <button className="inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-accent transition">
-                    Ler mais <ArrowRight className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
+              </FadeUp>
             );
           })}
         </div>
