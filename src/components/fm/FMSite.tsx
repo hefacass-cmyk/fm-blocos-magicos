@@ -881,7 +881,7 @@ function LeadForm() {
   return (
     <section id="contato" className="py-20 lg:py-28 bg-secondary">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid lg:grid-cols-5 gap-10">
-        <div className="lg:col-span-2">
+        <FadeUp className="lg:col-span-2">
           <span className="text-sm font-bold uppercase tracking-wider text-primary">Diagnóstico Gratuito</span>
           <h2 className="mt-3 text-3xl sm:text-4xl lg:text-5xl font-bold text-primary">Vamos planejar sua obra inteligente</h2>
           <p className="mt-4 text-muted-foreground text-lg">Preencha os dados e nossa equipe técnica entrará em contato em até 1 dia útil com um diagnóstico inicial gratuito.</p>
@@ -890,7 +890,7 @@ function LeadForm() {
             <li className="flex items-center gap-3"><Phone className="h-5 w-5 text-primary" /> WhatsApp (71) 99915-4343</li>
             <li className="flex items-center gap-3"><Mail className="h-5 w-5 text-primary" /> orcamentos@fmconstrucoes.com.br</li>
           </ul>
-        </div>
+        </FadeUp>
         <form onSubmit={submit} className="lg:col-span-3 rounded-2xl bg-card border border-border p-7 lg:p-9 shadow-sm">
           {sent ? (
             <div className="py-10 text-center">
