@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { motion } from "framer-motion";
+import { AnimatedCounter } from "@/components/AnimatedCounter";
+import { FadeUp } from "@/components/FadeUp";
 import {
   Menu, X, AlertTriangle, ShieldCheck, Clock, Wallet, Recycle,
   Layers, Snowflake, PanelsTopLeft, MapPin, Phone, Mail,
@@ -235,17 +238,37 @@ function Hero() {
       <img src={heroImg} alt="Construção com sistema IBPP" width={1920} height={1080} className="absolute inset-0 h-full w-full object-cover" />
       <div className="absolute inset-0" style={{ background: "linear-gradient(120deg, color-mix(in oklab, var(--primary) 92%, transparent) 0%, color-mix(in oklab, var(--primary) 70%, transparent) 55%, transparent 100%)" }} />
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 lg:py-32 text-primary-foreground">
-        <span className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur px-3 py-1 text-xs font-semibold uppercase tracking-wider border border-white/20">
+        <motion.p
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur px-3 py-1 text-xs font-semibold uppercase tracking-wider border border-white/20"
+        >
           <span className="h-1.5 w-1.5 rounded-full bg-accent" /> Camaçari · Bahia
-        </span>
-        <h1 className="mt-5 text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.05] max-w-3xl">
+        </motion.p>
+        <motion.h1
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          className="mt-5 text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.05] max-w-3xl"
+        >
           Construção Inteligente.<br />
           <span className="text-accent">Entrega Garantida.</span>
-        </h1>
-        <p className="mt-5 text-lg sm:text-xl text-white/90 max-w-2xl">
+        </motion.h1>
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.65 }}
+          className="mt-5 text-lg sm:text-xl text-white/90 max-w-2xl"
+        >
           Tecnologia IBPP: <strong>46% mais rápido</strong> e <strong>20% mais econômico</strong> que a alvenaria convencional.
-        </p>
-        <div className="mt-8 flex flex-wrap gap-3">
+        </motion.p>
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.85 }}
+          className="mt-8 flex flex-wrap gap-3"
+        >
           <a href="#contato" className="inline-flex items-center gap-2 rounded-md bg-accent px-6 py-4 text-base font-bold text-accent-foreground shadow-lg hover:brightness-95 transition">
             Solicitar Diagnóstico Gratuito <ArrowRight className="h-5 w-5" />
           </a>
@@ -255,17 +278,25 @@ function Hero() {
           <Link to="/parceiros" className="inline-flex items-center gap-2 rounded-md border border-white/30 bg-white/5 px-6 py-4 text-base font-semibold text-white hover:bg-white/10 transition">
             <Users className="h-5 w-5" /> Ver todos os parceiros
           </Link>
-        </div>
+        </motion.div>
         <div className="mt-12 grid grid-cols-3 gap-4 max-w-xl">
           {[
-            { n: "46%", l: "Mais rápido" },
-            { n: "20%", l: "Mais econômico" },
-            { n: "100%", l: "Certificado" },
-          ].map((s) => (
-            <div key={s.l} className="rounded-lg bg-white/10 backdrop-blur border border-white/15 p-4">
-              <div className="text-2xl sm:text-3xl font-extrabold text-accent">{s.n}</div>
+            { n: 46, l: "Mais rápido" },
+            { n: 20, l: "Mais econômico" },
+            { n: 100, l: "Certificado" },
+          ].map((s, index) => (
+            <motion.div
+              key={s.l}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 1.0 + index * 0.12 }}
+              className="rounded-lg bg-white/10 backdrop-blur border border-white/15 p-4"
+            >
+              <div className="text-2xl sm:text-3xl font-extrabold text-accent">
+                <AnimatedCounter target={s.n} />%
+              </div>
               <div className="text-xs text-white/80 mt-1">{s.l}</div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
@@ -317,27 +348,28 @@ function VideoSection() {
         </div>
 
         <div className="mt-12 grid gap-5 sm:grid-cols-3 max-w-4xl mx-auto">
-          {cards.map((c) => {
+          {cards.map((c, index) => {
             const Icon = c.icon;
             return (
-              <div
-                key={c.title}
-                className="flex items-center gap-4 rounded-xl border bg-white p-5 text-left transition hover:-translate-y-0.5 hover:shadow-md"
-                style={{ borderColor: "#1A4D7A" }}
-              >
+              <FadeUp key={c.title} delay={index * 0.12}>
                 <div
-                  className="h-12 w-12 shrink-0 rounded-full grid place-items-center"
-                  style={{ backgroundColor: "#F4B941" }}
+                  className="flex items-center gap-4 rounded-xl border bg-white p-5 text-left transition hover:-translate-y-0.5 hover:shadow-md"
+                  style={{ borderColor: "#1A4D7A" }}
                 >
-                  <Icon className="h-6 w-6" style={{ color: "#1A4D7A" }} />
+                  <div
+                    className="h-12 w-12 shrink-0 rounded-full grid place-items-center"
+                    style={{ backgroundColor: "#F4B941" }}
+                  >
+                    <Icon className="h-6 w-6" style={{ color: "#1A4D7A" }} />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold" style={{ color: "#1A4D7A" }}>
+                      {c.title}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">{c.desc}</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-base font-bold" style={{ color: "#1A4D7A" }}>
-                    {c.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">{c.desc}</p>
-                </div>
-              </div>
+              </FadeUp>
             );
           })}
         </div>
@@ -354,7 +386,9 @@ function ProblemSolution() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl">
           <span className="text-sm font-bold uppercase tracking-wider text-primary">Problema × Solução</span>
-          <h2 className="mt-3 text-3xl sm:text-4xl lg:text-5xl font-bold text-primary">Por que escolher F&M?</h2>
+          <FadeUp>
+            <h2 className="mt-3 text-3xl sm:text-4xl lg:text-5xl font-bold text-primary">Por que escolher F&M?</h2>
+          </FadeUp>
           <p className="mt-4 text-muted-foreground text-lg">Compare a obra convencional com a gestão F&M usando tecnologia IBPP.</p>
         </div>
         <div className="mt-12 grid md:grid-cols-2 gap-6">
@@ -367,11 +401,18 @@ function ProblemSolution() {
               <h3 className="text-xl font-bold text-foreground">Obra Convencional</h3>
             </div>
             <ul className="mt-6 space-y-3">
-              {problems.map((p) => (
-                <li key={p} className="flex items-start gap-3 text-foreground/80">
+              {problems.map((p, index) => (
+                <motion.li
+                  key={p}
+                  initial={{ opacity: 0, x: -24 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, margin: '-40px' }}
+                  transition={{ duration: 0.6, delay: index * 0.1, ease: 'easeOut' }}
+                  className="flex items-start gap-3 text-foreground/80"
+                >
                   <X className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
                   <span>{p}</span>
-                </li>
+                </motion.li>
               ))}
             </ul>
           </div>
@@ -384,11 +425,18 @@ function ProblemSolution() {
               <h3 className="text-xl font-bold">Gestão F&M</h3>
             </div>
             <ul className="mt-6 space-y-3">
-              {solutions.map((p) => (
-                <li key={p} className="flex items-start gap-3 text-white/95">
+              {solutions.map((p, index) => (
+                <motion.li
+                  key={p}
+                  initial={{ opacity: 0, x: 24 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, margin: '-40px' }}
+                  transition={{ duration: 0.6, delay: index * 0.1, ease: 'easeOut' }}
+                  className="flex items-start gap-3 text-white/95"
+                >
                   <CheckCircle2 className="h-5 w-5 text-accent shrink-0 mt-0.5" />
                   <span>{p}</span>
-                </li>
+                </motion.li>
               ))}
             </ul>
           </div>
@@ -433,8 +481,12 @@ function Technologies() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl">
           <span className="text-sm font-bold uppercase tracking-wider text-primary">Tecnologias</span>
-          <h2 className="mt-3 text-3xl sm:text-4xl lg:text-5xl font-bold text-primary">Sistemas construtivos que entregamos</h2>
-          <p className="mt-4 text-muted-foreground text-lg">Clique em cada tecnologia para conhecer suas vantagens técnicas.</p>
+          <FadeUp>
+            <h2 className="mt-3 text-3xl sm:text-4xl lg:text-5xl font-bold text-primary">Sistemas construtivos que entregamos</h2>
+          </FadeUp>
+          <FadeUp delay={0.1}>
+            <p className="mt-4 text-muted-foreground text-lg">Clique em cada tecnologia para conhecer suas vantagens técnicas.</p>
+          </FadeUp>
         </div>
         <div className="mt-12 grid md:grid-cols-3 gap-5">
           {TECH.map((t) => {
@@ -508,7 +560,9 @@ function Portfolio() {
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div className="max-w-2xl">
             <span className="text-sm font-bold uppercase tracking-wider text-primary">Portfólio</span>
-            <h2 className="mt-3 text-3xl sm:text-4xl lg:text-5xl font-bold text-primary">Obras que entregam confiança</h2>
+            <FadeUp>
+              <h2 className="mt-3 text-3xl sm:text-4xl lg:text-5xl font-bold text-primary">Obras que entregam confiança</h2>
+            </FadeUp>
           </div>
           <div className="flex flex-wrap gap-2">
             {FILTERS.map((f) => (
@@ -523,14 +577,22 @@ function Portfolio() {
           </div>
         </div>
         <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {items.map((p) => (
-            <figure key={p.title} className="group relative overflow-hidden rounded-2xl bg-card border border-border">
-              <img src={p.src} alt={p.title} width={1024} height={768} loading="lazy" className="aspect-[4/3] w-full object-cover transition-transform duration-500 group-hover:scale-105" />
-              <figcaption className="absolute inset-x-0 bottom-0 p-5 text-white" style={{ background: "linear-gradient(to top, rgba(26,77,122,0.92), transparent)" }}>
-                <div className="text-xs uppercase tracking-wider text-accent font-bold">{p.type}</div>
-                <div className="text-lg font-bold">{p.title}</div>
-              </figcaption>
-            </figure>
+          {items.map((p, index) => (
+            <motion.div
+              key={p.title}
+              initial={{ opacity: 0, scale: 0.96 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true, margin: '-40px' }}
+              transition={{ duration: 0.6, delay: index * 0.08, ease: 'easeOut' }}
+            >
+              <figure className="group relative overflow-hidden rounded-2xl bg-card border border-border">
+                <img src={p.src} alt={p.title} width={1024} height={768} loading="lazy" className="aspect-[4/3] w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <figcaption className="absolute inset-x-0 bottom-0 p-5 text-white" style={{ background: "linear-gradient(to top, rgba(26,77,122,0.92), transparent)" }}>
+                  <div className="text-xs uppercase tracking-wider text-accent font-bold">{p.type}</div>
+                  <div className="text-lg font-bold">{p.title}</div>
+                </figcaption>
+              </figure>
+            </motion.div>
           ))}
         </div>
       </div>
@@ -782,21 +844,23 @@ function BlogSection() {
           <p className="mt-4 text-muted-foreground text-lg">Dicas, tendências e orientações técnicas para quem quer construir com inteligência.</p>
         </div>
         <div className="mt-12 grid md:grid-cols-3 gap-6">
-          {ARTICLES.map((a) => {
+          {ARTICLES.map((a, index) => {
             const Icon = a.icon;
             return (
-              <div key={a.title} className="rounded-2xl bg-card border border-border p-7 flex flex-col transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-card)]">
-                <div className="h-12 w-12 rounded-lg bg-primary/10 grid place-items-center text-primary">
-                  <Icon className="h-6 w-6" />
+              <FadeUp key={a.title} delay={index * 0.12}>
+                <div className="rounded-2xl bg-card border border-border p-7 flex flex-col transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-card)]">
+                  <div className="h-12 w-12 rounded-lg bg-primary/10 grid place-items-center text-primary">
+                    <Icon className="h-6 w-6" />
+                  </div>
+                  <h3 className="mt-5 text-xl font-bold text-primary leading-snug">{a.title}</h3>
+                  <p className="mt-3 text-sm text-muted-foreground leading-relaxed line-clamp-3">{a.summary}</p>
+                  <div className="mt-auto pt-6">
+                    <button className="inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-accent transition">
+                      Ler mais <ArrowRight className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
-                <h3 className="mt-5 text-xl font-bold text-primary leading-snug">{a.title}</h3>
-                <p className="mt-3 text-sm text-muted-foreground leading-relaxed line-clamp-3">{a.summary}</p>
-                <div className="mt-auto pt-6">
-                  <button className="inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-accent transition">
-                    Ler mais <ArrowRight className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
+              </FadeUp>
             );
           })}
         </div>
@@ -817,7 +881,7 @@ function LeadForm() {
   return (
     <section id="contato" className="py-20 lg:py-28 bg-secondary">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid lg:grid-cols-5 gap-10">
-        <div className="lg:col-span-2">
+        <FadeUp className="lg:col-span-2">
           <span className="text-sm font-bold uppercase tracking-wider text-primary">Diagnóstico Gratuito</span>
           <h2 className="mt-3 text-3xl sm:text-4xl lg:text-5xl font-bold text-primary">Vamos planejar sua obra inteligente</h2>
           <p className="mt-4 text-muted-foreground text-lg">Preencha os dados e nossa equipe técnica entrará em contato em até 1 dia útil com um diagnóstico inicial gratuito.</p>
@@ -826,7 +890,7 @@ function LeadForm() {
             <li className="flex items-center gap-3"><Phone className="h-5 w-5 text-primary" /> WhatsApp (71) 99915-4343</li>
             <li className="flex items-center gap-3"><Mail className="h-5 w-5 text-primary" /> orcamentos@fmconstrucoes.com.br</li>
           </ul>
-        </div>
+        </FadeUp>
         <form onSubmit={submit} className="lg:col-span-3 rounded-2xl bg-card border border-border p-7 lg:p-9 shadow-sm">
           {sent ? (
             <div className="py-10 text-center">
