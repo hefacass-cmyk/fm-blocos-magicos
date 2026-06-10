@@ -112,6 +112,9 @@ function Header({ onLogin }: { onLogin: () => void }) {
               {n.label}
             </a>
           ))}
+          <Link to="/loja" className="text-[12px] font-semibold text-primary hover:opacity-80 transition-colors whitespace-nowrap px-1.5 py-1">
+            Loja
+          </Link>
           <DropdownMenu>
             <DropdownMenuTrigger className="text-[12px] font-medium text-foreground/80 hover:text-primary transition-colors whitespace-nowrap px-1.5 py-1 inline-flex items-center gap-0.5 outline-none">
               Fornecedores <ChevronDown className="h-3 w-3" />
@@ -190,6 +193,9 @@ function Header({ onLogin }: { onLogin: () => void }) {
             ))}
             <Link to="/fornecedores" onClick={() => setOpen(false)} className="py-2 text-sm font-medium text-foreground/80">
               Ver Fornecedores
+            </Link>
+            <Link to="/loja" onClick={() => setOpen(false)} className="py-2 text-sm font-semibold text-primary">
+              Loja F&M
             </Link>
             <Link to="/seja-fornecedor" onClick={() => setOpen(false)} className="py-2 text-sm font-semibold text-accent">
               Seja Fornecedor
