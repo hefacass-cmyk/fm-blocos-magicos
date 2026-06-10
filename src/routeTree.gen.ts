@@ -15,6 +15,7 @@ import { Route as SejaFornecedorRouteImport } from './routes/seja-fornecedor'
 import { Route as PrecosRouteImport } from './routes/precos'
 import { Route as ParceirosRouteImport } from './routes/parceiros'
 import { Route as ParceiroInviteRouteImport } from './routes/parceiro-invite'
+import { Route as LojaRouteImport } from './routes/loja'
 import { Route as IniciarContratoRouteImport } from './routes/iniciar-contrato'
 import { Route as FornecedoresRouteImport } from './routes/fornecedores'
 import { Route as EsqueciSenhaRouteImport } from './routes/esqueci-senha'
@@ -77,6 +78,11 @@ const ParceirosRoute = ParceirosRouteImport.update({
 const ParceiroInviteRoute = ParceiroInviteRouteImport.update({
   id: '/parceiro-invite',
   path: '/parceiro-invite',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojaRoute = LojaRouteImport.update({
+  id: '/loja',
+  path: '/loja',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IniciarContratoRoute = IniciarContratoRouteImport.update({
@@ -255,6 +261,7 @@ export interface FileRoutesByFullPath {
   '/esqueci-senha': typeof EsqueciSenhaRoute
   '/fornecedores': typeof FornecedoresRoute
   '/iniciar-contrato': typeof IniciarContratoRoute
+  '/loja': typeof LojaRoute
   '/parceiro-invite': typeof ParceiroInviteRoute
   '/parceiros': typeof ParceirosRoute
   '/precos': typeof PrecosRoute
@@ -296,6 +303,7 @@ export interface FileRoutesByTo {
   '/esqueci-senha': typeof EsqueciSenhaRoute
   '/fornecedores': typeof FornecedoresRoute
   '/iniciar-contrato': typeof IniciarContratoRoute
+  '/loja': typeof LojaRoute
   '/parceiro-invite': typeof ParceiroInviteRoute
   '/parceiros': typeof ParceirosRoute
   '/precos': typeof PrecosRoute
@@ -338,6 +346,7 @@ export interface FileRoutesById {
   '/esqueci-senha': typeof EsqueciSenhaRoute
   '/fornecedores': typeof FornecedoresRoute
   '/iniciar-contrato': typeof IniciarContratoRoute
+  '/loja': typeof LojaRoute
   '/parceiro-invite': typeof ParceiroInviteRoute
   '/parceiros': typeof ParceirosRoute
   '/precos': typeof PrecosRoute
@@ -381,6 +390,7 @@ export interface FileRouteTypes {
     | '/esqueci-senha'
     | '/fornecedores'
     | '/iniciar-contrato'
+    | '/loja'
     | '/parceiro-invite'
     | '/parceiros'
     | '/precos'
@@ -422,6 +432,7 @@ export interface FileRouteTypes {
     | '/esqueci-senha'
     | '/fornecedores'
     | '/iniciar-contrato'
+    | '/loja'
     | '/parceiro-invite'
     | '/parceiros'
     | '/precos'
@@ -463,6 +474,7 @@ export interface FileRouteTypes {
     | '/esqueci-senha'
     | '/fornecedores'
     | '/iniciar-contrato'
+    | '/loja'
     | '/parceiro-invite'
     | '/parceiros'
     | '/precos'
@@ -505,6 +517,7 @@ export interface RootRouteChildren {
   EsqueciSenhaRoute: typeof EsqueciSenhaRoute
   FornecedoresRoute: typeof FornecedoresRoute
   IniciarContratoRoute: typeof IniciarContratoRoute
+  LojaRoute: typeof LojaRoute
   ParceiroInviteRoute: typeof ParceiroInviteRoute
   ParceirosRoute: typeof ParceirosRoute
   PrecosRoute: typeof PrecosRoute
@@ -579,6 +592,13 @@ declare module '@tanstack/react-router' {
       path: '/parceiro-invite'
       fullPath: '/parceiro-invite'
       preLoaderRoute: typeof ParceiroInviteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja': {
+      id: '/loja'
+      path: '/loja'
+      fullPath: '/loja'
+      preLoaderRoute: typeof LojaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/iniciar-contrato': {
@@ -825,6 +845,7 @@ const rootRouteChildren: RootRouteChildren = {
   EsqueciSenhaRoute: EsqueciSenhaRoute,
   FornecedoresRoute: FornecedoresRoute,
   IniciarContratoRoute: IniciarContratoRoute,
+  LojaRoute: LojaRoute,
   ParceiroInviteRoute: ParceiroInviteRoute,
   ParceirosRoute: ParceirosRoute,
   PrecosRoute: PrecosRoute,
