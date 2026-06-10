@@ -112,6 +112,9 @@ function Header({ onLogin }: { onLogin: () => void }) {
               {n.label}
             </a>
           ))}
+          <Link to="/loja" className="text-[12px] font-semibold text-primary hover:opacity-80 transition-colors whitespace-nowrap px-1.5 py-1">
+            Loja
+          </Link>
           <DropdownMenu>
             <DropdownMenuTrigger className="text-[12px] font-medium text-foreground/80 hover:text-primary transition-colors whitespace-nowrap px-1.5 py-1 inline-flex items-center gap-0.5 outline-none">
               Fornecedores <ChevronDown className="h-3 w-3" />
