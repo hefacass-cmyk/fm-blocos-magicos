@@ -194,6 +194,9 @@ function Header({ onLogin }: { onLogin: () => void }) {
             <Link to="/fornecedores" onClick={() => setOpen(false)} className="py-2 text-sm font-medium text-foreground/80">
               Ver Fornecedores
             </Link>
+            <Link to="/loja" onClick={() => setOpen(false)} className="py-2 text-sm font-semibold text-primary">
+              Loja F&M
+            </Link>
             <Link to="/seja-fornecedor" onClick={() => setOpen(false)} className="py-2 text-sm font-semibold text-accent">
               Seja Fornecedor
             </Link>
