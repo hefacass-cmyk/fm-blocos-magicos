@@ -353,8 +353,8 @@ function PagamentoGrupo({
               <li key={String(r.id)} className="flex items-start justify-between gap-2 p-3">
                 <div className="text-sm">
                   <p className="font-semibold">{brl(num(r.valor))} <span className="ml-2 text-xs font-normal text-slate-500">{String(r.data ?? "")}</span></p>
-                  {r.descricao && <p className="text-slate-700">{String(r.descricao)}</p>}
-                  {r.loja && <p className="text-xs text-slate-500">Loja: {String(r.loja)}</p>}
+                  {r.descricao ? <p className="text-slate-700">{String(r.descricao)}</p> : null}
+                  {r.loja ? <p className="text-xs text-slate-500">Loja: {String(r.loja)}</p> : null}
                 </div>
                 <button onClick={() => excluir(r)} className="rounded-md p-1 text-red-500 hover:bg-red-50"><Trash2 className="h-4 w-4" /></button>
               </li>
