@@ -502,6 +502,70 @@ function FinanceItem({ label, value, color }: { label: string; value: string; co
   );
 }
 
+function FinanceTipo({
+  titulo,
+  orcado,
+  itens,
+  fmt,
+  fmtDate,
+}: {
+  titulo: string;
+  orcado: number;
+  itens: Row[];
+  fmt: (n: number) => string;
+  fmtDate: (v: string) => string;
+}) {
+  const [open, setOpen] = useState(false);
+  const pago = itens.reduce((s, r) => s + (Number(r.valor) || 0), 0);
+  const saldo = orcado - pago;
+  return (
+    <div className="rounded-xl border">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center justify-between gap-3 p-3 text-left"
+      >
+        <div>
+          <p className="text-sm font-bold text-foreground">{titulo}</p>
+          <p className="text-xs text-muted-foreground">
+            {itens.length} {itens.length === 1 ? "lançamento" : "lançamentos"}
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="text-xs text-muted-foreground">Pago</p>
+          <p className="text-sm font-bold" style={{ color: BRAND_GREEN }}>{fmt(pago)}</p>
+        </div>
+      </button>
+      {open && (
+        <div className="border-t p-3 space-y-2">
+          <div className="grid grid-cols-3 gap-2 text-xs">
+            <div><p className="text-muted-foreground">Orçado</p><p className="font-bold" style={{ color: BRAND_BLUE }}>{fmt(orcado)}</p></div>
+            <div><p className="text-muted-foreground">Pago</p><p className="font-bold" style={{ color: BRAND_GREEN }}>{fmt(pago)}</p></div>
+            <div><p className="text-muted-foreground">Saldo</p><p className="font-bold" style={{ color: BRAND_YELLOW }}>{fmt(saldo)}</p></div>
+          </div>
+          {itens.length === 0 ? (
+            <p className="text-xs text-muted-foreground pt-2">Nenhum lançamento ainda.</p>
+          ) : (
+            <ul className="divide-y">
+              {itens.map((it) => (
+                <li key={String(it.id)} className="flex items-start justify-between gap-3 py-2 text-sm">
+                  <div className="min-w-0">
+                    <p className="font-medium text-foreground truncate">{String(it.descricao ?? "—")}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {fmtDate(String(it.data ?? ""))}
+                      {it.loja ? ` · ${String(it.loja)}` : ""}
+                    </p>
+                  </div>
+                  <p className="font-bold whitespace-nowrap" style={{ color: BRAND_BLUE }}>{fmt(Number(it.valor) || 0)}</p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ContactButton({
   icon,
   label,
