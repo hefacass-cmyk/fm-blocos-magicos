@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Plus, Search, Pencil, Trash2, Loader2, Eye, KeyRound } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Loader2, Eye, KeyRound, Hammer } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -164,6 +164,11 @@ export default function ClientesSection() {
                         <Link to="/admin/clientes/$id" params={{ id: String(r.id) }}
                           className="inline-flex h-8 w-8 items-center justify-center rounded-md border hover:bg-slate-50" title="Detalhes">
                           <Eye className="h-4 w-4" />
+                        </Link>
+                        <Link to="/admin/obras/$clienteId" params={{ clienteId: String(r.id) }}
+                          className="inline-flex h-8 items-center justify-center gap-1 rounded-md px-2 text-xs font-semibold text-white hover:opacity-90"
+                          style={{ backgroundColor: "#1A4D7A" }} title="Gerenciar Obra">
+                          <Hammer className="h-4 w-4" /> Gerenciar Obra
                         </Link>
                         <button onClick={() => { setEditing(r); setModalOpen(true); }}
                           className="inline-flex h-8 w-8 items-center justify-center rounded-md border hover:bg-slate-50" title="Editar">
