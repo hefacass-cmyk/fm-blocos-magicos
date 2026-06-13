@@ -2,6 +2,7 @@ import { useState } from "react";
 import { X } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { fmSupabase, saveCliente } from "@/lib/fm-supabase";
+import { enviarSolicitacaoCodigo } from "@/lib/solicitar-codigo.functions";
 
 interface ClientLoginModalProps {
   open: boolean;
@@ -15,6 +16,13 @@ export function ClientLoginModal({ open, onClose }: ClientLoginModalProps) {
   const [erros, setErros] = useState<{ codigo?: string; cpfCnpj?: string }>({});
   const [loading, setLoading] = useState(false);
   const [erroGeral, setErroGeral] = useState<string | null>(null);
+  const [mostrarSolicitar, setMostrarSolicitar] = useState(false);
+  const [solNome, setSolNome] = useState("");
+  const [solCpfCnpj, setSolCpfCnpj] = useState("");
+  const [solWhats, setSolWhats] = useState("");
+  const [solLoading, setSolLoading] = useState(false);
+  const [solSucesso, setSolSucesso] = useState(false);
+  const [solErro, setSolErro] = useState<string | null>(null);
 
   if (!open) return null;
 
@@ -70,6 +78,34 @@ export function ClientLoginModal({ open, onClose }: ClientLoginModalProps) {
   };
 
   const onlyDigits = (value: string) => value.replace(/\D/g, "").slice(0, 14);
+
+  const handleSolicitar = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSolErro(null);
+    const nome = solNome.trim();
+    const cpfLimpo = solCpfCnpj.replace(/\D/g, "");
+    const whatsLimpo = solWhats.replace(/\D/g, "");
+    if (nome.length < 2) { setSolErro("Informe seu nome completo"); return; }
+    if (cpfLimpo.length < 11 || cpfLimpo.length > 14) { setSolErro("CPF/CNPJ inválido"); return; }
+    if (whatsLimpo.length < 10) { setSolErro("WhatsApp inválido"); return; }
+    setSolLoading(true);
+    try {
+      await fmSupabase.from("leads_site").insert({
+        tipo: "solicitar_codigo",
+        nome,
+        cpf_cnpj: cpfLimpo,
+        whatsapp: whatsLimpo,
+        payload: { origem: "modal_acesso_obra" },
+      });
+      await enviarSolicitacaoCodigo({ data: { nome, cpfCnpj: cpfLimpo, whatsapp: whatsLimpo } });
+      setSolSucesso(true);
+    } catch (err) {
+      console.error("[solicitar-codigo]", err);
+      setSolErro("Não foi possível enviar agora. Tente novamente.");
+    } finally {
+      setSolLoading(false);
+    }
+  };
 
   return (
     <div
@@ -167,12 +203,75 @@ export function ClientLoginModal({ open, onClose }: ClientLoginModalProps) {
         <div className="mt-4 text-center">
           <button
             type="button"
+            onClick={() => { setMostrarSolicitar((v) => !v); setSolSucesso(false); setSolErro(null); }}
             className="text-sm font-medium hover:underline transition"
             style={{ color: "#06A77D" }}
           >
-            Não tem código?
+            {mostrarSolicitar ? "Fechar" : "Não tem código?"}
           </button>
         </div>
+
+        {mostrarSolicitar && (
+          <div className="mt-4 rounded-xl border border-input bg-muted/30 p-4">
+            {solSucesso ? (
+              <div className="rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-3 text-sm font-medium text-emerald-800">
+                Solicitação enviada! Em breve você receberá seu código por WhatsApp.
+              </div>
+            ) : (
+              <form onSubmit={handleSolicitar} className="space-y-3" noValidate>
+                <p className="text-sm font-semibold" style={{ color: "#1A4D7A" }}>
+                  Solicitar código de cliente
+                </p>
+                {solErro && (
+                  <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs font-medium text-destructive">
+                    {solErro}
+                  </div>
+                )}
+                <div>
+                  <label className="block text-xs font-semibold text-foreground">Nome completo</label>
+                  <input
+                    type="text"
+                    value={solNome}
+                    onChange={(e) => setSolNome(e.target.value)}
+                    placeholder="Seu nome"
+                    className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-foreground">CPF / CNPJ</label>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={solCpfCnpj}
+                    onChange={(e) => setSolCpfCnpj(onlyDigits(e.target.value))}
+                    placeholder="Somente números"
+                    maxLength={14}
+                    className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-foreground">WhatsApp</label>
+                  <input
+                    type="tel"
+                    inputMode="numeric"
+                    value={solWhats}
+                    onChange={(e) => setSolWhats(e.target.value.replace(/\D/g, "").slice(0, 11))}
+                    placeholder="(71) 99999-9999"
+                    className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={solLoading}
+                  className="w-full inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-sm font-bold text-white transition hover:brightness-110 disabled:opacity-60"
+                  style={{ backgroundColor: "#06A77D" }}
+                >
+                  {solLoading ? "Enviando..." : "Enviar solicitação"}
+                </button>
+              </form>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
