@@ -47,6 +47,7 @@ import { Route as AdminAuditoriaEmailsRouteImport } from './routes/admin.auditor
 import { Route as ContratoRevisarTokenRouteImport } from './routes/contrato.revisar.$token'
 import { Route as ContratoDadosTokenRouteImport } from './routes/contrato.dados.$token'
 import { Route as ContratoAssinarTokenRouteImport } from './routes/contrato.assinar.$token'
+import { Route as AdminObrasClienteIdRouteImport } from './routes/admin.obras.$clienteId'
 import { Route as AdminContratosIdRouteImport } from './routes/admin.contratos_.$id'
 import { Route as AdminClientesIdRouteImport } from './routes/admin.clientes.$id'
 
@@ -240,6 +241,11 @@ const ContratoAssinarTokenRoute = ContratoAssinarTokenRouteImport.update({
   path: '/contrato/assinar/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminObrasClienteIdRoute = AdminObrasClienteIdRouteImport.update({
+  id: '/admin/obras/$clienteId',
+  path: '/admin/obras/$clienteId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminContratosIdRoute = AdminContratosIdRouteImport.update({
   id: '/admin/contratos_/$id',
   path: '/admin/contratos/$id',
@@ -289,6 +295,7 @@ export interface FileRoutesByFullPath {
   '/reset-senha/$token': typeof ResetSenhaTokenRoute
   '/admin/clientes/$id': typeof AdminClientesIdRoute
   '/admin/contratos/$id': typeof AdminContratosIdRoute
+  '/admin/obras/$clienteId': typeof AdminObrasClienteIdRoute
   '/contrato/assinar/$token': typeof ContratoAssinarTokenRoute
   '/contrato/dados/$token': typeof ContratoDadosTokenRoute
   '/contrato/revisar/$token': typeof ContratoRevisarTokenRoute
@@ -331,6 +338,7 @@ export interface FileRoutesByTo {
   '/reset-senha/$token': typeof ResetSenhaTokenRoute
   '/admin/clientes/$id': typeof AdminClientesIdRoute
   '/admin/contratos/$id': typeof AdminContratosIdRoute
+  '/admin/obras/$clienteId': typeof AdminObrasClienteIdRoute
   '/contrato/assinar/$token': typeof ContratoAssinarTokenRoute
   '/contrato/dados/$token': typeof ContratoDadosTokenRoute
   '/contrato/revisar/$token': typeof ContratoRevisarTokenRoute
@@ -374,6 +382,7 @@ export interface FileRoutesById {
   '/reset-senha/$token': typeof ResetSenhaTokenRoute
   '/admin/clientes/$id': typeof AdminClientesIdRoute
   '/admin/contratos_/$id': typeof AdminContratosIdRoute
+  '/admin/obras/$clienteId': typeof AdminObrasClienteIdRoute
   '/contrato/assinar/$token': typeof ContratoAssinarTokenRoute
   '/contrato/dados/$token': typeof ContratoDadosTokenRoute
   '/contrato/revisar/$token': typeof ContratoRevisarTokenRoute
@@ -418,6 +427,7 @@ export interface FileRouteTypes {
     | '/reset-senha/$token'
     | '/admin/clientes/$id'
     | '/admin/contratos/$id'
+    | '/admin/obras/$clienteId'
     | '/contrato/assinar/$token'
     | '/contrato/dados/$token'
     | '/contrato/revisar/$token'
@@ -460,6 +470,7 @@ export interface FileRouteTypes {
     | '/reset-senha/$token'
     | '/admin/clientes/$id'
     | '/admin/contratos/$id'
+    | '/admin/obras/$clienteId'
     | '/contrato/assinar/$token'
     | '/contrato/dados/$token'
     | '/contrato/revisar/$token'
@@ -502,6 +513,7 @@ export interface FileRouteTypes {
     | '/reset-senha/$token'
     | '/admin/clientes/$id'
     | '/admin/contratos_/$id'
+    | '/admin/obras/$clienteId'
     | '/contrato/assinar/$token'
     | '/contrato/dados/$token'
     | '/contrato/revisar/$token'
@@ -545,6 +557,7 @@ export interface RootRouteChildren {
   ResetSenhaTokenRoute: typeof ResetSenhaTokenRoute
   AdminClientesIdRoute: typeof AdminClientesIdRoute
   AdminContratosIdRoute: typeof AdminContratosIdRoute
+  AdminObrasClienteIdRoute: typeof AdminObrasClienteIdRoute
   ContratoAssinarTokenRoute: typeof ContratoAssinarTokenRoute
   ContratoDadosTokenRoute: typeof ContratoDadosTokenRoute
   ContratoRevisarTokenRoute: typeof ContratoRevisarTokenRoute
@@ -818,6 +831,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContratoAssinarTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/obras/$clienteId': {
+      id: '/admin/obras/$clienteId'
+      path: '/admin/obras/$clienteId'
+      fullPath: '/admin/obras/$clienteId'
+      preLoaderRoute: typeof AdminObrasClienteIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/contratos_/$id': {
       id: '/admin/contratos_/$id'
       path: '/admin/contratos/$id'
@@ -873,6 +893,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetSenhaTokenRoute: ResetSenhaTokenRoute,
   AdminClientesIdRoute: AdminClientesIdRoute,
   AdminContratosIdRoute: AdminContratosIdRoute,
+  AdminObrasClienteIdRoute: AdminObrasClienteIdRoute,
   ContratoAssinarTokenRoute: ContratoAssinarTokenRoute,
   ContratoDadosTokenRoute: ContratoDadosTokenRoute,
   ContratoRevisarTokenRoute: ContratoRevisarTokenRoute,
