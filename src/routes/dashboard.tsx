@@ -42,6 +42,7 @@ function DashboardPage() {
   const [relatorios, setRelatorios] = useState<Row[]>([]);
   const [relatorioOpen, setRelatorioOpen] = useState<Row | null>(null);
   const [pagoTotal, setPagoTotal] = useState(0);
+  const [financeiro, setFinanceiro] = useState<Row[]>([]);
   const cliente = typeof window !== "undefined" ? getCliente() : null;
 
   useEffect(() => {
@@ -74,8 +75,9 @@ function DashboardPage() {
             .order("semana_inicio", { ascending: false }),
           fmSupabase
             .from("obra_financeiro")
-            .select("valor")
-            .eq("cliente_id", cliente.id as string | number),
+            .select("*")
+            .eq("cliente_id", cliente.id as string | number)
+            .order("data", { ascending: false }),
         ]);
 
         console.log("[dashboard] clientes:", { cliente_id: cliente.id, data: clienteRow, error: clienteError });
@@ -94,7 +96,9 @@ function DashboardPage() {
           setClienteData(clienteRow as Row);
           setAtualizacaoHoje((updateRow as Row | null) ?? null);
           setRelatorios((relRes.data as Row[]) ?? []);
-          const totalPago = ((finRes.data as Row[] | null) ?? []).reduce(
+          const finRows = ((finRes.data as Row[] | null) ?? []);
+          setFinanceiro(finRows);
+          const totalPago = finRows.reduce(
             (sum, r) => sum + (Number(r.valor) || 0),
             0,
           );
