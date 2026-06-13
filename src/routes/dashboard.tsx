@@ -41,6 +41,7 @@ function DashboardPage() {
   const [atualizacaoHoje, setAtualizacaoHoje] = useState<Row | null>(null);
   const [relatorios, setRelatorios] = useState<Row[]>([]);
   const [relatorioOpen, setRelatorioOpen] = useState<Row | null>(null);
+  const [pagoTotal, setPagoTotal] = useState(0);
   const cliente = typeof window !== "undefined" ? getCliente() : null;
 
   useEffect(() => {
@@ -52,7 +53,7 @@ function DashboardPage() {
         return;
       }
       try {
-        const [{ data: clienteRow, error: clienteError }, { data: updateRow, error: updateError }, relRes] = await Promise.all([
+        const [{ data: clienteRow, error: clienteError }, { data: updateRow, error: updateError }, relRes, finRes] = await Promise.all([
           fmSupabase
             .from("clientes")
             .select("*")
@@ -71,6 +72,10 @@ function DashboardPage() {
             .eq("cliente_id", cliente.id as string | number)
             .neq("status", "rascunho")
             .order("semana_inicio", { ascending: false }),
+          fmSupabase
+            .from("obra_financeiro")
+            .select("valor")
+            .eq("cliente_id", cliente.id as string | number),
         ]);
 
         console.log("[dashboard] clientes:", { cliente_id: cliente.id, data: clienteRow, error: clienteError });
@@ -89,6 +94,11 @@ function DashboardPage() {
           setClienteData(clienteRow as Row);
           setAtualizacaoHoje((updateRow as Row | null) ?? null);
           setRelatorios((relRes.data as Row[]) ?? []);
+          const totalPago = ((finRes.data as Row[] | null) ?? []).reduce(
+            (sum, r) => sum + (Number(r.valor) || 0),
+            0,
+          );
+          setPagoTotal(totalPago);
           setErro(null);
         }
       } catch (e) {
@@ -116,9 +126,12 @@ function DashboardPage() {
   };
 
   const progresso = Number(pick<number | string>(["progresso", "Percentual", "percentual"], 0)) || 0;
-  const orcado = Number(pick<number | string>(["orcado", "orcamento", "valor_orcado"], 0)) || 0;
-  const pago = Number(pick<number | string>(["pago", "valor_pago"], 0)) || 0;
-  const saldo = Math.max(orcado - pago, 0);
+  const orcadoMo = Number((clienteData?.orcado_mo as number | string) ?? 0) || 0;
+  const orcadoMaterial = Number((clienteData?.orcado_material as number | string) ?? 0) || 0;
+  const orcadoExtras = Number((clienteData?.orcado_extras as number | string) ?? 0) || 0;
+  const orcado = orcadoMo + orcadoMaterial + orcadoExtras;
+  const pago = pagoTotal;
+  const saldo = orcado - pago;
   const dataInicio = pick<string>(["Data", "data_inicio", "inicio"], "—");
   const prazoEsperado = pick<string>(
     ["data_termino", "Prazo_esperado", "Prazo", "Previsao_termino", "prazo_esperado", "prazo", "previsao_termino"],
