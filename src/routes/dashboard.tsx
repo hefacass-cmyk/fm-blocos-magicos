@@ -346,6 +346,11 @@ function DashboardPage() {
               />
             </div>
           </div>
+          <div className="mt-6 space-y-2">
+            <FinanceTipo titulo="Mão de Obra" orcado={orcadoMo} itens={financeiro.filter((r) => r.tipo === "mo")} fmt={fmt} fmtDate={fmtDate} />
+            <FinanceTipo titulo="Material" orcado={orcadoMaterial} itens={financeiro.filter((r) => r.tipo === "material")} fmt={fmt} fmtDate={fmtDate} />
+            <FinanceTipo titulo="Extras" orcado={orcadoExtras} itens={financeiro.filter((r) => r.tipo === "extra")} fmt={fmt} fmtDate={fmtDate} />
+          </div>
         </section>
 
         {/* SEÇÃO 5 — PRÓXIMAS ETAPAS */}
