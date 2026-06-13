@@ -476,6 +476,7 @@ function RelatoriosSemanaisSection({ clienteId }: { clienteId: string }) {
   const [uploading, setUploading] = useState(false);
   const [data, setData] = useState<string>(() => new Date().toISOString().slice(0, 10));
   const [legenda, setLegenda] = useState("");
+  const [file, setFile] = useState<File | null>(null);
 
   const load = async () => {
     const { data } = await fmSupabase.from("obra_fotos").select("*").eq("cliente_id", clienteId).order("criado_em", { ascending: false });
@@ -483,19 +484,20 @@ function RelatoriosSemanaisSection({ clienteId }: { clienteId: string }) {
   };
   useEffect(() => { load(); }, [clienteId]);
 
-  const onUpload = async (file: File | null) => {
-    if (!file) return;
+  const onUpload = async () => {
+    if (!file) return toast.error("Selecione um arquivo");
     setUploading(true);
     const path = `relatorios/${clienteId}/${Date.now()}-${file.name}`;
     const { error: upErr } = await fmSupabase.storage.from(BUCKET).upload(path, file, { upsert: false });
     if (upErr) { setUploading(false); return toast.error("Upload: " + upErr.message); }
     const { data: pub } = fmSupabase.storage.from(BUCKET).getPublicUrl(path);
     const { error } = await fmSupabase.from("obra_fotos").insert({
-      cliente_id: clienteId, foto_url: pub.publicUrl, legenda, descricao: legenda, data,
+      cliente_id: clienteId, url: pub.publicUrl, foto_url: pub.publicUrl, legenda, descricao: legenda, data,
     });
     setUploading(false);
     if (error) return toast.error("Erro: " + error.message);
     setLegenda("");
+    setFile(null);
     load();
     toast.success("Foto enviada");
   };
@@ -512,12 +514,22 @@ function RelatoriosSemanaisSection({ clienteId }: { clienteId: string }) {
       <div className="grid gap-2 rounded-lg border bg-slate-50 p-3 sm:grid-cols-4">
         <div><Label className="text-xs">Data</Label><Input type="date" value={data} onChange={(e) => setData(e.target.value)} /></div>
         <div className="sm:col-span-2"><Label className="text-xs">Descrição</Label><Input value={legenda} onChange={(e) => setLegenda(e.target.value)} placeholder="O que esta foto registra" /></div>
-        <div className="flex items-end">
-          <label className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-semibold text-white" style={{ backgroundColor: BRAND_BLUE }}>
+        <div className="sm:col-span-4 flex flex-col gap-2 sm:flex-row sm:items-end">
+          <div className="flex-1">
+            <Label className="text-xs">Arquivo</Label>
+            <Input type="file" accept="image/*" disabled={uploading} onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+            {file && <p className="mt-1 text-xs text-slate-500">Selecionado: {file.name}</p>}
+          </div>
+          <button
+            type="button"
+            onClick={onUpload}
+            disabled={!file || uploading}
+            className="flex cursor-pointer items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+            style={{ backgroundColor: BRAND_BLUE }}
+          >
             {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
             {uploading ? "Enviando..." : "Enviar foto"}
-            <input type="file" accept="image/*" className="hidden" disabled={uploading} onChange={(e) => onUpload(e.target.files?.[0] ?? null)} />
-          </label>
+          </button>
         </div>
       </div>
 
