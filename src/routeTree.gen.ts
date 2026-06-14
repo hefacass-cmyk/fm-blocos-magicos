@@ -24,6 +24,7 @@ import { Route as ContatoRapidoRouteImport } from './routes/contato-rapido'
 import { Route as CadastroParceiroRouteImport } from './routes/cadastro-parceiro'
 import { Route as CadastroFornecedorRouteImport } from './routes/cadastro-fornecedor'
 import { Route as BuscarProfissionalRouteImport } from './routes/buscar-profissional'
+import { Route as AvaliadorDorRouteImport } from './routes/avaliador-dor'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ResetSenhaTokenRouteImport } from './routes/reset-senha.$token'
 import { Route as ParceiroLoginRouteImport } from './routes/parceiro.login'
@@ -124,6 +125,11 @@ const CadastroFornecedorRoute = CadastroFornecedorRouteImport.update({
 const BuscarProfissionalRoute = BuscarProfissionalRouteImport.update({
   id: '/buscar-profissional',
   path: '/buscar-profissional',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AvaliadorDorRoute = AvaliadorDorRouteImport.update({
+  id: '/avaliador-dor',
+  path: '/avaliador-dor',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -259,6 +265,7 @@ const AdminClientesIdRoute = AdminClientesIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/avaliador-dor': typeof AvaliadorDorRoute
   '/buscar-profissional': typeof BuscarProfissionalRoute
   '/cadastro-fornecedor': typeof CadastroFornecedorRoute
   '/cadastro-parceiro': typeof CadastroParceiroRoute
@@ -302,6 +309,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/avaliador-dor': typeof AvaliadorDorRoute
   '/buscar-profissional': typeof BuscarProfissionalRoute
   '/cadastro-fornecedor': typeof CadastroFornecedorRoute
   '/cadastro-parceiro': typeof CadastroParceiroRoute
@@ -346,6 +354,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/avaliador-dor': typeof AvaliadorDorRoute
   '/buscar-profissional': typeof BuscarProfissionalRoute
   '/cadastro-fornecedor': typeof CadastroFornecedorRoute
   '/cadastro-parceiro': typeof CadastroParceiroRoute
@@ -391,6 +400,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/avaliador-dor'
     | '/buscar-profissional'
     | '/cadastro-fornecedor'
     | '/cadastro-parceiro'
@@ -434,6 +444,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/avaliador-dor'
     | '/buscar-profissional'
     | '/cadastro-fornecedor'
     | '/cadastro-parceiro'
@@ -477,6 +488,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/avaliador-dor'
     | '/buscar-profissional'
     | '/cadastro-fornecedor'
     | '/cadastro-parceiro'
@@ -521,6 +533,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AvaliadorDorRoute: typeof AvaliadorDorRoute
   BuscarProfissionalRoute: typeof BuscarProfissionalRoute
   CadastroFornecedorRoute: typeof CadastroFornecedorRoute
   CadastroParceiroRoute: typeof CadastroParceiroRoute
@@ -668,6 +681,13 @@ declare module '@tanstack/react-router' {
       path: '/buscar-profissional'
       fullPath: '/buscar-profissional'
       preLoaderRoute: typeof BuscarProfissionalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/avaliador-dor': {
+      id: '/avaliador-dor'
+      path: '/avaliador-dor'
+      fullPath: '/avaliador-dor'
+      preLoaderRoute: typeof AvaliadorDorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -857,6 +877,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AvaliadorDorRoute: AvaliadorDorRoute,
   BuscarProfissionalRoute: BuscarProfissionalRoute,
   CadastroFornecedorRoute: CadastroFornecedorRoute,
   CadastroParceiroRoute: CadastroParceiroRoute,
