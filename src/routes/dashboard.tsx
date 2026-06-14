@@ -309,6 +309,7 @@ function DashboardPage() {
         {/* SEÇÃO 3 — AÇÕES RÁPIDAS */}
         <section className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <button
+            onClick={() => setFotosOpen(true)}
             className="flex items-center justify-center gap-3 rounded-2xl px-5 py-5 text-base font-bold text-white shadow-md hover:opacity-95 active:scale-[0.98] transition"
             style={{ backgroundColor: BRAND_GREEN }}
           >
@@ -448,7 +449,38 @@ function DashboardPage() {
       {relatorioOpen && (
         <RelatorioModal r={relatorioOpen} onClose={() => setRelatorioOpen(null)} />
       )}
+      {fotosOpen && (
+        <FotosModal fotos={fotos} onClose={() => setFotosOpen(false)} />
+      )}
     </div>
+  );
+}
+
+function FotosModal({ fotos, onClose }: { fotos: Row[]; onClose: () => void }) {
+  return (
+    <Dialog open onOpenChange={(o) => { if (!o) onClose(); }}>
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+        <DialogTitle>Fotos da obra</DialogTitle>
+        {fotos.length === 0 ? (
+          <p className="mt-3 text-sm text-muted-foreground">Nenhuma foto enviada ainda.</p>
+        ) : (
+          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {fotos.map((f) => {
+              const url = String(f.foto_url ?? f.url ?? "");
+              if (!url) return null;
+              return (
+                <a key={String(f.id)} href={url} target="_blank" rel="noreferrer" className="block">
+                  <img src={url} alt={String(f.legenda ?? f.descricao ?? "")} className="aspect-square w-full rounded-md object-cover" loading="lazy" />
+                  {(f.legenda || f.descricao) && (
+                    <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{String(f.legenda ?? f.descricao)}</p>
+                  )}
+                </a>
+              );
+            })}
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }
 
