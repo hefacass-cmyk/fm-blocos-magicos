@@ -471,9 +471,9 @@ function FotosModal({ fotos, onClose }: { fotos: Row[]; onClose: () => void }) {
               return (
                 <a key={String(f.id)} href={url} target="_blank" rel="noreferrer" className="block">
                   <img src={url} alt={String(f.legenda ?? f.descricao ?? "")} className="aspect-square w-full rounded-md object-cover" loading="lazy" />
-                  {(f.legenda || f.descricao) && (
+                  {(f.legenda || f.descricao) ? (
                     <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{String(f.legenda ?? f.descricao)}</p>
-                  )}
+                  ) : null}
                 </a>
               );
             })}
