@@ -43,6 +43,8 @@ function DashboardPage() {
   const [relatorioOpen, setRelatorioOpen] = useState<Row | null>(null);
   const [pagoTotal, setPagoTotal] = useState(0);
   const [financeiro, setFinanceiro] = useState<Row[]>([]);
+  const [fotos, setFotos] = useState<Row[]>([]);
+  const [fotosOpen, setFotosOpen] = useState(false);
   const cliente = typeof window !== "undefined" ? getCliente() : null;
 
   useEffect(() => {
@@ -54,7 +56,7 @@ function DashboardPage() {
         return;
       }
       try {
-        const [{ data: clienteRow, error: clienteError }, { data: updateRow, error: updateError }, relRes, finRes] = await Promise.all([
+        const [{ data: clienteRow, error: clienteError }, { data: updateRow, error: updateError }, relRes, finRes, fotosRes] = await Promise.all([
           fmSupabase
             .from("clientes")
             .select("*")
@@ -78,6 +80,11 @@ function DashboardPage() {
             .select("*")
             .eq("cliente_id", cliente.id as string | number)
             .order("data", { ascending: false }),
+          fmSupabase
+            .from("obra_fotos")
+            .select("*")
+            .eq("cliente_id", cliente.id as string | number)
+            .order("criado_em", { ascending: false }),
         ]);
 
         console.log("[dashboard] clientes:", { cliente_id: cliente.id, data: clienteRow, error: clienteError });
@@ -98,6 +105,7 @@ function DashboardPage() {
           setRelatorios((relRes.data as Row[]) ?? []);
           const finRows = ((finRes.data as Row[] | null) ?? []);
           setFinanceiro(finRows);
+          setFotos((fotosRes.data as Row[]) ?? []);
           const totalPago = finRows.reduce(
             (sum, r) => sum + (Number(r.valor) || 0),
             0,
