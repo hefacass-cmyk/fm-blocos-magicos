@@ -330,6 +330,13 @@ function AdminDashboardPage() {
             >
               <Settings className="h-4 w-4" /> Configurações
             </Link>
+            <Link
+              to="/admin/avaliador-dor"
+              className="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium hover:bg-slate-50"
+              style={{ borderColor: "#e05c52", color: "#e05c52" }}
+            >
+              🩺 Avaliador de Dor
+            </Link>
             <button onClick={sair} className="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium hover:bg-slate-50">
               <LogOut className="h-4 w-4" /> Sair
             </button>
