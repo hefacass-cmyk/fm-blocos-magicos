@@ -178,7 +178,7 @@ function ReportCard({ title, value }: { title: string; value: React.ReactNode })
   );
 }
 
-export const Route = createFileRoute("/avaliador-dor")({
+export const Route = createFileRoute("/admin/avaliador-dor")({
   head: () => ({
     meta: [
       { title: "Avaliador de Dor — Perfil Clínico" },

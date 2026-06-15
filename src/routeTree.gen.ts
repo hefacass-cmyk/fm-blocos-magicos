@@ -24,7 +24,6 @@ import { Route as ContatoRapidoRouteImport } from './routes/contato-rapido'
 import { Route as CadastroParceiroRouteImport } from './routes/cadastro-parceiro'
 import { Route as CadastroFornecedorRouteImport } from './routes/cadastro-fornecedor'
 import { Route as BuscarProfissionalRouteImport } from './routes/buscar-profissional'
-import { Route as AvaliadorDorRouteImport } from './routes/avaliador-dor'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ResetSenhaTokenRouteImport } from './routes/reset-senha.$token'
 import { Route as ParceiroLoginRouteImport } from './routes/parceiro.login'
@@ -43,6 +42,7 @@ import { Route as AdminLeadsRouteImport } from './routes/admin.leads'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AdminContratosRouteImport } from './routes/admin.contratos'
 import { Route as AdminConfiguracoesRouteImport } from './routes/admin.configuracoes'
+import { Route as AdminAvaliadorDorRouteImport } from './routes/admin.avaliador-dor'
 import { Route as AdminAvaliacoesRouteImport } from './routes/admin.avaliacoes'
 import { Route as AdminAuditoriaEmailsRouteImport } from './routes/admin.auditoria-emails'
 import { Route as ContratoRevisarTokenRouteImport } from './routes/contrato.revisar.$token'
@@ -125,11 +125,6 @@ const CadastroFornecedorRoute = CadastroFornecedorRouteImport.update({
 const BuscarProfissionalRoute = BuscarProfissionalRouteImport.update({
   id: '/buscar-profissional',
   path: '/buscar-profissional',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AvaliadorDorRoute = AvaliadorDorRouteImport.update({
-  id: '/avaliador-dor',
-  path: '/avaliador-dor',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -222,6 +217,11 @@ const AdminConfiguracoesRoute = AdminConfiguracoesRouteImport.update({
   path: '/admin/configuracoes',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminAvaliadorDorRoute = AdminAvaliadorDorRouteImport.update({
+  id: '/admin/avaliador-dor',
+  path: '/admin/avaliador-dor',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminAvaliacoesRoute = AdminAvaliacoesRouteImport.update({
   id: '/admin/avaliacoes',
   path: '/admin/avaliacoes',
@@ -265,7 +265,6 @@ const AdminClientesIdRoute = AdminClientesIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/avaliador-dor': typeof AvaliadorDorRoute
   '/buscar-profissional': typeof BuscarProfissionalRoute
   '/cadastro-fornecedor': typeof CadastroFornecedorRoute
   '/cadastro-parceiro': typeof CadastroParceiroRoute
@@ -283,6 +282,7 @@ export interface FileRoutesByFullPath {
   '/vamos-construir': typeof VamosConstruirRoute
   '/admin/auditoria-emails': typeof AdminAuditoriaEmailsRoute
   '/admin/avaliacoes': typeof AdminAvaliacoesRoute
+  '/admin/avaliador-dor': typeof AdminAvaliadorDorRoute
   '/admin/configuracoes': typeof AdminConfiguracoesRoute
   '/admin/contratos': typeof AdminContratosRoute
   '/admin/dashboard': typeof AdminDashboardRoute
@@ -309,7 +309,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/avaliador-dor': typeof AvaliadorDorRoute
   '/buscar-profissional': typeof BuscarProfissionalRoute
   '/cadastro-fornecedor': typeof CadastroFornecedorRoute
   '/cadastro-parceiro': typeof CadastroParceiroRoute
@@ -327,6 +326,7 @@ export interface FileRoutesByTo {
   '/vamos-construir': typeof VamosConstruirRoute
   '/admin/auditoria-emails': typeof AdminAuditoriaEmailsRoute
   '/admin/avaliacoes': typeof AdminAvaliacoesRoute
+  '/admin/avaliador-dor': typeof AdminAvaliadorDorRoute
   '/admin/configuracoes': typeof AdminConfiguracoesRoute
   '/admin/contratos': typeof AdminContratosRoute
   '/admin/dashboard': typeof AdminDashboardRoute
@@ -354,7 +354,6 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/avaliador-dor': typeof AvaliadorDorRoute
   '/buscar-profissional': typeof BuscarProfissionalRoute
   '/cadastro-fornecedor': typeof CadastroFornecedorRoute
   '/cadastro-parceiro': typeof CadastroParceiroRoute
@@ -372,6 +371,7 @@ export interface FileRoutesById {
   '/vamos-construir': typeof VamosConstruirRoute
   '/admin/auditoria-emails': typeof AdminAuditoriaEmailsRoute
   '/admin/avaliacoes': typeof AdminAvaliacoesRoute
+  '/admin/avaliador-dor': typeof AdminAvaliadorDorRoute
   '/admin/configuracoes': typeof AdminConfiguracoesRoute
   '/admin/contratos': typeof AdminContratosRoute
   '/admin/dashboard': typeof AdminDashboardRoute
@@ -400,7 +400,6 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/avaliador-dor'
     | '/buscar-profissional'
     | '/cadastro-fornecedor'
     | '/cadastro-parceiro'
@@ -418,6 +417,7 @@ export interface FileRouteTypes {
     | '/vamos-construir'
     | '/admin/auditoria-emails'
     | '/admin/avaliacoes'
+    | '/admin/avaliador-dor'
     | '/admin/configuracoes'
     | '/admin/contratos'
     | '/admin/dashboard'
@@ -444,7 +444,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/avaliador-dor'
     | '/buscar-profissional'
     | '/cadastro-fornecedor'
     | '/cadastro-parceiro'
@@ -462,6 +461,7 @@ export interface FileRouteTypes {
     | '/vamos-construir'
     | '/admin/auditoria-emails'
     | '/admin/avaliacoes'
+    | '/admin/avaliador-dor'
     | '/admin/configuracoes'
     | '/admin/contratos'
     | '/admin/dashboard'
@@ -488,7 +488,6 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/avaliador-dor'
     | '/buscar-profissional'
     | '/cadastro-fornecedor'
     | '/cadastro-parceiro'
@@ -506,6 +505,7 @@ export interface FileRouteTypes {
     | '/vamos-construir'
     | '/admin/auditoria-emails'
     | '/admin/avaliacoes'
+    | '/admin/avaliador-dor'
     | '/admin/configuracoes'
     | '/admin/contratos'
     | '/admin/dashboard'
@@ -533,7 +533,6 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AvaliadorDorRoute: typeof AvaliadorDorRoute
   BuscarProfissionalRoute: typeof BuscarProfissionalRoute
   CadastroFornecedorRoute: typeof CadastroFornecedorRoute
   CadastroParceiroRoute: typeof CadastroParceiroRoute
@@ -551,6 +550,7 @@ export interface RootRouteChildren {
   VamosConstruirRoute: typeof VamosConstruirRoute
   AdminAuditoriaEmailsRoute: typeof AdminAuditoriaEmailsRoute
   AdminAvaliacoesRoute: typeof AdminAvaliacoesRoute
+  AdminAvaliadorDorRoute: typeof AdminAvaliadorDorRoute
   AdminConfiguracoesRoute: typeof AdminConfiguracoesRoute
   AdminContratosRoute: typeof AdminContratosRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
@@ -683,13 +683,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BuscarProfissionalRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/avaliador-dor': {
-      id: '/avaliador-dor'
-      path: '/avaliador-dor'
-      fullPath: '/avaliador-dor'
-      preLoaderRoute: typeof AvaliadorDorRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -816,6 +809,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminConfiguracoesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/avaliador-dor': {
+      id: '/admin/avaliador-dor'
+      path: '/admin/avaliador-dor'
+      fullPath: '/admin/avaliador-dor'
+      preLoaderRoute: typeof AdminAvaliadorDorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/avaliacoes': {
       id: '/admin/avaliacoes'
       path: '/admin/avaliacoes'
@@ -877,7 +877,6 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AvaliadorDorRoute: AvaliadorDorRoute,
   BuscarProfissionalRoute: BuscarProfissionalRoute,
   CadastroFornecedorRoute: CadastroFornecedorRoute,
   CadastroParceiroRoute: CadastroParceiroRoute,
@@ -895,6 +894,7 @@ const rootRouteChildren: RootRouteChildren = {
   VamosConstruirRoute: VamosConstruirRoute,
   AdminAuditoriaEmailsRoute: AdminAuditoriaEmailsRoute,
   AdminAvaliacoesRoute: AdminAvaliacoesRoute,
+  AdminAvaliadorDorRoute: AdminAvaliadorDorRoute,
   AdminConfiguracoesRoute: AdminConfiguracoesRoute,
   AdminContratosRoute: AdminContratosRoute,
   AdminDashboardRoute: AdminDashboardRoute,
