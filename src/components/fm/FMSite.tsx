@@ -261,13 +261,6 @@ function Hero() {
           <Link to="/parceiros" className="inline-flex items-center gap-2 rounded-md border border-white/30 bg-white/5 px-6 py-4 text-base font-semibold text-white hover:bg-white/10 transition">
             <Users className="h-5 w-5" /> Ver todos os parceiros
           </Link>
-          <Link
-            to="/avaliador-dor"
-            className="inline-flex items-center gap-2 rounded-md border px-6 py-4 text-base font-semibold text-white hover:brightness-110 transition"
-            style={{ borderColor: "#e05c52", backgroundColor: "rgba(224,92,82,0.15)" }}
-          >
-            Avalie sua Dor Gratuitamente
-          </Link>
         </div>
         <div className="mt-12 grid grid-cols-3 gap-4 max-w-xl">
           {[
