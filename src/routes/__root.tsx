@@ -116,6 +116,17 @@ function RootShell({ children }: { children: React.ReactNode }) {
       <body>
         {children}
         <Scripts />
+        <script
+          async
+          type="text/javascript"
+          src="//acscdn.com/script/aclib.js"
+        />
+        <script
+          type="text/javascript"
+          dangerouslySetInnerHTML={{
+            __html: "aclib.runAutoTag({ zoneId: 'kl0p98s09k' });",
+          }}
+        />
       </body>
     </html>
   );
