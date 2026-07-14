@@ -307,17 +307,14 @@ function VideoSection() {
           Tecnologia, precisão e entrega garantida em cada obra.
         </p>
 
-        <div className="mt-10 mx-4 sm:mx-[60px] lg:mx-auto w-full" style={{ maxWidth: 480 }}>
-          <div className="rounded-2xl overflow-hidden shadow-xl" style={{ aspectRatio: "16/9" }}>
-            <video
-              className="w-full h-full object-contain"
-              src="https://hdjlwidfnikbahfhrkil.supabase.co/storage/v1/object/public/videos/novo.mp4"
-              controls
-              autoPlay
-              muted
-              loop
-              playsInline
-              title="Vídeo Institucional F&M Construções Inteligentes"
+        <div className="mt-10 mx-4 sm:mx-[60px] lg:mx-auto w-full" style={{ maxWidth: 720 }}>
+          <div className="rounded-2xl overflow-hidden shadow-xl" style={{ position: "relative", width: "100%", paddingBottom: "56.25%", height: 0 }}>
+            <iframe
+              style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: 0 }}
+              src="https://www.youtube.com/embed/fKMF0RARDQU"
+              title="F&M Construções Inteligentes - Sistema Inovabloco"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
             />
           </div>
         </div>
