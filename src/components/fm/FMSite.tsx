@@ -921,6 +921,7 @@ function Footer() {
             {NAV.map((n) => (
               <li key={n.id}><a href={`#${n.id}`} className="hover:text-accent transition">{n.label}</a></li>
             ))}
+            <li><Link to="/termos-condicoes" className="hover:text-accent transition">Termos & Condições</Link></li>
           </ul>
         </div>
       </div>
